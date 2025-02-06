@@ -1,8 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { Shield, ArrowLeftRight, TrendingUp, Award } from "lucide-react"
-import Image from "next/image"
+import { Shield, ArrowLeftRight, TrendingUp } from "lucide-react"
 
 export function Features() {
     return (

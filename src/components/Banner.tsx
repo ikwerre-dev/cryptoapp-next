@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import { Linkedin, Facebook, Instagram, Twitter, Bitcoin, DollarSign } from "lucide-react"
-import { Shield, ArrowLeftRight, TrendingUp } from "lucide-react"
-
+ 
 const cryptoOptions = [
     { value: "BTC", label: "Bitcoin", icon: Bitcoin, color: "#f7931a" },
     { value: "USDT", label: "Tether", icon: DollarSign, color: "#26a17b" },
@@ -165,7 +164,7 @@ export function Banner() {
                         </div>
                     </div>
 
-                   
+
                 </div>
             </div>
         </div>
