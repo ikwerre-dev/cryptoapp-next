@@ -1,7 +1,6 @@
 import { Banner } from '@/components/Banner';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Features } from '@/components/Features';
 
 export default function Home() {
     return (
@@ -9,7 +8,6 @@ export default function Home() {
             <Header />
             <main className="flex-grow">
                 <Banner />
-                <Features />
             </main>
             <Footer />
         </div>

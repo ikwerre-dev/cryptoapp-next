@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { Linkedin, Facebook, Instagram, Twitter, Bitcoin, DollarSign } from "lucide-react"
 import { CryptoTicker } from "./CryptoTicker"
- 
+import { CryptoCards } from "./CryptoCards"
+
 const cryptoOptions = [
     { value: "BTC", label: "Bitcoin", icon: Bitcoin, color: "#f7931a" },
     { value: "USDT", label: "Tether", icon: DollarSign, color: "#26a17b" },
@@ -166,7 +167,34 @@ export function Banner() {
                     </div>
 
                 </div>
-            <CryptoTicker />
+                <CryptoTicker />
+
+                <div className="bg-black text-white pt-[5rem] pb-[5rem] relative">
+
+                    <div className="absolute top-20 right-20 w-full md:w-72 h-36 md:h-72 bg-purple-500/20 rounded-full blur-[60px] md:blur-[120px]" />
+                    <div className="  mx-auto px-4 ">
+                        <h2 className="text-[#f7931a] mb-4 text-lg md:text-xl">Exchange platform</h2>
+                        <h3 className="text-2xl md:text-4xl font-bold mb-6">Most Trusted and Secure Exchange platform</h3>
+                        <p className="text-gray-400 mb-4 text-sm md:text-base">
+                            Centralized cryptocurrency exchanges act as an intermediary between a buyer and a seller and make.
+                        </p>
+                        <p className="text-gray-400 mb-8 text-sm md:text-base">Money through commissions and transaction fees</p>
+                        <button className="relative px-6 md:px-8 py-2 group">
+                            <span className="absolute inset-0">
+                                <svg width="100%" height="100%" viewBox="0 0 200 50" fill="none">
+                                    <path d="M 0,25 H 200" stroke="#f7931a" strokeWidth="1" strokeDasharray="3 3" />
+                                    <path d="M 25,0 V 50" stroke="#f7931a" strokeWidth="1" strokeDasharray="3 3" />
+                                    <path d="M 175,0 V 50" stroke="#f7931a" strokeWidth="1" strokeDasharray="3 3" />
+                                </svg>
+                            </span>
+                            <span className="relative text-[#f7931a] group-hover:text-white z-10 px-4">Explore more</span>
+                            <span className="absolute inset-0 scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 ease-out bg-[#f7931a] rounded-sm"></span>
+                        </button>
+                    </div>
+                </div>
+
+            <CryptoCards />
+
             </div>
 
         </div>
