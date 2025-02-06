@@ -70,7 +70,7 @@ export function Banner() {
                     </button>
 
                     {/* Exchange Form */}
-                    <div className="relative overflow-hidden max-w-4xl mx-auto backdrop-blur-xl bg-[#121212]/30 md:bg-[#121212]/80 mt-[3rem] md:mt-[2rem] p-4 md:p-8 rounded-none ">
+                    <div className="relative overflow-hidden max-w-4xl mx-auto backdrop-blur-xl rounded-[1rem] bg-[#333]/10 md:bg-[#121212]/80 mt-[3rem] md:mt-[2rem] p-4 md:p-8 md:rounded-none ">
                         <div className="absolute top-40 left-50 w-80 md:w-80 h-36 md:h-72 bg-[#8B5CF6]/20 rounded-full blur-[60px] md:blur-[120px]" />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 relative gap-8 md:gap-0">
