@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { Linkedin, Facebook, Instagram, Twitter, Bitcoin, DollarSign } from "lucide-react"
-
+import { CryptoTicker } from "./CryptoTicker"
+ 
 const cryptoOptions = [
     { value: "BTC", label: "Bitcoin", icon: Bitcoin, color: "#f7931a" },
     { value: "USDT", label: "Tether", icon: DollarSign, color: "#26a17b" },
@@ -80,11 +81,11 @@ export function Banner() {
                                     <div className="flex items-center justify-between border-b border-[#fff] pb-2 mb-4">
                                         <select
                                             className="w-full bg-transparent text-white outline-none cursor-pointer"
-                                            // onChange={(e) => {
-                                                // Handle currency change
-                                                // const selected = cryptoOptions.find((opt) => opt.value === e.target.value)
-                                               
-                                            // }}
+                                        // onChange={(e) => {
+                                        // Handle currency change
+                                        // const selected = cryptoOptions.find((opt) => opt.value === e.target.value)
+
+                                        // }}
                                         >
                                             {cryptoOptions.map((option) => (
                                                 <option key={option.value} value={option.value} className="bg-[#1a1a1a]">
@@ -164,9 +165,10 @@ export function Banner() {
                         </div>
                     </div>
 
-
                 </div>
+            <CryptoTicker />
             </div>
+
         </div>
     )
 }
