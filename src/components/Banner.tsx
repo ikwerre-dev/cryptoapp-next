@@ -8,6 +8,7 @@ import { Testimonials } from "./Testimonials"
 import { Possibilities } from "./Possibilities"
 import { CryptoTable } from "./CryptoTable"
 import { WhySwissApp } from "./WhySwissApp"
+import Image from "next/image"
 
 const cryptoOptions = [
     { value: "BTC", label: "Bitcoin", icon: Bitcoin, color: "#f7931a" },
@@ -154,7 +155,7 @@ export function Banner() {
                                         </select>
                                     </div>
                                     <div className="flex items-center space-x-2">
-                                        <img src="/ethereum.svg" alt="Ethereum" className="w-5 h-5 md:w-6 md:h-6" />
+                                        <Image src="/ethereum.svg" width={5} height={5} alt="Ethereum" className="w-5 h-5 md:w-6 md:h-6" />
                                         <span className="font-bold text-sm md:text-base">ETHEREUM</span>
                                     </div>
                                 </div>
