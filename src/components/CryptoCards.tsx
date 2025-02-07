@@ -45,7 +45,7 @@ export function CryptoCards() {
             scale: 1.05, // Scale the card slightly on hover
             transition: { duration: 0.2 }
           }}
-          className="text-center backdrop-blur-sm bg-[#000]/20 p-4 md:px-6 py-[2rem] rounded-[1rem] border border-gray-800/50 relative overflow-hidden"
+          className="text-center backdrop-blur-sm bg-[#121212]/40 p-4 md:px-6 py-[2rem] rounded-[1rem] border border-gray-800/50 relative overflow-hidden"
         >
           <div className="absolute top-40 left-50 w-80 md:w-80 h-36 md:h-72 bg-[#8B5CF6]/10 rounded-full blur-[150px] md:blur-[120px]" />
 

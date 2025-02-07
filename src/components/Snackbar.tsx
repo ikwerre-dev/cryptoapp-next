@@ -1,0 +1,55 @@
+"use client";
+
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+
+interface DepositNotification {
+    country: string;
+    amount: number;
+}
+
+export function Snackbar() {
+    const [notification, setNotification] = useState<DepositNotification | null>(null);
+    const [show, setShow] = useState(false);
+
+    const countries = ["USA", "UK", "Canada", "Australia", "Germany", "France", "Japan", "China"];
+    const amounts = [100, 250, 500, 1000, 2000, 5000];
+
+    useEffect(() => {
+        const showNotification = () => {
+            const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+            const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
+            
+            setNotification({ country: randomCountry, amount: randomAmount });
+            setShow(true);
+
+            setTimeout(() => {
+                setShow(false);
+            }, 3000);
+        };
+
+        const interval = setInterval(showNotification, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <AnimatePresence>
+            {show && notification && (
+                <motion.div
+                    initial={{ opacity: 0, y: 50, x: "100%" }}
+                    animate={{ opacity: 1, y: 0, x: 0 }}
+                    exit={{ opacity: 0, y: 50, x: "100%" }}
+                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                    className="fixed bottom-0 right-0 md:bottom-4 md:right-4 bg-gradient-to-r from-[#8B5CF6] to-purple-700 
+                             text-white px-6 py-[2rem] md:py-3 md:rounded-lg shadow-lg z-50 flex items-center gap-3
+                             w-full md:w-auto"
+                >
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    <p className="text-lg font-bold md:text-sm md:font-medium">
+                        Someone in {notification.country} just deposited ${notification.amount.toLocaleString()}
+                    </p>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+}

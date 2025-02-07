@@ -1,6 +1,7 @@
 import { Banner } from '@/components/Banner';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { Snackbar } from '@/components/Snackbar';
 
 export default function Home() {
     return (
@@ -10,6 +11,7 @@ export default function Home() {
                 <Banner />
             </main>
             <Footer />
+            <Snackbar />
         </div>
     );
 }

@@ -58,7 +58,7 @@ export function Header() {
             
             {!isAuthenticated ? (
               <button className="bg-[#f7931a] text-white px-4 py-2 rounded-lg hover:bg-[#f7931a]/90 transition-colors w-full md:w-auto">
-                Connect Wallet
+              Get Started
               </button>
             ) : (
               <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">

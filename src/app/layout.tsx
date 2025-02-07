@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Nunito } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 import { LenisProvider } from "@/context/LenisProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const nunito = Nunito({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-nunito",
 });
 
 export const metadata: Metadata = {
@@ -26,10 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${nunito.variable} font-sans antialiased`}>
         <AuthProvider>
-          
-        <LenisProvider>{children}</LenisProvider>
+          <LenisProvider>{children}</LenisProvider>
         </AuthProvider>
       </body>
     </html>

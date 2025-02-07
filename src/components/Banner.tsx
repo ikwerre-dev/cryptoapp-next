@@ -4,6 +4,10 @@ import { useState } from "react"
 import { Linkedin, Facebook, Instagram, Twitter, Bitcoin, DollarSign } from "lucide-react"
 import { CryptoTicker } from "./CryptoTicker"
 import { CryptoCards } from "./CryptoCards"
+import { Testimonials } from "./Testimonials"
+import { Possibilities } from "./Possibilities"
+import { CryptoTable } from "./CryptoTable"
+import { WhySwissApp } from "./WhySwissApp"
 
 const cryptoOptions = [
     { value: "BTC", label: "Bitcoin", icon: Bitcoin, color: "#f7931a" },
@@ -15,7 +19,7 @@ export function Banner() {
     const [getAmount, setGetAmount] = useState("2.3612")
 
     return (
-        <div className="bg-[#000] text-white   relative overflow-hidden pt-[5rem] md:pt-24">
+        <div className="bg-[#030614] text-white   relative overflow-hidden pt-[5rem] md:pt-24">
             {/* Background Effects */}
             <div className="absolute top-20 right-20 w-36 md:w-72 h-36 md:h-72 bg-[#f7931a]/20 rounded-full blur-[60px] md:blur-[120px]" />
             <div className="absolute top-40 left-20 w-36 md:w-72 h-36 md:h-72 bg-purple-500/20 rounded-full blur-[60px] md:blur-[120px]" />
@@ -70,7 +74,7 @@ export function Banner() {
                     </button>
 
                     {/* Exchange Form */}
-                    <div className="relative overflow-hidden max-w-4xl mx-auto backdrop-blur-xl rounded-[1rem] bg-[#333]/10 md:bg-[#121212]/80 mt-[3rem] md:mt-[2rem] p-4 md:p-8 md:rounded-none ">
+                    <div className="relative overflow-hidden max-w-4xl mx-auto backdrop-blur-xl rounded-[1rem] bg-[#333]/30 md:bg-[#121212]/80 mt-[3rem] md:mt-[2rem] p-4 md:p-8 md:rounded-none ">
                         <div className="absolute top-40 left-50 w-80 md:w-80 h-36 md:h-72 bg-[#8B5CF6]/20 rounded-full blur-[60px] md:blur-[120px]" />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 relative gap-8 md:gap-0">
@@ -109,7 +113,7 @@ export function Banner() {
                                             const rate = 94.448
                                             setGetAmount((Number.parseFloat(e.target.value) * rate).toFixed(4))
                                         }}
-                                        className="bg-transparent text-xl md:text-2xl font-bold w-full outline-none"
+                                        className="bg-transparent  border-b pb-1 border-white/40 text-white/70  px-2 text-xl md:text-2xl font-bold w-full outline-none"
                                         placeholder="0.00"
                                         step="0.0001"
                                         min="0"
@@ -159,7 +163,7 @@ export function Banner() {
                                         type="number"
                                         value={getAmount}
                                         readOnly
-                                        className="bg-transparent text-xl md:text-2xl font-bold w-full outline-none"
+                                        className="bg-transparent text-xl    border-b pb-1 border-white/40 text-white/70 px-2  md:text-2xl font-bold w-full outline-none"
                                     />
                                 </div>
                             </div>
@@ -168,32 +172,11 @@ export function Banner() {
 
                 </div>
                 <CryptoTicker />
-
-                <div className="bg-black text-white pt-[5rem] pb-[5rem] relative">
-
-                    <div className="absolute top-20 right-20 w-full md:w-72 h-36 md:h-72 bg-purple-500/20 rounded-full blur-[60px] md:blur-[120px]" />
-                    <div className="  mx-auto px-4 ">
-                        <h2 className="text-[#f7931a] mb-4 text-lg md:text-xl">Exchange platform</h2>
-                        <h3 className="text-2xl md:text-4xl font-bold mb-6">Most Trusted and Secure Exchange platform</h3>
-                        <p className="text-gray-400 mb-4 text-sm md:text-base">
-                            Centralized cryptocurrency exchanges act as an intermediary between a buyer and a seller and make.
-                        </p>
-                        <p className="text-gray-400 mb-8 text-sm md:text-base">Money through commissions and transaction fees</p>
-                        <button className="relative px-6 md:px-8 py-2 group">
-                            <span className="absolute inset-0">
-                                <svg width="100%" height="100%" viewBox="0 0 200 50" fill="none">
-                                    <path d="M 0,25 H 200" stroke="#f7931a" strokeWidth="1" strokeDasharray="3 3" />
-                                    <path d="M 25,0 V 50" stroke="#f7931a" strokeWidth="1" strokeDasharray="3 3" />
-                                    <path d="M 175,0 V 50" stroke="#f7931a" strokeWidth="1" strokeDasharray="3 3" />
-                                </svg>
-                            </span>
-                            <span className="relative text-[#f7931a] group-hover:text-white z-10 px-4">Explore more</span>
-                            <span className="absolute inset-0 scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 ease-out bg-[#f7931a] rounded-sm"></span>
-                        </button>
-                    </div>
-                </div>
-
-            <CryptoCards />
+                <Possibilities />
+                <CryptoTable />
+                <WhySwissApp />
+                <Testimonials />
+                <CryptoCards />
 
             </div>
 
