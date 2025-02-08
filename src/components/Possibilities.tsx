@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 const features = [
   { title: "Smart contracts", href: "#" },
@@ -73,13 +74,13 @@ export function Possibilities() {
               <p className="text-gray-400 mb-8">
                 Our team has created blockchain solutions for over 400 companies, and we are still growing. From less paperwork and fewer disputes, to happier customers and entirely new business methods, a shared record of truth is invaluable.
               </p>
-              <button className="bg-white text-black px-6 py-2 rounded-full font-medium hover:bg-gray-100 transition-colors inline-flex items-center gap-2">
+              <Link href="/register" className="bg-white text-black px-6 py-2 rounded-full font-medium hover:bg-gray-100 transition-colors inline-flex items-center gap-2">
                 Get Started
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3.33337 8H12.6667" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3.33337 8H12.6667" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M8 3.33337L12.6667 8.00004L8 12.6667" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              </button>
+              </Link>
             </motion.div>
 
             <div className="absolute opacity-20 bottom-0 -right-1/3 -translate-x-1/2 translate-y-1/4">

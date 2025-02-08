@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Linkedin, Facebook, Instagram, Twitter, Bitcoin, DollarSign } from "lucide-react"
+import { Bitcoin, DollarSign, BitcoinIcon, Wallet, ChartCandlestickIcon, PiggyBank } from "lucide-react"
 import { CryptoTicker } from "./CryptoTicker"
 import { CryptoCards } from "./CryptoCards"
 import { Testimonials } from "./Testimonials"
@@ -9,6 +9,7 @@ import { Possibilities } from "./Possibilities"
 import { CryptoTable } from "./CryptoTable"
 import { WhySwissApp } from "./WhySwissApp"
 import Image from "next/image"
+import Link from "next/link"
 
 const cryptoOptions = [
     { value: "BTC", label: "Bitcoin", icon: Bitcoin, color: "#f7931a" },
@@ -39,20 +40,19 @@ export function Banner() {
                 {/* Social Links */}
                 <div className="hidden md:grid fixed left-4 md:left-8 top-1/2 -translate-y-1/2 space-y-4 md:space-y-8 z-10">
                     <a href="#" className="block text-gray-400 hover:text-white transition-colors">
-                        <Linkedin size={20} />
+                        <BitcoinIcon size={20} />
                     </a>
                     <a href="#" className="block text-gray-400 hover:text-white transition-colors">
-                        <Facebook size={20} />
+                        <Wallet size={20} />
                     </a>
                     <a href="#" className="block text-gray-400 hover:text-white transition-colors">
-                        <Instagram size={20} />
+                        <ChartCandlestickIcon size={20} />
                     </a>
                     <a href="#" className="block text-gray-400 hover:text-white transition-colors">
-                        <Twitter size={20} />
+                        <PiggyBank size={20} />
                     </a>
                 </div>
 
-                {/* Main Content */}
                 <div className="text-center mb-12 md:mb-24 relative">
 
                     <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-6">
@@ -62,7 +62,7 @@ export function Banner() {
                         <br />
                         safely
                     </h1>
-                    <button className="relative px-6 md:px-8 py-2 group">
+                    <Link href="/register" className="relative px-6 md:px-8 py-2 group">
                         <span className="absolute inset-0">
                             <svg width="100%" height="100%" viewBox="0 0 200 50" fill="none">
                                 <path d="M 0,25 H 200" stroke="#f7931a" strokeWidth="1" strokeDasharray="3 3" />
@@ -72,7 +72,7 @@ export function Banner() {
                         </span>
                         <span className="relative text-[#f7931a] group-hover:text-white z-10 px-4">Register</span>
                         <span className="absolute inset-0 scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 ease-out bg-[#f7931a] rounded-sm"></span>
-                    </button>
+                    </Link>
 
                     {/* Exchange Form */}
                     <div className="relative overflow-hidden max-w-4xl mx-auto backdrop-blur-xl rounded-[1rem] bg-[#333]/30 md:bg-[#121212]/80 mt-[3rem] md:mt-[2rem] p-4 md:p-8 md:rounded-none ">

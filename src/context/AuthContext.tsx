@@ -8,6 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -30,16 +31,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       if (!email || !password) {
         throw new Error('Email and password are required');
       }
 
       const mockToken = 'mock-jwt-token';
-      // Set cookie with expiry of 7 days
       Cookies.set('auth-token', mockToken, { expires: 7 });
       setIsAuthenticated(true);
-      
+
       console.log('Login successful, redirecting...');
       router.push('/dashboard');
     } catch (error) {
@@ -56,8 +56,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   };
 
+  const signup = async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      if (!email || !password) {
+        throw new Error('Email and password are required');
+      }
+
+      const mockToken = 'mock-jwt-token';
+      Cookies.set('auth-token', mockToken, { expires: 7 });
+      setIsAuthenticated(true);
+
+      console.log('Signup successful, redirecting...');
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Signup failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
