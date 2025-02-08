@@ -263,37 +263,39 @@ export default function DashboardPage() {
             </div>
 
             {/* Right Panel */}
-            <div className="w-full lg:w-80 border-t lg:border-l border-gray-800/50 p-4 lg:p-8">
-              <div className="mb-6 flex items-center justify-between">
-                <div className="text-lg font-medium">Assets</div>
-                <button className="text-sm text-gray-400 hover:text-gray-300">See All</button>
-              </div>
+            <div className="w-full lg:w-80 border-t lg:border-l border-gray-800/50 p-4 lg:p-5">
+              <div className="flex border-b border-gray-800/50  flex-col">
+                <div className="mb-6 flex items-center justify-between">
+                  <div className="text-lg font-medium">Assets</div>
+                  <button className="text-sm text-gray-400 hover:text-gray-300">See All</button>
+                </div>
 
-              <div className="mb-8 grid grid-cols-2 gap-3">
-                {assets.map((asset) => (
-                  <div key={asset.name} className="rounded-lg bg-[#121212] p-3 transition-colors hover:bg-[#1A1A1A]">
-                    <div className="mb-3 flex items-center gap-3">
-                      <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${asset.iconBg}`}>
-                        <span className={`text-lg ${asset.iconColor}`}>{asset.icon}</span>
+                <div className="mb-8 grid grid-cols-2 gap-3">
+                  {assets.map((asset) => (
+                    <div key={asset.name} className="rounded-lg bg-[#121212] p-3 transition-colors hover:bg-[#1A1A1A]">
+                      <div className="mb-3 flex items-center gap-3">
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${asset.iconBg}`}>
+                          <span className={`text-lg ${asset.iconColor}`}>{asset.icon}</span>
+                        </div>
+                        <span className="font-medium">{asset.name}</span>
                       </div>
-                      <span className="font-medium">{asset.name}</span>
+                      <div className="mb-1 text-lg font-bold">${asset.value.toLocaleString()}</div>
+                      <div
+                        className={`flex items-center gap-1 text-sm ${asset.change >= 0 ? "text-green-500" : "text-red-500"
+                          }`}
+                      >
+                        {asset.change >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                        {Math.abs(asset.change)}%
+                      </div>
                     </div>
-                    <div className="mb-1 text-lg font-bold">${asset.value.toLocaleString()}</div>
-                    <div
-                      className={`flex items-center gap-1 text-sm ${asset.change >= 0 ? "text-green-500" : "text-red-500"
-                        }`}
-                    >
-                      {asset.change >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                      {Math.abs(asset.change)}%
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              <div className="mb-6">
-                <div className="mb-4 text-lg font-medium">Operation</div>
+              </div>
+              <div className="my-5">
+                <div className="my-4 text-lg font-medium">Operation</div>
                 <div className="flex gap-2">
-                  <button className="flex-1 rounded-lg bg-purple-500 py-2 text-sm font-medium transition-colors hover:bg-purple-600">
+                  <button className="flex-1 rounded-lg bg-orange-500 py-2 text-sm font-medium transition-colors hover:bg-orange-600">
                     Buy
                   </button>
                   <button className="flex-1 rounded-lg bg-[#121212] py-2 text-sm font-medium transition-colors hover:bg-[#1A1A1A]">
@@ -312,11 +314,11 @@ export default function DashboardPage() {
                     <div className="flex-1">
                       <input type="text" defaultValue="321.40" className="w-full bg-transparent text-lg outline-none" />
                     </div>
-                    <button className="flex items-center gap-2 rounded-lg bg-purple-500/20 px-2 py-1 text-sm text-purple-500">
+                    <button className="flex items-center gap-2 rounded-lg bg-orange-500/20 px-2 py-1 text-sm text-orange-500">
                       UST
                       <ChevronDown className="h-4 w-4" />
                     </button>
-                    <div className="rounded bg-purple-500/20 px-2 py-1 text-xs text-purple-500">MAX</div>
+                    <div className="rounded bg-orange-500/20 px-2 py-1 text-xs text-orange-500">MAX</div>
                   </div>
                 </div>
 
@@ -336,7 +338,7 @@ export default function DashboardPage() {
 
                 <div className="mb-4 text-center text-sm text-gray-400">1 BTC = $2,345</div>
 
-                <button className="w-full rounded-lg bg-purple-500 py-3 font-medium transition-colors hover:bg-purple-600">
+                <button className="w-full rounded-lg bg-orange-500 py-3 font-medium transition-colors hover:bg-orange-600">
                   Buy Bitcoin
                 </button>
               </div>
