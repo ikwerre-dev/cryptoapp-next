@@ -46,11 +46,10 @@ export function WhySwissApp() {
                     {features.map((feature, index) => (
                         <motion.div
                             key={feature.title}
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 1,  }}
                             whileInView={{ opacity: 1, y: 0 }}
                             whileHover={{ scale: 1.02 }}
-                            transition={{ duration: 0.4, delay: index * 0.2 }}
-                            className={`backdrop-blur-xl bg-gradient-to-br from-[#121212]/60 to-[#121212]/40 
+                             className={`backdrop-blur-xl bg-gradient-to-br from-[#121212]/60 to-[#121212]/40 
                             rounded-2xl p-8 relative overflow-hidden border border-gray-800/50 hover:border-[#8B5CF6]/50 
                             shadow-lg hover:shadow-[#8B5CF6]/20 transition-all duration-300
                             ${index === 2 ? "md:col-span-2" : ""}`}

@@ -7,6 +7,7 @@ import { TopBar } from "@/components/dashboard/TopBar"
 import dynamic from "next/dynamic"
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
 import type { ApexOptions } from "apexcharts"
+import { CryptoTicker } from "@/components/CryptoTicker"
 
 const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
 
@@ -206,7 +207,7 @@ export default function DashboardPage() {
               {/* Market Overview */}
               <div className="mb-8 ">
                 <div className="flex pl-1 items-center justify-between flex-wrap">
-                  <div className="mb-4 text-base font-medium">My Portfolio</div>
+                   <div className="mb-4 text-base font-medium">My Portfolio</div>
                   <div className="mb-4 flex items-center gap-4  ">
                     <div className="flex rounded-lg bg-[#121212]  p-1">
                       {timeFilters.map((filter) => (

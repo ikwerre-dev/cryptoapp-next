@@ -13,13 +13,13 @@ export function Snackbar() {
     const [show, setShow] = useState(false);
 
     const countries = ["USA", "UK", "Canada", "Australia", "Germany", "France", "Japan", "China"];
-    const amounts = [100, 250, 500, 1000, 2000, 5000];
+
 
     useEffect(() => {
         const showNotification = () => {
             const randomCountry = countries[Math.floor(Math.random() * countries.length)];
-            const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
-            
+            const randomAmount = Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000;
+
             setNotification({ country: randomCountry, amount: randomAmount });
             setShow(true);
 
@@ -46,7 +46,7 @@ export function Snackbar() {
                 >
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                     <p className="text-lg font-bold md:text-sm md:font-medium">
-                        Someone in {notification.country} just deposited ${notification.amount.toLocaleString()}
+                        Someone in {notification.country} just deposited ${notification.amount.toLocaleString()}.00
                     </p>
                 </motion.div>
             )}
