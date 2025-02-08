@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { AuthLayout } from "@/components/AuthLayout";
-import { motion } from "framer-motion";
-import Link from "next/link";
+ import Link from "next/link";
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';

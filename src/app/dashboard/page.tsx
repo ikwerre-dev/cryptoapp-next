@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { ArrowDown, ArrowUp, BarChart2, ChevronDown, Eye, EyeOff, LineChart } from "lucide-react"
+import {  useState } from "react"
+import { ArrowDown, ArrowUp, ChevronDown, Eye, EyeOff } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
 import dynamic from "next/dynamic"
@@ -92,24 +92,13 @@ const generateChartData = (type: "price" | "candle") => {
 
 // Update the initial state
 export default function DashboardPage() {
-  const [chartType, setChartType] = useState<"price" | "candle">("candle")
+  const [chartType] = useState<"price" | "candle">("candle")
   const [selectedTimeFilter, setSelectedTimeFilter] = useState("1D")
   const [showBalance, setShowBalance] = useState(true)
-  const [chartData, setChartData] = useState(generateChartData("candle"))
+  const [chartData] = useState(generateChartData("candle"))
 
   const toggleBalance = () => setShowBalance(!showBalance)
-
-  const updateChartData = (type: "price" | "candle") => {
-    setChartType(type)
-    setChartData(generateChartData(type))
-    if (chartOptions.chart) {
-      chartOptions.chart.type = type === "price" ? "line" : "candlestick"
-    }
-    if (chartOptions.stroke) {
-      chartOptions.stroke.width = type === "price" ? 2 : 1
-    }
-  }
-
+ 
   const chartOptions: ApexOptions = {
     chart: {
       type: chartType == "price" ? "line" : "candlestick",
