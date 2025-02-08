@@ -3,7 +3,7 @@
 import { use, useState } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
-import { Copy, QrCode, ChevronDown } from "lucide-react"
+import { Copy,  ChevronDown } from "lucide-react"
 import * as Select from '@radix-ui/react-select'
 import { useRouter } from 'next/navigation'
 
@@ -38,7 +38,7 @@ export default function P2PPage({ searchParams }: { searchParams: Promise<{ symb
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">

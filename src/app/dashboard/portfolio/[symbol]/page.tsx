@@ -1,7 +1,7 @@
 "use client"
 
 import { use, useState } from "react"
-import { ArrowDown, ArrowUp, ChevronDown, Send, Repeat, Users } from "lucide-react"
+import {  ArrowUp, Send, Repeat, Users } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
 import dynamic from "next/dynamic"
@@ -75,7 +75,7 @@ export default function AssetPage({ params }: { params: Promise<{ symbol: string
     )
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A] text-white">
+        <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
             <div className="flex flex-col lg:flex-row">
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
@@ -99,7 +99,7 @@ export default function AssetPage({ params }: { params: Promise<{ symbol: string
                                     <span>2.5% (24h)</span>
                                 </div>
                             </div>
-                            <div className="md:hidden w-full lg:w-80 border-t lg:border-l border-gray-800/50 p-4 lg:p-5">
+                            <div className="md:hidden w-full lg:w-80 border-t  border-b mb-5 lg:border-l border-gray-800/50 py-4 lg:p-5">
                                 <div className="space-y-4">
                                     <ActionButton href="deposit" icon={ArrowUp} label="Deposit" primary />
                                     <ActionButton href="send" icon={Send} label="Send" />

@@ -3,8 +3,7 @@
 import { useState } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { ArrowUp, ArrowDown, Clock, Percent } from "lucide-react"
+ import { Clock, Percent } from "lucide-react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
@@ -94,7 +93,7 @@ export default function AITradingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">

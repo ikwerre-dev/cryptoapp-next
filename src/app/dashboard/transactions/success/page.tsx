@@ -1,4 +1,4 @@
-     "use client"
+"use client"
 
 import { use } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
@@ -7,8 +7,16 @@ import { CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 type TransactionType = "deposit" | "send" | "swap" | "p2p"
+interface TransactionParams {
+  symbol?: string;
+  amount?: string;
+  to?: string;
+  fromSymbol?: string;
+  toSymbol?: string;
+  toAmount?: string;
+}
 
-const getTransactionMessage = (type: TransactionType, params: any) => {
+const getTransactionMessage = (type: TransactionType, params: TransactionParams) => {
   switch (type) {
     case "deposit":
       return `Your ${params.symbol} deposit has been initiated`
@@ -22,7 +30,6 @@ const getTransactionMessage = (type: TransactionType, params: any) => {
       return "Transaction completed successfully"
   }
 }
-
 export default function SuccessPage({ searchParams }: { searchParams: Promise<{
   type: TransactionType
   symbol?: string
@@ -35,7 +42,7 @@ export default function SuccessPage({ searchParams }: { searchParams: Promise<{
   const params = use(searchParams)
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">

@@ -72,7 +72,7 @@ export default function WatchlistPage() {
   })
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">

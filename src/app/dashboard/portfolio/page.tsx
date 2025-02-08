@@ -5,8 +5,7 @@ import { ArrowDown, ArrowUp, Eye, EyeOff, Filter } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
 import Link from "next/link"
-import dynamic from "next/dynamic"
-
+ 
 
 const portfolioData = [
     {
@@ -55,25 +54,13 @@ const portfolioData = [
     },
 ]
 
-const generateChartData = () => {
-    const dates = Array.from({ length: 30 }, (_, i) => {
-        const date = new Date()
-        date.setDate(date.getDate() - (29 - i))
-        return date.getTime()
-    })
-
-    return dates.map(date => ({
-        x: date,
-        y: Math.floor(Math.random() * 50000) + 150000
-    }))
-}
-
+ 
 export default function PortfolioPage() {
     const [showBalance, setShowBalance] = useState(true)
 
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A] text-white">
+        <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
             <div className="flex flex-col lg:flex-row">
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
@@ -95,8 +82,7 @@ export default function PortfolioPage() {
                                         <span>2.5% ($3,842.25)</span>
                                     </div>
 
-                                    {/* Quick Action Buttons - Mobile Only */}
-                                    <div className="flex gap-2 mt-4 lg:hidden">
+                                     <div className="flex gap-2 mt-4 lg:hidden">
                                         <button className="flex-1 rounded-lg bg-orange-500 py-2 text-sm font-medium">
                                             Send
                                         </button>
@@ -108,7 +94,7 @@ export default function PortfolioPage() {
                                         </button>
                                     </div>
                                 </div>
-                                <div className="flex flex-col items-center justify-center">
+                                <div className="flex flex-col items-center py-[1rem] md:py-0 justify-center">
                                     <button className="rounded-full bg-white/20 p-3 hover:bg-gray-700/50" onClick={() => setShowBalance(!showBalance)}>
                                         {showBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>

@@ -6,17 +6,18 @@ import {
     LayoutDashboard,
     BarChart2,
     Eye,
-    GraduationCap,
     UserCircle,
     Wallet,
     LogOut,
     X,
     ChartCandlestickIcon,
-    Coins
+    Coins,
+    Home
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useSidebar } from '@/context/SidebarContext';
 import Logo from '../ui/Logo';
+import { Menu } from 'lucide-react';
 
 export function Sidebar() {
     const { isOpen, toggle } = useSidebar();
@@ -35,6 +36,13 @@ export function Sidebar() {
         { icon: UserCircle, label: 'Profile', href: '/dashboard/profile' }
 
     ];
+    const mobileMenuItems = [
+        { icon: Home, label: 'Home', href: '/dashboard' },
+        { icon: BarChart2, label: 'Portfolio', href: '/dashboard/portfolio' },
+        { icon: Coins, label: 'Invest', href: '/dashboard/invest' },
+        { icon: UserCircle, label: 'Deposit', href: '/dashboard/transactions/deposit' },
+    ];
+
     return (
         <>
             <div className={`
@@ -82,6 +90,33 @@ export function Sidebar() {
                     <LogOut size={20} />
                     <span>Logout</span>
                 </button>
+            </div>
+
+            {/* Mobile Bottom Navigation */}
+            <div className="fixed bottom-0 left-0 right-0 bg-[#121212] border-t border-gray-800 lg:hidden z-40">
+                <div className="flex items-center justify-around h-16">
+                    <button
+                        onClick={toggle}
+                        className="p-2 text-gray-400 hover:text-white flex flex-col items-center justify-center p-2 text-xs"
+                    >
+                        <Menu size={24} />
+                        <span className="mt-1">Menu</span>
+
+                    </button>
+                    {mobileMenuItems.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={`flex flex-col items-center justify-center p-2 text-xs
+                                ${pathname === item.href 
+                                    ? 'text-orange-500'
+                                    : 'text-gray-400 hover:text-white'}`}
+                        >
+                            <item.icon size={20} />
+                            <span className="mt-1">{item.label}</span>
+                        </Link>
+                    ))}
+                </div>
             </div>
         </>
     );

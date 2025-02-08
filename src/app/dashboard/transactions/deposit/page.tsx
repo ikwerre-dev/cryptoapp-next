@@ -33,7 +33,7 @@ export default function DepositPage({ searchParams }: { searchParams: Promise<{ 
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">
@@ -41,7 +41,7 @@ export default function DepositPage({ searchParams }: { searchParams: Promise<{ 
           <div className="p-4 lg:p-8 max-w-2xl mx-auto">
             <div className="bg-[#121212] rounded-[1rem] p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Deposit {selectedCrypto.name}</h2>
+                <h2 className="text-lg font-bold">Deposit {selectedCrypto.name}</h2>
                 <Select.Root value={selectedCrypto.symbol} onValueChange={(value) => {
                   const crypto = cryptoOptions.find(c => c.symbol === value)
                   if (crypto) setSelectedCrypto(crypto)
