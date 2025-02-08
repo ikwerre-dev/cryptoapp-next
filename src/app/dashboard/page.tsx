@@ -7,8 +7,7 @@ import { TopBar } from "@/components/dashboard/TopBar"
 import dynamic from "next/dynamic"
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
 import type { ApexOptions } from "apexcharts"
-import { CryptoTicker } from "@/components/CryptoTicker"
-
+ 
 const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
 
 const assets = [
