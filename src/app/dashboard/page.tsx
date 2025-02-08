@@ -1,6 +1,6 @@
 "use client"
 
-import {  useState } from "react"
+import { useState, useEffect } from "react"
 import { ArrowDown, ArrowUp, ChevronDown, Eye, EyeOff } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
@@ -8,7 +8,7 @@ import dynamic from "next/dynamic"
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
 import type { ApexOptions } from "apexcharts"
 
-const timeFilters = ["1D", "7D", "1M", "3M", "ALL"]
+const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
 
 const assets = [
   {
@@ -74,11 +74,10 @@ const transactions = [
     isPositive: true,
   },
 ]
-
-const generateChartData = (type: "price" | "candle") => {
+const generateChartData = (type: "price" | "candle", dataLength = 15) => {
   const now = new Date()
-  return Array.from({ length: 15 }, (_, i) => {
-    const date = new Date(now.getTime() - (length - i) * 24 * 60 * 60 * 1000)
+  return Array.from({ length: dataLength }, (_, i) => {
+    const date = new Date(now.getTime() - (dataLength - i) * 1000) // 1 second intervals
     const open = Number((Math.random() * 1000 + 20000).toFixed(0))
     const high = Number((open + Math.random() * 500).toFixed(0))
     const low = Number((open - Math.random() * 500).toFixed(0))
@@ -90,15 +89,38 @@ const generateChartData = (type: "price" | "candle") => {
   })
 }
 
+const generateNewDataPoint = () => {
+  const now = new Date().getTime()
+  const open = Number((Math.random() * 1000 + 20000).toFixed(0))
+  const high = Number((open + Math.random() * 500).toFixed(0))
+  const low = Number((open - Math.random() * 500).toFixed(0))
+  const close = Number((low + Math.random() * (high - low)).toFixed(0))
+  return {
+    x: now,
+    y: [open, high, low, close],
+  }
+}
+
 // Update the initial state
 export default function DashboardPage() {
   const [chartType] = useState<"price" | "candle">("candle")
-  const [selectedTimeFilter, setSelectedTimeFilter] = useState("1D")
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState("1M")
   const [showBalance, setShowBalance] = useState(true)
-  const [chartData] = useState(generateChartData("candle"))
+  const [chartData, setChartData] = useState(generateChartData("candle", 60))
 
   const toggleBalance = () => setShowBalance(!showBalance)
- 
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setChartData((prevData) => {
+        const newPoint = generateNewDataPoint()
+        return [...prevData.slice(1), newPoint]
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   const chartOptions: ApexOptions = {
     chart: {
       type: chartType == "price" ? "line" : "candlestick",
@@ -115,6 +137,12 @@ export default function DashboardPage() {
       labels: {
         style: {
           colors: "#fff",
+        },
+        datetimeFormatter: {
+          year: "yyyy",
+          month: "MMM 'yy",
+          day: "dd MMM",
+          hour: "HH:mm",
         },
       },
     },
@@ -166,7 +194,6 @@ export default function DashboardPage() {
                     <div className="text-4xl font-bold tracking-tight">
                       {showBalance ? "$ 345,045.31" : "$ ••••••••••"}
                     </div>
-
                   </div>
                   <div className="text-sm text-gray-400">≈ 13.4578 BTC</div>
                 </div>
@@ -180,17 +207,29 @@ export default function DashboardPage() {
               {/* Market Overview */}
               <div className="mb-8 ">
                 <div className="flex pl-1 items-center justify-between flex-wrap">
-
                   <div className="mb-4 text-base font-medium">My Portfolio</div>
                   <div className="mb-4 flex items-center gap-4  ">
-
                     <div className="flex rounded-lg bg-[#121212]  p-1">
                       {timeFilters.map((filter) => (
                         <button
                           key={filter}
-                          onClick={() => setSelectedTimeFilter(filter)}
-                          className={`rounded px-3 py-1.5 text-sm ${selectedTimeFilter === filter ? "bg-purple-500" : "hover:bg-gray-800"
-                            }`}
+                          onClick={() => {
+                            setSelectedTimeFilter(filter)
+                            const dataLength =
+                              filter === "1M"
+                                ? 20
+                                : filter === "5M"
+                                  ? 45
+                                  : filter === "15M"
+                                    ? 80
+                                    : filter === "30M"
+                                      ? 120
+                                      : 200
+                            setChartData(generateChartData(chartType, dataLength))
+                          }}
+                          className={`rounded px-3 py-1.5 text-sm ${
+                            selectedTimeFilter === filter ? "bg-purple-500" : "hover:bg-gray-800"
+                          }`}
                         >
                           {filter}
                         </button>
@@ -202,7 +241,18 @@ export default function DashboardPage() {
                 {/* Chart */}
                 <div className="relative  w-full  rounded-[1rem] bg-[#121212] p-4">
                   <Chart
-                    options={chartOptions}
+                    options={{
+                      ...chartOptions,
+                      chart: {
+                        ...chartOptions.chart,
+                        animations: {
+                          enabled: true,
+                           dynamicAnimation: {
+                            speed: 1000,
+                          },
+                        },
+                      },
+                    }}
                     series={[{ data: chartData }]}
                     type={chartType === "price" ? "line" : "candlestick"}
                     height={300}
@@ -240,8 +290,9 @@ export default function DashboardPage() {
                         <div className="text-sm text-gray-400">{tx.value}</div>
                       </div>
                       <div
-                        className={`hidden md:flex rounded-full px-3 py-1 text-sm ${tx.status === "Completed" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"
-                          }`}
+                        className={`hidden md:flex rounded-full px-3 py-1 text-sm ${
+                          tx.status === "Completed" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"
+                        }`}
                       >
                         {tx.status}
                       </div>
@@ -270,8 +321,9 @@ export default function DashboardPage() {
                       </div>
                       <div className="mb-1 text-lg font-bold">${asset.value.toLocaleString()}</div>
                       <div
-                        className={`flex items-center gap-1 text-sm ${asset.change >= 0 ? "text-green-500" : "text-red-500"
-                          }`}
+                        className={`flex items-center gap-1 text-sm ${
+                          asset.change >= 0 ? "text-green-500" : "text-red-500"
+                        }`}
                       >
                         {asset.change >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
                         {Math.abs(asset.change)}%
@@ -279,7 +331,6 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
-
               </div>
               <div className="my-5">
                 <div className="my-4 text-lg font-medium">Operation</div>
