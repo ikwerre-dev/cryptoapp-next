@@ -16,7 +16,7 @@ const trades = [
     { time: "01:20 PM", type: "SELL", price: "46,123.40", amount: "0.06 BTC", profit: "+1.8%" },
 ]
 
-export default function BotDetailsPage({ params }: { params: { botId: string } }) {
+export default function BotDetailsPage({ params }: { params: Promise<{ botId: string }> }) {
     console.log(params)
     const router = useRouter()
     const [showConfirmClose, setShowConfirmClose] = useState(false)
