@@ -2,15 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-    LayoutDashboard, 
-    BarChart2, 
-    Eye, 
-    GraduationCap, 
-    UserCircle, 
-    Wallet, 
+import {
+    LayoutDashboard,
+    BarChart2,
+    Eye,
+    GraduationCap,
+    UserCircle,
+    Wallet,
     LogOut,
-    X 
+    X,
+    ChartCandlestickIcon,
+    Coins
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useSidebar } from '@/context/SidebarContext';
@@ -20,17 +22,19 @@ export function Sidebar() {
     const { isOpen, toggle } = useSidebar();
     const pathname = usePathname();
     const { logout } = useAuth();
-
     const menuItems = [
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
         { icon: BarChart2, label: 'Portfolio', href: '/dashboard/portfolio' },
-        { icon: Eye, label: 'Trading', href: '/dashboard/trading' },
+        { icon: ChartCandlestickIcon, label: 'AI Trading', href: '/dashboard/Aitrading' },
+        { icon: Coins, label: 'Invest', href: '/dashboard/invest' },
+        { icon: Wallet, label: 'Send', href: '/dashboard/transactions/send' },
+        { icon: Wallet, label: 'Deposit', href: '/dashboard/transactions/deposit' },
+        { icon: Wallet, label: 'P2P', href: '/dashboard/transactions/p2p' },
+        { icon: Wallet, label: 'Swap', href: '/dashboard/transactions/swap' },
         { icon: Eye, label: 'Watchlist', href: '/dashboard/watchlist' },
-        { icon: GraduationCap, label: 'Academy', href: '/dashboard/academy' },
-        { icon: UserCircle, label: 'Profile', href: '/dashboard/profile' },
-        { icon: Wallet, label: 'Wallet', href: '/dashboard/wallet' },
-    ];
+        { icon: UserCircle, label: 'Profile', href: '/dashboard/profile' }
 
+    ];
     return (
         <>
             <div className={`
@@ -44,7 +48,7 @@ export function Sidebar() {
             `}>
                 <div className="flex items-center justify-between mb-8">
                     <Logo />
-                    <button 
+                    <button
                         onClick={toggle}
                         className="lg:hidden p-2 text-gray-400 hover:text-white"
                     >
@@ -60,8 +64,10 @@ export function Sidebar() {
                             onClick={toggle}
                             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
                                 ${pathname === item.href 
-                                    ? 'bg-white/10 text-white' 
-                                    : 'text-gray-400 hover:bg-white/5'}`}
+                                    ? 'bg-white/10 text-white'
+                                    : item.href !== '/dashboard' && pathname?.startsWith(item.href)
+                                        ? 'bg-white/10 text-white'
+                                        : 'text-gray-400 hover:bg-white/5'}`}
                         >
                             <item.icon size={20} />
                             <span>{item.label}</span>
