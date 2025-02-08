@@ -106,7 +106,7 @@ export default function DashboardPage() {
   const [chartType] = useState<"price" | "candle">("candle")
   const [selectedTimeFilter, setSelectedTimeFilter] = useState("1M")
   const [showBalance, setShowBalance] = useState(true)
-  const [chartData, setChartData] = useState(generateChartData("candle", 60))
+  const [chartData, setChartData] = useState(generateChartData("candle", 15))
 
   const toggleBalance = () => setShowBalance(!showBalance)
 
@@ -217,7 +217,7 @@ export default function DashboardPage() {
                             setSelectedTimeFilter(filter)
                             const dataLength =
                               filter === "1M"
-                                ? 20
+                                ? 15
                                 : filter === "5M"
                                   ? 45
                                   : filter === "15M"
