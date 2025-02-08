@@ -111,7 +111,7 @@ export default function DashboardPage() {
   const toggleBalance = () => setShowBalance(!showBalance)
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval(() => { 
       setChartData((prevData) => {
         const newPoint = generateNewDataPoint()
         return [...prevData.slice(1), newPoint]
