@@ -92,7 +92,7 @@ export default function SwapPage({ searchParams }: { searchParams: Promise<{ sym
                     fromCurrency: fromCrypto.symbol,
                     toCurrency: toCrypto.symbol,
                     toAmount: (finalAmount / toCrypto.priceUsd).toFixed(8),
-                    fee: (fee / toCrypto.priceUsd).toFixed(8),
+                    fee: (fee),
                     usdAmount: amount
                 }),
             })

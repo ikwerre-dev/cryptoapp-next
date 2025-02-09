@@ -12,6 +12,7 @@ import { useCryptoData } from "@/hooks/useCryptoData"
 import { Button } from "@/components/ui/Button"
 import Link from "next/link"
 import { Coins, Wallet } from 'lucide-react';
+import { TransactionList } from "@/components/dashboard/TransactionList"
 
 
 
@@ -59,59 +60,8 @@ export default function DashboardPage() {
               <div>
 
                 <div className="space-y-2">
-                  {userData?.transactions?.map((tx, index) => (
-                    <div key={index} className="flex items-center justify-between rounded-lg bg-[#121212] p-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`rounded-lg ${tx.status == "completed" ? "bg-green-500/20" : tx.status == "pending" ? "bg-orange-500/20" : "bg-red-500/20"} p-2`}>
-                          {tx.status == "completed" ? (
-                            <ArrowUp className="h-5 w-5 text-green-500" />
-                          ) : tx.status == "pending" ? (
-                            <ArrowDown className="h-5 w-5 text-orange-500" />
-                          ) :
-                            (
-                              <ArrowDown className="h-5 w-5 text-red-500" />
-                            )
-                          }
-                        </div>
-                        <div>
-                          <div className="font-medium">{tx.type}</div>
-                          <div className="text-sm text-gray-400">
-                            {(() => {
-                              const date = new Date(tx.created_at);
-                              const day = date.getDate();
-                              const suffix = (day: number) => {
-                                if (day > 3 && day < 21) return 'th';
-                                switch (day % 10) {
-                                  case 1: return 'st';
-                                  case 2: return 'nd';
-                                  case 3: return 'rd';
-                                  default: return 'th';
-                                }
-                              };
-                              return date.toLocaleDateString('en-GB', {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric'
-                              }).replace(/\d+/, day + suffix(day));
-                            })()}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-right flex flex-col ">
-                        <div className={`${tx.status === "completed" ? "text-green-500" : tx.status === "pending" ? "text-orange-500" : "text-red-500"}`}>
-                          {Number(tx.amount) == 0 ? '' : '$' + Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
-                        <div className="flex flex-col justify-end items-end">
-                          <div
-                            className={` md:flex rounded-full text-end px-3 py-1 text-xs ${tx.status == "completed" ? "bg-green-500/20" : tx.status == "pending" ? "bg-orange-500/20" : "bg-red-500/20"}`}
-                          >
-                            {tx.status}
-                          </div>
-                        </div>
-                      </div>
+                  <TransactionList transactions={userData?.transactions || []} />
 
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
