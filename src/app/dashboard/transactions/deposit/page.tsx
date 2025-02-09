@@ -86,8 +86,12 @@ export default function DepositPage({ searchParams }: { searchParams: Promise<{ 
         }
     }
 
+      // Add isSubmitting state
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleConfirmDeposit = async () => {
         try {
+            setIsSubmitting(true);
             const token = Cookies.get("auth-token")
             const response = await fetch('/api/transactions/deposit', {
                 method: 'POST',
@@ -111,19 +115,21 @@ export default function DepositPage({ searchParams }: { searchParams: Promise<{ 
             router.push(`/dashboard/transactions/success?type=deposit&symbol=${selectedCrypto?.symbol}`);
         } catch (error) {
             console.error('Deposit creation failed:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     }
-
-    if (isLoading || !selectedCrypto) {
-        return <div>Loading...</div>
-    }
-
+ 
+   
     return (
         <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
             <div className="flex flex-col lg:flex-row">
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
                     <TopBar title="Deposit" />
+                    {isLoading || !selectedCrypto ? (
+                    <div>Loading...</div>
+                ) : (
                     <div className="p-4 lg:p-8 max-w-6xl mx-auto">
                         <div className="bg-[#121212] rounded-[1rem] p-6">
                             <div className="flex items-center justify-between mb-6">
@@ -192,13 +198,15 @@ export default function DepositPage({ searchParams }: { searchParams: Promise<{ 
 
                                 <button
                                     onClick={handleConfirmDeposit}
+                                    disabled={isSubmitting}
                                     className="w-full bg-orange-500 hover:bg-orange-600 py-3 rounded-lg font-medium transition-colors mt-6"
                                 >
-                                    I Have Sent {selectedCrypto.symbol}
+                                    {isSubmitting ? "Processing..." : `I Have Sent ${selectedCrypto?.symbol}`}
                                 </button>
                             </div>
                         </div>
                     </div>
+                )}
                 </div>
             </div>
         </div>

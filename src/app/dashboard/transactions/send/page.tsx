@@ -27,7 +27,7 @@ export default function SendPage({ searchParams }: { searchParams: Promise<{ sym
         if (!userData?.user || !cryptoData) return []
 
         return Object.entries(userData.user)
-        
+
             .filter(([key]) => key.endsWith("_balance"))
             .map(([key, balance]) => {
                 const symbol = key.replace("_balance", "").toUpperCase()
@@ -131,9 +131,7 @@ export default function SendPage({ searchParams }: { searchParams: Promise<{ sym
         }
     }
 
-    if (isLoading) {
-        return <div>Loading...</div>
-    }
+
 
     return (
         <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
@@ -141,124 +139,128 @@ export default function SendPage({ searchParams }: { searchParams: Promise<{ sym
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
                     <TopBar title="Send" notices={userData?.notices} />
-                    <div className="p-4 lg:p-8 max-w-6xl mx-auto">
-                        <div className="bg-[#121212] rounded-[1rem] p-6">
-                            {error && (
-                                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500">{error}</div>
-                            )}
+                    {isLoading ? (
+                        <div>Loading...</div>
+                    ) : (
+                        <div className="p-4 lg:p-8 max-w-6xl mx-auto">
+                            <div className="bg-[#121212] rounded-[1rem] p-6">
+                                {error && (
+                                    <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500">{error}</div>
+                                )}
 
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-bold">Send {selectedCrypto?.name}</h2>
-                                <Select.Root
-                                    value={selectedCrypto?.symbol}
-                                    onValueChange={(value) => {
-                                        const crypto = availableCoins.find((c) => c.symbol === value)
-                                        if (crypto) setSelectedCrypto(crypto)
-                                    }}
-                                >
-                                    <Select.Trigger className="flex items-center gap-2 bg-[#1A1A1A] px-3 py-2 rounded-lg">
-                                        <Select.Value />
-                                        <Select.Icon>
-                                            <ChevronDown className="h-4 w-4" />
-                                        </Select.Icon>
-                                    </Select.Trigger>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-2xl font-bold">Send {selectedCrypto?.name}</h2>
+                                    <Select.Root
+                                        value={selectedCrypto?.symbol}
+                                        onValueChange={(value) => {
+                                            const crypto = availableCoins.find((c) => c.symbol === value)
+                                            if (crypto) setSelectedCrypto(crypto)
+                                        }}
+                                    >
+                                        <Select.Trigger className="flex items-center gap-2 bg-[#1A1A1A] px-3 py-2 rounded-lg">
+                                            <Select.Value />
+                                            <Select.Icon>
+                                                <ChevronDown className="h-4 w-4" />
+                                            </Select.Icon>
+                                        </Select.Trigger>
 
-                                    <Select.Portal>
-                                        <Select.Content className="bg-[#1A1A1A] rounded-lg p-1 shadow-xl">
-                                            <Select.Viewport>
-                                                {availableCoins.map((crypto) => (
-                                                    <Select.Item
-                                                        key={crypto.symbol}
-                                                        value={crypto.symbol}
-                                                        className="flex items-center px-3 py-2 hover:bg-[#242424] rounded cursor-pointer"
-                                                    >
-                                                        <Select.ItemText>
-                                                            {crypto.symbol} ($
-                                                            {(crypto.balance).toLocaleString("en-US", {
-                                                                minimumFractionDigits: 2,
-                                                                maximumFractionDigits: 2,
-                                                            })}
-                                                            )
-                                                        </Select.ItemText>
-                                                    </Select.Item>
-                                                ))}
-                                            </Select.Viewport>
-                                        </Select.Content>
-                                    </Select.Portal>
-                                </Select.Root>
-                            </div>
+                                        <Select.Portal>
+                                            <Select.Content className="bg-[#1A1A1A] rounded-lg p-1 shadow-xl">
+                                                <Select.Viewport>
+                                                    {availableCoins.map((crypto) => (
+                                                        <Select.Item
+                                                            key={crypto.symbol}
+                                                            value={crypto.symbol}
+                                                            className="flex items-center px-3 py-2 hover:bg-[#242424] rounded cursor-pointer"
+                                                        >
+                                                            <Select.ItemText>
+                                                                {crypto.symbol} ($
+                                                                {(crypto.balance).toLocaleString("en-US", {
+                                                                    minimumFractionDigits: 2,
+                                                                    maximumFractionDigits: 2,
+                                                                })}
+                                                                )
+                                                            </Select.ItemText>
+                                                        </Select.Item>
+                                                    ))}
+                                                </Select.Viewport>
+                                            </Select.Content>
+                                        </Select.Portal>
+                                    </Select.Root>
+                                </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <label className="text-sm text-gray-400">Amount</label>
-                                        <div className="flex items-center gap-2 bg-[#1A1A1A] rounded-lg p-1">
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsUSD(false)}
-                                                className={`px-3 py-1 rounded text-sm ${!isUSD ? "bg-orange-500" : "hover:bg-[#242424]"}`}
-                                            >
-                                                {selectedCrypto?.symbol}
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setIsUSD(true)}
-                                                className={`px-3 py-1 rounded text-sm ${isUSD ? "bg-orange-500" : "hover:bg-[#242424]"}`}
-                                            >
-                                                USD
-                                            </button>
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-sm text-gray-400">Amount</label>
+                                            <div className="flex items-center gap-2 bg-[#1A1A1A] rounded-lg p-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsUSD(false)}
+                                                    className={`px-3 py-1 rounded text-sm ${!isUSD ? "bg-orange-500" : "hover:bg-[#242424]"}`}
+                                                >
+                                                    {selectedCrypto?.symbol}
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsUSD(true)}
+                                                    className={`px-3 py-1 rounded text-sm ${isUSD ? "bg-orange-500" : "hover:bg-[#242424]"}`}
+                                                >
+                                                    USD
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                value={amount}
+                                                onChange={(e) => setAmount(e.target.value)}
+                                                className="mt-2 w-full bg-[#1A1A1A] rounded-lg p-3 text-white"
+                                                placeholder="0.00"
+                                                required
+                                            />
+                                            {conversionDisplay}
                                         </div>
                                     </div>
-                                    <div className="relative">
+
+                                    <div>
+                                        <label className="text-sm text-gray-400">Recipient Address</label>
                                         <input
-                                            type="number"
-                                            value={amount}
-                                            onChange={(e) => setAmount(e.target.value)}
+                                            type="text"
+                                            value={address}
+                                            onChange={(e) => setAddress(e.target.value)}
                                             className="mt-2 w-full bg-[#1A1A1A] rounded-lg p-3 text-white"
-                                            placeholder="0.00"
+                                            placeholder={`Enter ${selectedCrypto?.symbol} address`}
                                             required
                                         />
-                                        {conversionDisplay}
                                     </div>
-                                </div>
 
-                                <div>
-                                    <label className="text-sm text-gray-400">Recipient Address</label>
-                                    <input
-                                        type="text"
-                                        value={address}
-                                        onChange={(e) => setAddress(e.target.value)}
-                                        className="mt-2 w-full bg-[#1A1A1A] rounded-lg p-3 text-white"
-                                        placeholder={`Enter ${selectedCrypto?.symbol} address`}
-                                        required
-                                    />
-                                </div>
+                                    <div className="bg-[#1A1A1A] p-4 rounded-lg space-y-3">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-400">Gas Fee</span>
+                                            <span>{Number(gasPrice.split(' ')[0]).toFixed(6)} {selectedCrypto?.symbol}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-400">Total</span>
+                                            <span>{total}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-400">Total USD</span>
+                                            <span>${totalUsd}</span>
+                                        </div>
+                                    </div>
 
-                                <div className="bg-[#1A1A1A] p-4 rounded-lg space-y-3">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-400">Gas Fee</span>
-                                        <span>{Number(gasPrice.split(' ')[0]).toFixed(6)} {selectedCrypto?.symbol}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-400">Total</span>
-                                        <span>{total}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-gray-400">Total USD</span>
-                                        <span>${totalUsd}</span>
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full bg-orange-500 hover:bg-orange-600 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
-                                >
-                                    {isSubmitting ? "Processing..." : `Send ${selectedCrypto?.symbol}`}
-                                </button>
-                            </form>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="w-full bg-orange-500 hover:bg-orange-600 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+                                    >
+                                        {isSubmitting ? "Processing..." : `Send ${selectedCrypto?.symbol}`}
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -7,14 +7,14 @@ export async function POST(req: Request) {
     try {
         const headersList = headers();
         const authHeader = (await headersList).get('authorization');
-        
+
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const token = authHeader.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
-        const { currency, address } = await req.json();
+        const { currency, address, amount } = await req.json();
 
         const connection = await pool.getConnection();
         await connection.beginTransaction();
@@ -23,17 +23,18 @@ export async function POST(req: Request) {
             // Create pending transaction record
             const [result]: any = await connection.query(
                 `INSERT INTO transactions 
-                (user_id, type, currency, status, to_address, description) 
-                VALUES (?, 'deposit', ?, 'pending', ?, ?)`,
+                (user_id, type, currency, status, amount, to_address, description) 
+                VALUES (?, 'deposit', ?, 'pending', ?, ?, ?)`,
                 [
                     decoded.userId,
                     currency,
+                    amount,
                     address,
                     `${currency} deposit to wallet`
                 ]
             );
 
-            // Create notice for pending deposit
+
             await connection.query(
                 `INSERT INTO account_notices 
                 (user_id, type, title, message) 
@@ -44,6 +45,7 @@ export async function POST(req: Request) {
                     `Your ${currency} deposit is pending and awaiting confirmation`
                 ]
             );
+
 
             await connection.commit();
 

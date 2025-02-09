@@ -24,7 +24,7 @@ const getTransactionMessage = (type: TransactionType, params: TransactionParams)
     case "send":
       return `Successfully sent $${params.amount} in ${params.symbol} to ${params.to}`
     case "swap":
-      return `Successfully swapped ${params.amount} ${params.fromSymbol} for ${params.toAmount} ${params.toSymbol}`
+      return `Successfully swapped $ ${params.amount} from ${params.fromSymbol} to ${params.toSymbol}`
     case "p2p":
       return `P2P transfer of ${params.amount} ${params.symbol} to ${params.to} completed`
     default:

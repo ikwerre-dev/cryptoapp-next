@@ -1,216 +1,264 @@
 "use client"
 
-import { use, useState } from "react"
+import { use, useEffect, useMemo, useState } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
-import { ArrowDownUp, ChevronDown } from "lucide-react"
-import * as Select from '@radix-ui/react-select'
-import { useRouter } from 'next/navigation'
-
-const coins = [
-  { symbol: "BTC", name: "Bitcoin", icon: "₿", price: 45678.90 },
-  { symbol: "ETH", name: "Ethereum", icon: "Ξ", price: 2345.67 },
-  { symbol: "SOL", name: "Solana", icon: "◎", price: 98.76 },
-]
+import { ChevronDown, ArrowDownUp } from "lucide-react"
+import * as Select from "@radix-ui/react-select"
+import { useRouter } from "next/navigation"
+import Cookies from "js-cookie"
+import { useUserData } from "@/hooks/useUserData"
+import { useCryptoData } from "@/hooks/useCryptoData"
+import { getCryptoName } from "@/lib/getCryptoName"
 
 export default function SwapPage({ searchParams }: { searchParams: Promise<{ symbol: string }> }) {
-  const router = useRouter()
-  const resolvedParams = use(searchParams)
-  const [fromAmount, setFromAmount] = useState("")
-  const [toAmount, setToAmount] = useState("")
-  const [isFromUSD, setIsFromUSD] = useState(false)
-  const [isToUSD, setIsToUSD] = useState(false)
-  const [fromCoin, setFromCoin] = useState(
-    coins.find(c => c.symbol === resolvedParams.symbol) || coins[0]
-  )
-  const [toCoin, setToCoin] = useState(coins[1])
+    const router = useRouter()
+    const { userData, isLoading, refetch } = useUserData()
+    const { cryptoData } = useCryptoData()
+    const resolvedParams = use(searchParams)
+    const [amount, setAmount] = useState("")
+    const [error, setError] = useState("")
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSwitch = () => {
-    const tempCoin = fromCoin
-    setFromCoin(toCoin)
-    setToCoin(tempCoin)
-    setFromAmount(toAmount)
-    setToAmount(fromAmount)
-  }
+    const availableCoins = useMemo(() => {
+        if (!userData?.user || !cryptoData) return []
 
-  const calculateToAmount = (amount: string, isUSD: boolean) => {
-    if (!amount) return ""
-    const fromValue = isUSD ? Number(amount) / fromCoin.price : Number(amount)
-    const toValue = isToUSD ? fromValue * fromCoin.price / toCoin.price : fromValue * fromCoin.price / toCoin.price
-    return toValue.toFixed(isToUSD ? 2 : 8)
-  }
+        return Object.entries(userData.user)
+            .filter(([key]) => key.endsWith("_balance"))
+            .map(([key, balance]) => {
+                const symbol = key.replace("_balance", "").toUpperCase()
+                const cryptosymbol = getCryptoName(symbol, "lowercase-hyphen")
+                const priceUsd = cryptoData[cryptosymbol]?.priceUsd || 0
+                const name = cryptoData[symbol.toLowerCase()]?.name || symbol
+                return {
+                    symbol,
+                    name,
+                    balance: Number(balance || 0),
+                    priceUsd: Number(priceUsd),
+                }
+            })
+    }, [userData, cryptoData])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    router.push(`/dashboard/transactions/success?amount=${fromAmount}&fromSymbol=${fromCoin.symbol}&toSymbol=${toCoin.symbol}&toAmount=${toAmount}&type=swap`)
-  }
+    const [fromCrypto, setFromCrypto] = useState(
+        availableCoins.find((c) => c.symbol === resolvedParams.symbol) || availableCoins[0]
+    )
+    const [toCrypto, setToCrypto] = useState(availableCoins[1])
 
-interface Coin {
-  symbol: string;
-  name: string;
-  icon: string;
-  price: number;
-}
+    useEffect(() => {
+        if (availableCoins.length > 0) {
+            setFromCrypto(availableCoins.find((c) => c.symbol === resolvedParams.symbol) || availableCoins[0])
+            setToCrypto(availableCoins[1])
+        }
+    }, [availableCoins, resolvedParams.symbol])
 
-interface TokenSelectProps {
-  value: Coin;
-  onChange: (coin: Coin) => void;
-  coins: Coin[];
-}
+    const usdAmount = Number(amount)
+    const fee = usdAmount * 0.001 // 0.1% fee
+    const finalAmount = usdAmount - fee
 
-const TokenSelect = ({ value, onChange, coins }: TokenSelectProps) => (
-  <Select.Root value={value.symbol} onValueChange={(symbol: string) => {
-    const coin = coins.find(c => c.symbol === symbol)
-    if (coin) onChange(coin)
-  }}>
-      <Select.Trigger className="flex items-center gap-2 bg-[#121212] px-3 py-2 rounded-lg">
-        <span className="text-lg">{value.icon}</span>
-        <Select.Value />
-        <Select.Icon>
-          <ChevronDown className="h-4 w-4" />
-        </Select.Icon>
-      </Select.Trigger>
+    const handleSwitch = () => {
+        const temp = fromCrypto
+        setFromCrypto(toCrypto)
+        setToCrypto(temp)
+    }
 
-      <Select.Portal>
-        <Select.Content className="bg-[#1A1A1A] rounded-lg p-1 shadow-xl">
-          <Select.Viewport>
-            {coins.filter(c => c.symbol !== value.symbol).map((coin) => (
-              <Select.Item
-                key={coin.symbol}
-                value={coin.symbol}
-                className="flex items-center gap-2 px-3 py-2 hover:bg-[#242424] rounded cursor-pointer"
-              >
-                <span className="text-lg">{coin.icon}</span>
-                <Select.ItemText>{coin.symbol}</Select.ItemText>
-              </Select.Item>
-            ))}
-          </Select.Viewport>
-        </Select.Content>
-      </Select.Portal>
-    </Select.Root>
-  )
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setError("")
+        setIsSubmitting(true)
 
-  return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
-      <div className="flex flex-col lg:flex-row">
-        <Sidebar />
-        <div className="flex-1 lg:ml-64">
-          <TopBar title="Swap" />
-          <div className="p-4 lg:p-8 max-w-6xl mx-auto">
-            <div className="bg-[#121212] rounded-[1rem] p-6">
-              <h2 className="text-2xl font-bold mb-6">Swap Tokens</h2>
+        if (!fromCrypto || !toCrypto) {
+            setError("Please select cryptocurrencies")
+            setIsSubmitting(false)
+            return
+        }
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="bg-[#1A1A1A] p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm text-gray-400">You Pay</label>
-                    <div className="flex items-center gap-2 bg-[#121212] rounded-lg p-1">
-                      <button
-                        type="button"
-                        onClick={() => setIsFromUSD(false)}
-                        className={`px-3 py-1 rounded text-sm ${!isFromUSD ? 'bg-orange-500' : 'hover:bg-[#242424]'}`}
-                      >
-                        {fromCoin.symbol}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsFromUSD(true)}
-                        className={`px-3 py-1 rounded text-sm ${isFromUSD ? 'bg-orange-500' : 'hover:bg-[#242424]'}`}
-                      >
-                        USD
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 mt-2">
-                    <div className="relative flex-1">
-                      <input
-                        type="number"
-                        value={fromAmount}
-                        onChange={(e) => {
-                          setFromAmount(e.target.value)
-                          setToAmount(calculateToAmount(e.target.value, isFromUSD))
-                        }}
-                        className="w-full bg-transparent text-2xl outline-none"
-                        placeholder="0.00"
-                        required
-                      />
-                      {fromAmount && (
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-400">
-                          ≈ {isFromUSD 
-                            ? `${(Number(fromAmount) / fromCoin.price).toFixed(8)} ${fromCoin.symbol}`
-                            : `$${(Number(fromAmount) * fromCoin.price).toFixed(2)}`
-                          }
+        const fromCryptoAmount = usdAmount / fromCrypto.priceUsd
+        if (fromCryptoAmount > fromCrypto.balance) {
+            setError(`Insufficient ${fromCrypto.symbol} balance`)
+            setIsSubmitting(false)
+            return
+        }
+
+        try {
+            const token = Cookies.get("auth-token")
+            const response = await fetch("/api/transactions/swap", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    fromAmount: fromCryptoAmount.toFixed(8),
+                    fromCurrency: fromCrypto.symbol,
+                    toCurrency: toCrypto.symbol,
+                    toAmount: (finalAmount / toCrypto.priceUsd).toFixed(8),
+                    fee: (fee / toCrypto.priceUsd).toFixed(8),
+                    usdAmount: amount
+                }),
+            })
+
+            const data = await response.json()
+            if (!response.ok) {
+                throw new Error(data.error || "Swap failed")
+            }
+
+            await refetch()
+            router.push(`/dashboard/transactions/success?amount=${Number(amount) }&toAmount=${(finalAmount).toFixed(8)}&fromSymbol=${fromCrypto.symbol}&toSymbol=${toCrypto.symbol}&type=swap`)
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "Swap failed")
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    return (
+        <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
+            <div className="flex flex-col lg:flex-row">
+                <Sidebar />
+                <div className="flex-1 lg:ml-64">
+                    <TopBar title="Swap" notices={userData?.notices} />
+                    {isLoading ? (
+                        <div>Loading...</div>
+                    ) : (
+                        <div className="p-4 lg:p-8 max-w-6xl mx-auto">
+                            <div className="bg-[#121212] rounded-[1rem] p-6">
+                                {error && (
+                                    <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500">
+                                        {error}
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    <div className="space-y-4">
+                                        <div className="bg-[#1A1A1A] p-4 rounded-lg">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <label className="text-sm text-gray-400">From</label>
+                                                <Select.Root
+                                                    value={fromCrypto?.symbol}
+                                                    onValueChange={(value) => {
+                                                        const crypto = availableCoins.find((c) => c.symbol === value)
+                                                        if (crypto) setFromCrypto(crypto)
+                                                    }}
+                                                >
+                                                    <Select.Trigger className="flex items-center gap-2">
+                                                        <Select.Value />
+                                                        <Select.Icon>
+                                                            <ChevronDown className="h-4 w-4" />
+                                                        </Select.Icon>
+                                                    </Select.Trigger>
+
+                                                    <Select.Portal>
+                                                        <Select.Content className="bg-[#1A1A1A] rounded-lg p-1 shadow-xl">
+                                                            <Select.Viewport>
+                                                                {availableCoins.map((crypto) => (
+                                                                    <Select.Item
+                                                                        key={crypto.symbol}
+                                                                        value={crypto.symbol}
+                                                                        className="flex items-center px-3 py-2 hover:bg-[#242424] rounded cursor-pointer"
+                                                                    >
+                                                                        <Select.ItemText>
+                                                                            {crypto.symbol} (Balance: ${(crypto.balance * crypto.priceUsd).toFixed(2)})
+                                                                        </Select.ItemText>
+                                                                    </Select.Item>
+                                                                ))}
+                                                            </Select.Viewport>
+                                                        </Select.Content>
+                                                    </Select.Portal>
+                                                </Select.Root>
+                                            </div>
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    value={amount}
+                                                    onChange={(e) => setAmount(e.target.value)}
+                                                    className="w-full bg-[#242424] rounded-lg p-3 text-white"
+                                                    placeholder="0.00"
+                                                    required
+                                                />
+                                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-400">
+                                                    USD
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={handleSwitch}
+                                            className="mx-auto block p-2 hover:bg-[#242424] rounded-full transition-colors"
+                                        >
+                                            <ArrowDownUp className="h-6 w-6" />
+                                        </button>
+
+                                        <div className="bg-[#1A1A1A] p-4 rounded-lg">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <label className="text-sm text-gray-400">To</label>
+                                                <Select.Root
+                                                    value={toCrypto?.symbol}
+                                                    onValueChange={(value) => {
+                                                        const crypto = availableCoins.find((c) => c.symbol === value)
+                                                        if (crypto) setToCrypto(crypto)
+                                                    }}
+                                                >
+                                                    <Select.Trigger className="flex items-center gap-2">
+                                                        <Select.Value />
+                                                        <Select.Icon>
+                                                            <ChevronDown className="h-4 w-4" />
+                                                        </Select.Icon>
+                                                    </Select.Trigger>
+
+                                                    <Select.Portal>
+                                                        <Select.Content className="bg-[#1A1A1A] rounded-lg p-1 shadow-xl">
+                                                            <Select.Viewport>
+                                                                {availableCoins.map((crypto) => (
+                                                                    <Select.Item
+                                                                        key={crypto.symbol}
+                                                                        value={crypto.symbol}
+                                                                        className="flex items-center px-3 py-2 hover:bg-[#242424] rounded cursor-pointer"
+                                                                    >
+                                                                        <Select.ItemText>
+                                                                            {crypto.symbol} (Balance: ${(crypto.balance * crypto.priceUsd).toFixed(2)})
+                                                                        </Select.ItemText>
+                                                                    </Select.Item>
+                                                                ))}
+                                                            </Select.Viewport>
+                                                        </Select.Content>
+                                                    </Select.Portal>
+                                                </Select.Root>
+                                            </div>
+                                            <div className="w-full bg-[#242424] rounded-lg p-3 text-white">
+                                                ${finalAmount.toFixed(2)}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-[#1A1A1A] p-4 rounded-lg space-y-3">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-400">Rate</span>
+                                            <span>1 USD = 1 USD</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-400">Fee (0.1%)</span>
+                                            <span>${fee.toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-400">You will receive</span>
+                                            <span>${finalAmount.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="w-full bg-orange-500 hover:bg-orange-600 py-3 rounded-lg font-medium transition-colors disabled:opacity-50"
+                                    >
+                                        {isSubmitting ? "Processing..." : "Swap"}
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                      )}
-                    </div>
-                    <TokenSelect value={fromCoin} onChange={setFromCoin} coins={coins} />
-                  </div>
+                    )}
                 </div>
-
-                <div className="flex justify-center">
-                  <button 
-                    type="button" 
-                    onClick={handleSwitch}
-                    className="p-2 hover:bg-white/5 rounded-full"
-                  >
-                    <ArrowDownUp className="rotate-90" />
-                  </button>
-                </div>
-
-                <div className="bg-[#1A1A1A] p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm text-gray-400">You Receive</label>
-                    <div className="flex items-center gap-2 bg-[#121212] rounded-lg p-1">
-                      <button
-                        type="button"
-                        onClick={() => setIsToUSD(false)}
-                        className={`px-3 py-1 rounded text-sm ${!isToUSD ? 'bg-orange-500' : 'hover:bg-[#242424]'}`}
-                      >
-                        {toCoin.symbol}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsToUSD(true)}
-                        className={`px-3 py-1 rounded text-sm ${isToUSD ? 'bg-orange-500' : 'hover:bg-[#242424]'}`}
-                      >
-                        USD
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex gap-4 mt-2">
-                    <div className="relative flex-1">
-                      <input
-                        type="number"
-                        value={toAmount}
-                        onChange={(e) => setToAmount(e.target.value)}
-                        className="w-full bg-transparent text-2xl outline-none"
-                        placeholder="0.00"
-                        required
-                      />
-                      {toAmount && (
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-400">
-                          ≈ {isToUSD 
-                            ? `${(Number(toAmount) / toCoin.price).toFixed(8)} ${toCoin.symbol}`
-                            : `$${(Number(toAmount) * toCoin.price).toFixed(2)}`
-                          }
-                        </div>
-                      )}
-                    </div>
-                    <TokenSelect value={toCoin} onChange={setToCoin} coins={coins} />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-orange-500 hover:bg-orange-600 py-3 rounded-lg font-medium transition-colors"
-                >
-                  Swap {fromCoin.symbol} to {toCoin.symbol}
-                </button>
-              </form>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  )
+    )
 }

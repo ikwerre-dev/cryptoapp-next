@@ -99,7 +99,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="text-right flex flex-col ">
                         <div className={`${tx.status === "completed" ? "text-green-500" : tx.status === "pending" ? "text-orange-500" : "text-red-500"}`}>
-                          ${Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {Number(tx.amount) == 0 ? '' : '$' + Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                         <div className="flex flex-col justify-end items-end">
                           <div
