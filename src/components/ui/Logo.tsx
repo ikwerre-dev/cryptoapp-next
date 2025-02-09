@@ -10,7 +10,7 @@ const Logo = () => (
                 fill="white"
             />
         </svg>
-        <span className="text-xl font-bold">HonourFX</span>
+        <span className="text-xl font-bold">AI-Trader</span>
     </div>
 )
 

@@ -39,9 +39,8 @@ export default function ProfilePage() {
         <div className="flex-1 lg:ml-64">
           <TopBar title="Profile" />
           <div className="p-4 lg:p-8">
-            <div className="max-w-2xl mx-auto">
-              {/* Profile Info */}
-              <div className="bg-[#121212] rounded-[1rem] p-6 mb-6">
+            <div className=" max-w-6xl mx-auto">
+               <div className="bg-[#121212] rounded-[1rem] p-6 mb-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold">Personal Information</h2>
                   <button

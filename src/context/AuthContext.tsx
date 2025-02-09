@@ -4,17 +4,25 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
+// Add User interface
+interface User {
+  id: number;
+  email: string;
+}
+
+// Update AuthContextType
 interface AuthContextType {
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
-
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -22,25 +30,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = Cookies.get('auth-token');
     if (token) {
-      setIsAuthenticated(true);
+      // Verify token and get user data
+      verifyAuth(token);
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
+
+  const verifyAuth = async (token: string) => {
+    try {
+      const response = await fetch('/api/auth/verify', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setUser(data.user);
+        setIsAuthenticated(true);
+      } else if (data.requireLogout) {
+         logout();
+         window.dispatchEvent(new CustomEvent('showNotification', { 
+          detail: { 
+            message: data.error,
+            type: 'error'
+          }
+        }));
+      } else {
+        Cookies.remove('auth-token');
+      }
+    } catch (error) {
+      console.error('Auth verification failed:', error);
+      Cookies.remove('auth-token');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (!email || !password) {
-        throw new Error('Email and password are required');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
       }
 
-      const mockToken = 'mock-jwt-token';
-      Cookies.set('auth-token', mockToken, { expires: 7 });
+      Cookies.set('auth-token', data.token, { expires: 7 });
+      setUser(data.user);
       setIsAuthenticated(true);
-
-      console.log('Login successful, redirecting...');
       router.push('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
@@ -50,37 +98,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    Cookies.remove('auth-token');
-    setIsAuthenticated(false);
-    router.push('/login');
-  };
-
   const signup = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (!email || !password) {
-        throw new Error('Email and password are required');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
       }
 
-      const mockToken = 'mock-jwt-token';
-      Cookies.set('auth-token', mockToken, { expires: 7 });
+      Cookies.set('auth-token', data.token, { expires: 7 });
+      setUser(data.user);
       setIsAuthenticated(true);
-
-      console.log('Signup successful, redirecting...');
       router.push('/dashboard');
     } catch (error) {
-      console.error('Signup failed:', error);
+      console.error('Registration failed:', error);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
+  const logout = () => {
+    Cookies.remove('auth-token');
+    setUser(null);
+    setIsAuthenticated(false);
+    router.push('/login');
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, signup, logout }}>
+    <AuthContext.Provider value={{ 
+      user,
+      isAuthenticated, 
+      isLoading, 
+      login, 
+      signup, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -2,6 +2,9 @@
 
 import { Bell, Menu, Search } from 'lucide-react';
 import { useSidebar } from '@/context/SidebarContext';
+import { useState } from 'react';
+import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 interface TopBarProps {
     title: string;
@@ -9,6 +12,8 @@ interface TopBarProps {
 
 export function TopBar({ title }: TopBarProps) {
     const { toggle } = useSidebar();
+    const [isOpen, setIsOpen] = useState(false);
+    const { logout } = useAuth();
 
     return (
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-800/50 bg-[#0A0A0A]/80 backdrop-blur">
@@ -35,9 +40,33 @@ export function TopBar({ title }: TopBarProps) {
                         <Bell size={20} className="text-gray-400" />
                         <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                     </button>
-                    <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-[#8B5CF6] rounded-full"></div>
-                        <span className="hidden sm:inline-block text-sm font-medium">Alexim</span>
+                    <div className="relative">
+                        <button 
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="flex items-center space-x-3 p-2 hover:bg-white/5 rounded-lg"
+                        >
+                            <div className="w-8 h-8 bg-[#8B5CF6] rounded-full"></div>
+                            <span className="hidden sm:inline-block text-sm font-medium">Honour</span>
+                        </button>
+                        
+                        {isOpen && (
+                            <div className="absolute right-0 mt-2 w-48 rounded-lg bg-[#1A1A1A] border border-gray-800 shadow-lg">
+                                <div className="py-1">
+                                    <Link href="/dashboard/profile" className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5">
+                                        Profile
+                                    </Link>
+                                    <Link href="/dashboard/portfolio" className="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5">
+                                        Portfolio
+                                    </Link>
+                                    <button 
+                                        onClick={logout}
+                                        className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

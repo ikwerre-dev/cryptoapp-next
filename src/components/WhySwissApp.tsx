@@ -36,7 +36,7 @@ export function WhySwissApp() {
                 >
                     <span className="text-[#8B5CF6] mb-4 block">ABOUT Swiss App</span>
                     <h2 className="text-4xl md:text-5xl font-bold mb-6">Why Swiss App?</h2>
-                    <p className="text-gray-400 max-w-2xl mx-auto">
+                    <p className="text-gray-400 max-w-6xl mx-auto">
                         We've worked with over 400 companies to build blockchain solutions
                         for their business, and we are still growing.
                     </p>

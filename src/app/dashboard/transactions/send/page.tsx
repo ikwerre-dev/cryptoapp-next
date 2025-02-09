@@ -40,7 +40,7 @@ export default function SendPage({ searchParams }: { searchParams: Promise<{ sym
         <Sidebar />
         <div className="flex-1 lg:ml-64">
           <TopBar title="Send" />
-          <div className="p-4 lg:p-8 max-w-2xl mx-auto">
+          <div className="p-4 lg:p-8 max-w-6xl mx-auto">
             <div className="bg-[#121212] rounded-[1rem] p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold">Send {selectedCrypto.name}</h2>

@@ -47,7 +47,7 @@ export default function SuccessPage({ searchParams }: { searchParams: Promise<{
         <Sidebar />
         <div className="flex-1 lg:ml-64">
           <TopBar title="Transaction Success" />
-          <div className="p-4 lg:p-8 max-w-2xl mx-auto">
+          <div className="p-4 lg:p-8 max-w-6xl mx-auto">
             <div className="bg-[#121212] rounded-[1rem] p-6 text-center">
               <div className="flex justify-center mb-6">
                 <div className="rounded-full bg-green-500/20 p-4">
