@@ -52,10 +52,23 @@ export function TransactionList({ transactions, number }: TransactionListProps) 
         if (!selectedTx) return
         const receipt = document.getElementById('transaction-receipt')
         if (receipt) {
+            // Temporarily remove background from status badge
+            const statusBadge = receipt.querySelector('[data-status-badge]')
+            const originalClass = statusBadge?.className
+            if (statusBadge) {
+                statusBadge.className = statusBadge.className.replace(/bg-[^/\s]+-500\/20/g, '')
+            }
+
             const canvas = await html2canvas(receipt, {
                 backgroundColor: '#121212',
                 scale: 2
             })
+
+            // Restore original styling
+            if (statusBadge && originalClass) {
+                statusBadge.className = originalClass
+            }
+
             const link = document.createElement('a')
             link.download = `transaction-${selectedTx.id}.png`
             link.href = canvas.toDataURL('image/png')
@@ -117,8 +130,15 @@ export function TransactionList({ transactions, number }: TransactionListProps) 
                                 <div className="text-2xl font-bold mb-2">
                                     ${Number(selectedTx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </div>
-                                <div className={`inline-block rounded-full px-3 py-1 text-sm ${selectedTx.status === "completed" ? "bg-green-500/20 text-green-500" : selectedTx.status === "pending" ? "bg-orange-500/20 text-orange-500" : "bg-red-500/20 text-red-500"}`}>
-                                    {selectedTx.status}
+                                <div className="flex justify-center">
+                                    <div className={`inline-flex items-center justify-center h-7 rounded-full px-4 text-sm font-medium ${selectedTx.status === "completed"
+                                            ? "bg-green-500/20 text-green-500"
+                                            : selectedTx.status === "pending"
+                                                ? "bg-orange-500/20 text-orange-500"
+                                                : "bg-red-500/20 text-red-500"
+                                        }`} data-status-badge>
+                                        {selectedTx.status}
+                                    </div>
                                 </div>
                             </div>
 

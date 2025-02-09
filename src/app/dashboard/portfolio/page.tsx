@@ -1,202 +1,197 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowDown, ArrowUp, Eye, EyeOff, Filter } from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
+import { ArrowDown, ArrowUp, Download, Eye, EyeOff, RefreshCw } from "lucide-react"
+import { useUserData } from "@/hooks/useUserData"
+import { useCryptoData } from "@/hooks/useCryptoData"
 import Link from "next/link"
- 
+import { useRouter } from "next/navigation"
 
-const portfolioData = [
-    {
-        name: "Bitcoin",
-        symbol: "BTC",
-        amount: "2.5384",
-        value: 89432.54,
-        change: 2.5,
-        icon: "₿",
-        iconBg: "bg-orange-500/20",
-        iconColor: "text-orange-500",
-        allocation: 45.2,
-    },
-    {
-        name: "Ethereum",
-        symbol: "ETH",
-        amount: "15.4392",
-        value: 43219.32,
-        change: -1.2,
-        icon: "Ξ",
-        iconBg: "bg-purple-500/20",
-        iconColor: "text-purple-500",
-        allocation: 28.4,
-    },
-    {
-        name: "Cardano",
-        symbol: "ADA",
-        amount: "10432.43",
-        value: 12453.21,
-        change: 5.6,
-        icon: "◎",
-        iconBg: "bg-blue-500/20",
-        iconColor: "text-blue-500",
-        allocation: 15.3,
-    },
-    {
-        name: "Solana",
-        symbol: "SOL",
-        amount: "154.32",
-        value: 8765.43,
-        change: -0.8,
-        icon: "◎",
-        iconBg: "bg-green-500/20",
-        iconColor: "text-green-500",
-        allocation: 11.1,
-    },
-]
-
- 
 export default function PortfolioPage() {
     const [showBalance, setShowBalance] = useState(true)
+    const { userData, isLoading, refetch, totalBalance } = useUserData()
+    const { cryptoData, calculateUserAssetValue } = useCryptoData()
+    const [isRefetching, setIsRefetching] = useState(false)
+    const [btcValue, setBtcValue] = useState(0)
+    const router = useRouter()
+    const fetchBtcBalance = () => {
+        const btcValue = calculateUserAssetValue(totalBalance, "bitcoin")
 
+        setBtcValue(btcValue && Number((totalBalance / btcValue).toFixed(6)))
+
+    }
+
+
+
+    const handleRefetch = useCallback(async () => {
+        setIsRefetching(true)
+        await refetch()
+        fetchBtcBalance()
+        setIsRefetching(false)
+    }, [refetch])
+
+
+    useEffect(() => {
+        fetchBtcBalance()
+    }, [totalBalance, calculateUserAssetValue])
+
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            handleRefetch();
+        }, 5000)
+
+        return () => clearInterval(interval)
+    }, [])
+
+    const assets = [
+        { name: "BTC", balance: Number(userData?.user.btc_balance || "0") },
+        { name: "ETH", balance: Number(userData?.user.eth_balance || "0") },
+        { name: "USDT", balance: Number(userData?.user.usdt_balance || "0") },
+        { name: "BNB", balance: Number(userData?.user.bnb_balance || "0") },
+        { name: "XRP", balance: Number(userData?.user.xrp_balance || "0") },
+        { name: "ADA", balance: Number(userData?.user.ada_balance || "0") },
+        { name: "DOGE", balance: Number(userData?.user.doge_balance || "0") },
+        { name: "SOL", balance: Number(userData?.user.sol_balance || "0") },
+        { name: "DOT", balance: Number(userData?.user.dot_balance || "0") },
+        { name: "MATIC", balance: Number(userData?.user.matic_balance || "0") },
+        { name: "LINK", balance: Number(userData?.user.link_balance || "0") },
+        { name: "UNI", balance: Number(userData?.user.uni_balance || "0") },
+        { name: "AVAX", balance: Number(userData?.user.avax_balance || "0") },
+        { name: "LTC", balance: Number(userData?.user.ltc_balance || "0") },
+        { name: "SHIB", balance: Number(userData?.user.shib_balance || "0") },
+    ].map(asset => {
+        const priceUsd = asset.balance
+        return { ...asset, priceUsd }
+    }).sort((a, b) => b.priceUsd - a.priceUsd)
+
+    console.log(assets)
+
+    const downloadStatement = () => {
+        const statement = {
+            date: new Date().toISOString(),
+            totalBalance,
+            btcValue,
+            assets: assets.map(asset => ({
+                name: asset.name,
+                balance: asset.balance,
+                price: asset.priceUsd
+            }))
+        }
+
+        const blob = new Blob([JSON.stringify(statement, null, 2)], { type: 'application/json' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `portfolio-statement-${new Date().toISOString().split('T')[0]}.json`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+    }
+
+    const ViewPortfolio = (selectedCrypto: string) => {
+        router.push(`/dashboard/portfolio/${selectedCrypto}`);
+
+    }
 
     return (
         <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
             <div className="flex flex-col lg:flex-row">
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
-                    <TopBar title="Portfolio" />
+                    <TopBar title="Portfolio" notices={userData?.notices} />
                     <div className="flex flex-col lg:flex-row">
-                        {/* Main Content */}
                         <div className="flex-1 w-full lg:max-w-[calc(100%-320px)] p-4 lg:p-8">
-                            {/* Portfolio Value Card */}
-                            <div className="bg-[#121212] flex flex-col lg:flex-row justify-between px-4 lg:px-[1.5rem] rounded-[1rem] py-4 lg:py-[1.5rem] mb-8">
-                                <div className="flex flex-col gap-2">
-                                    <div className="text-sm text-gray-400">Total Portfolio Value</div>
+                            <div className="bg-[#121212] flex lg:flex-row justify-between md:items-center px-[1rem] lg:px-[1.5rem] rounded-[1rem] py-4 lg:py-[1.5rem] mb-8">
+                                <div className="flex flex-col gap-2 mb-4 lg:mb-0">
+                                    <div className="text-sm text-gray-400">Total asset value</div>
                                     <div className="flex items-center gap-2">
                                         <div className="text-4xl font-bold tracking-tight">
-                                            {showBalance ? "$ 153,870.50" : "$ ••••••••••"}
+                                            {showBalance
+                                                ? `$ ${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                                : "$ ••••••••••"}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-green-500">
-                                        <ArrowUp className="h-4 w-4" />
-                                        <span>2.5% ($3,842.25)</span>
-                                    </div>
-
-                                     <div className="flex gap-2 mt-4 lg:hidden">
-                                        <button className="flex-1 rounded-lg bg-orange-500 py-2 text-sm font-medium">
-                                            Send
-                                        </button>
-                                        <button className="flex-1 rounded-lg bg-[#121212] border border-gray-800 py-2 text-sm font-medium">
-                                            Receive
-                                        </button>
-                                        <button className="flex-1 rounded-lg bg-[#121212] border border-gray-800 py-2 text-sm font-medium">
-                                            Swap
-                                        </button>
-                                    </div>
+                                    <div className="text-sm text-gray-400">≈ {btcValue} BTC</div>
                                 </div>
-                                <div className="flex flex-col items-center py-[1rem] md:py-0 justify-center">
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        onClick={handleRefetch}
+                                        disabled={isRefetching}
+                                        className="rounded-full bg-white/20 p-3 hover:bg-gray-700/50"
+                                    >
+                                        <RefreshCw className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`} />
+                                    </button>
                                     <button className="rounded-full bg-white/20 p-3 hover:bg-gray-700/50" onClick={() => setShowBalance(!showBalance)}>
                                         {showBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Assets List with Headers */}
-                            <div>
-                                <div className="mb-6 flex items-center justify-between">
-                                    <div className="text-lg font-medium">Assets</div>
-                                    <button className="flex items-center gap-2 text-sm text-orange-500 hover:text-orange-400">
-                                        <Filter className="h-4 w-4" />
-                                        Filter
-                                    </button>
-                                </div>
+                            <div className="bg-[#121212] rounded-[1rem] overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b border-gray-800">
+                                                <th className="text-left p-4 text-sm font-medium text-gray-400">Asset</th>
+                                                <th className="text-right p-4 text-sm font-medium text-gray-400">Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {assets.map((asset) => (
+                                                <tr key={asset.name} onClick={() => ViewPortfolio(asset.name)} className="border-b border-gray-800/50 hover:bg-[#1A1A1A]">
+                                                    <td className="p-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/20">
+                                                                <span className="text-lg text-orange-500">{asset.name.charAt(0)}</span>
+                                                            </div>
+                                                            <span className="font-medium">{asset.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4 text-right">
 
-                                {/* Table Headers */}
-                                <div className="hidden md:grid grid-cols-4 gap-4 px-4 py-2 text-sm text-gray-400">
-                                    <div>Asset</div>
-                                    <div className="text-right">Balance</div>
-                                    <div className="text-right">Price</div>
-                                    <div className="text-right">Allocation</div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    {portfolioData.map((asset) => (
-                                        <Link
-                                            href={`/dashboard/portfolio/${asset.symbol.toLowerCase()}`}
-                                            key={asset.name}
-                                            className="flex items-center justify-between rounded-lg bg-[#121212] p-4 hover:bg-[#1A1A1A] transition-colors"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className={`rounded-lg ${asset.iconBg} p-2`}>
-                                                    <span className={`text-lg ${asset.iconColor}`}>{asset.icon}</span>
-                                                </div>
-                                                <div>
-                                                    <div className="font-medium">{asset.name}</div>
-                                                    <div className="text-sm text-gray-400">{asset.amount} {asset.symbol}</div>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <div className="font-medium">${asset.value.toLocaleString()}</div>
-                                                <div className={`flex items-center justify-end gap-1 text-sm ${asset.change >= 0 ? "text-green-500" : "text-red-500"
-                                                    }`}>
-                                                    {asset.change >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                                                    {Math.abs(asset.change)}%
-                                                </div>
-                                            </div>
-                                            <div className="hidden md:block text-right">
-                                                <div className="font-medium">{asset.allocation}%</div>
-                                                <div className="text-sm text-gray-400">Allocation</div>
-                                            </div>
-                                        </Link>
-                                    ))}
+                                                        ${asset.priceUsd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Panel - Analytics */}
                         <div className="w-full lg:w-80 border-t lg:border-l border-gray-800/50 p-4 lg:p-5">
-                            <div className="mb-6">
-                                <div className="mb-4 text-lg font-medium">Portfolio Analytics</div>
-                                <div className="space-y-4">
-                                    <div className="rounded-lg bg-[#121212] p-4">
-                                        <div className="text-sm text-gray-400">Risk Level</div>
-                                        <div className="mt-1 text-lg font-medium">Moderate</div>
-                                        <div className="mt-2 h-2 rounded-full bg-gray-800">
-                                            <div className="h-full w-[65%] rounded-full bg-orange-500"></div>
-                                        </div>
-                                    </div>
-
-                                    <div className="rounded-lg bg-[#121212] p-4">
-                                        <div className="text-sm text-gray-400">Diversification Score</div>
-                                        <div className="mt-1 text-lg font-medium">7.5/10</div>
-                                        <div className="mt-2 h-2 rounded-full bg-gray-800">
-                                            <div className="h-full w-[75%] rounded-full bg-green-500"></div>
-                                        </div>
-                                    </div>
-
-                                    <div className="rounded-lg bg-[#121212] p-4">
-                                        <div className="text-sm text-gray-400">Monthly Profit/Loss</div>
-                                        <div className="mt-1 text-lg font-medium text-green-500">+$2,345.32</div>
-                                        <div className="text-sm text-gray-400">Last 30 days</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
+                            <div className="mb-8">
                                 <div className="mb-4 text-lg font-medium">Quick Actions</div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <button className="rounded-lg bg-orange-500 py-3 text-sm font-medium transition-colors hover:bg-orange-600">
-                                        Buy Crypto
+                                <div className="grid gap-3">
+                                    <button
+                                        onClick={downloadStatement}
+                                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 py-3 text-sm font-medium transition-colors hover:bg-orange-600"
+                                    >
+                                        <Download className="h-4 w-4" />
+                                        Download Statement
                                     </button>
-                                    <button className="rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]">
-                                        Sell Crypto
-                                    </button>
-                                    <button className="rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]">
+                                    <Link
+                                        href="/dashboard/transactions/send"
+                                        className="flex items-center justify-center gap-2 rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]"
+                                    >
                                         Send
-                                    </button>
-                                    <button className="rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]">
-                                        Receive
-                                    </button>
+                                    </Link>
+                                    <Link
+                                        href="/dashboard/transactions/deposit"
+                                        className="flex items-center justify-center gap-2 rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]"
+                                    >
+                                        Deposit
+                                    </Link>
+                                    <Link
+                                        href="/dashboard/transactions/swap"
+                                        className="flex items-center justify-center gap-2 rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]"
+                                    >
+                                        Swap
+                                    </Link>
                                 </div>
                             </div>
                         </div>

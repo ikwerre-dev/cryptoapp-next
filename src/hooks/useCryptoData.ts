@@ -9,6 +9,11 @@ interface CryptoAsset {
   changePercent24Hr: string;
   marketCapUsd: string;
   volumeUsd24Hr: string;
+  volume24hUsd: string
+  vwap24hUsd: string
+  changePercent24h: string
+  supply: string
+  maxSupply: string | null
 }
 
 interface CryptoData {

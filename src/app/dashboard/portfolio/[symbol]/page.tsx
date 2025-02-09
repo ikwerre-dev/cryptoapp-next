@@ -1,182 +1,244 @@
 "use client"
 
-import { use, useState } from "react"
-import {  ArrowUp, Send, Repeat, Users } from "lucide-react"
+import { useEffect, useState, useCallback, use } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
+import { ArrowDown, ArrowUp, Wallet } from "lucide-react"
+import { useUserData } from "@/hooks/useUserData"
+import { useCryptoData } from "@/hooks/useCryptoData"
 import dynamic from "next/dynamic"
+import Link from "next/link"
+import { getCryptoName } from "@/lib/getCryptoName"
+import { ApexOptions } from "apexcharts"
+
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
-import type { ApexOptions } from "apexcharts"
-import Link from 'next/link'
 
-const timeFilters = ["1H", "24H", "7D", "1M", "1Y"]
 
-export default function AssetPage({ params }: { params: Promise<{ symbol: string }> }) {
-    const resolvedParams = use(params)
-    const [selectedTimeFilter, setSelectedTimeFilter] = useState("24H")
-    const symbol = resolvedParams.symbol.toUpperCase()
+interface CoinDetailsProps {
+    params: Promise<{
+        symbol: string
+    }>
+}
+
+export default function CoinDetails({ params }: CoinDetailsProps) {
+    const { symbol } = use(params)
+    const { userData } = useUserData()
+    const { cryptoData } = useCryptoData()
+    const [timeFrame, setTimeFrame] = useState("1D")
+    const [chartData, setChartData] = useState<[number, number][]>([])
+    const [isLoading, setIsLoading] = useState(true)
+
+
+    const getInterval = (timeFrame: string) => {
+        switch (timeFrame) {
+            case "1H":
+                return "m5"
+            case "1D":
+                return "m30"
+            case "1W":
+                return "h2"
+            case "1M":
+                return "h12"
+            case "1Y":
+                return "d1"
+            case "All":
+                return "d1"
+            default:
+                return "m30"
+        }
+    }
+
+    const fetchCoinData = useCallback(async () => {
+        try {
+            setIsLoading(true)
+            const cryptoId = getCryptoName(symbol, "lowercase-hyphen")
+            const interval = getInterval(timeFrame)
+            const res = await fetch(`https://api.coincap.io/v2/assets/${cryptoId}/history?interval=${interval}`)
+            const response = await res.json()
+            setChartData(
+                response.data.map((point: any) => [new Date(point.time).getTime(), Number.parseFloat(point.priceUsd)]),
+            )
+        } catch (error) {
+            console.error("Error fetching coin data:", error)
+        } finally {
+            setIsLoading(false)
+        }
+    }, [symbol, timeFrame])
+
+    useEffect(() => {
+        fetchCoinData()
+    }, [fetchCoinData])
+
+    const cryptoName = getCryptoName(symbol, "lowercase-hyphen")
+    const cryptoInfo = cryptoData[cryptoName]
+    const balance = userData?.user[`${symbol.toLowerCase()}_balance` as keyof typeof userData.user] || 0
+    const value = Number(balance) * Number(cryptoInfo?.priceUsd || 0)
 
     const chartOptions: ApexOptions = {
         chart: {
-            type: "candlestick",
-            height: 400,
-            toolbar: { show: false },
+            type: "area" as const,  // explicitly type as "area"
+            height: 350,
+            toolbar: {
+                show: false,
+            },
             background: "transparent",
         },
-        theme: { mode: "dark" },
+        dataLabels: {
+            enabled: false,
+        },
+        stroke: {
+            curve: "smooth",
+            width: 2,
+        },
+        fill: {
+            type: "gradient",
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.7,
+                opacityTo: 0.2,
+                stops: [0, 90, 100],
+            },
+        },
         xaxis: {
             type: "datetime",
-            labels: { style: { colors: "#fff" } }
+            labels: {
+                style: {
+                    colors: "#9ca3af",
+                },
+            },
         },
         yaxis: {
-            labels: { style: { colors: "#fff" } }
+            labels: {
+                style: {
+                    colors: "#9ca3af",
+                },
+                formatter: (value: number) => `$${value.toFixed(2)}`,
+            },
         },
-        grid: { borderColor: "#ffffff1a" },
-        tooltip: { theme: "dark" }
+        tooltip: {
+            theme: "dark",
+            x: {
+                format: "dd MMM yyyy",
+            },
+        },
+        grid: {
+            borderColor: "#374151",
+        },
+        theme: {
+            mode: "dark",
+        },
     }
 
-    const generateCandlestickData = () => {
-        const data = []
-        const now = new Date()
-        for (let i = 0; i < 50; i++) {
-            const time = new Date(now.getTime() - i * 3600000)
-            const open = Math.random() * 1000 + 20000
-            const close = Math.random() * 1000 + 20000
-            const high = Math.max(open, close) + Math.random() * 500
-            const low = Math.min(open, close) - Math.random() * 500
-            data.push({
-                x: time.getTime(),
-                y: [open, high, low, close]
-            })
-        }
-        return data.reverse()
-    }
-
-    // Action button component to avoid repetition
-    const ActionButton = ({ 
-        href, 
-        icon: Icon, 
-        label, 
-        primary = false 
-    }: {
-        href: string;
-        icon: React.ElementType;
-        label: string;
-        primary?: boolean;
-    }) => (
-        <Link
-            href={`/dashboard/transactions/${href}?symbol=${symbol}`}
-            className={`w-full rounded-lg ${primary ? 'bg-orange-500 hover:bg-orange-600' : 'bg-[#121212] hover:bg-[#1A1A1A]'
-                } py-3 font-medium transition-colors flex items-center justify-center gap-2`}
-        >
-            {Icon && <Icon className="h-4 w-4" />}
-            <span>{label}</span>
-        </Link>
-    )
+    const timeFrames = ["1H", "1D", "1W", "1M", "1Y", "All"]
 
     return (
         <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
             <div className="flex flex-col lg:flex-row">
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
-                    <TopBar title={`${symbol} Details`} />
+                    <TopBar title={`${symbol} Details`} notices={userData?.notices} />
                     <div className="flex flex-col lg:flex-row">
                         <div className="flex-1 w-full lg:max-w-[calc(100%-320px)] p-4 lg:p-8">
-                            {/* Asset Header */}
-                            <div className="bg-[#121212] rounded-[1rem] p-6 mb-8">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h2 className="text-2xl font-bold">Bitcoin (BTC)</h2>
-                                        <div className="text-gray-400">Current Price: $45,678.90</div>
+                            <div className="grid gap-4 md:grid-cols-3 mb-8">
+                                <div className="bg-[#121212] p-6 rounded-[1rem]">
+                                    <div className="text-sm text-gray-400 mb-2">Balance</div>
+                                    <div className="text-2xl font-bold">
+                                        ${Number(balance).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-xl font-bold">2.5384 BTC</div>
-                                        <div className="text-gray-400">≈ $115,897.43</div>
+                                    <div className="text-sm text-gray-400">
+                                        {Number(value).toFixed(6)} {symbol}
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-green-500">
-                                    <ArrowUp className="h-4 w-4" />
-                                    <span>2.5% (24h)</span>
-                                </div>
-                            </div>
-                            <div className="md:hidden w-full lg:w-80 border-t  border-b mb-5 lg:border-l border-gray-800/50 py-4 lg:p-5">
-                                <div className="space-y-4">
-                                    <ActionButton href="deposit" icon={ArrowUp} label="Deposit" primary />
-                                    <ActionButton href="send" icon={Send} label="Send" />
-                                    <ActionButton href="swap" icon={Repeat} label="Swap" />
-                                    <ActionButton href="p2p" icon={Users} label="P2P Trade" />
-                                </div>
-                            </div>
-                            {/* Chart Section */}
-                            <div className="bg-[#121212] rounded-[1rem] p-6 mb-8">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-lg font-medium">Price Chart</h3>
-                                    <div className="flex rounded-lg bg-[#1A1A1A] p-1">
-                                        {timeFilters.map((filter) => (
-                                            <button
-                                                key={filter}
-                                                onClick={() => setSelectedTimeFilter(filter)}
-                                                className={`rounded px-3 py-1.5 text-sm ${selectedTimeFilter === filter ? "bg-orange-500" : "hover:bg-[#242424]"
-                                                    }`}
-                                            >
-                                                {filter}
-                                            </button>
-                                        ))}
+                                <div className="bg-[#121212] p-6 rounded-[1rem]">
+                                    <div className="text-sm text-gray-400 mb-2">Current Price</div>
+                                    <div className="text-2xl font-bold">
+                                        ${Number(cryptoInfo?.priceUsd || 0).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                                    </div>
+                                    <div
+                                        className={`text-sm flex items-center gap-1 ${Number(cryptoInfo?.changePercent24Hr || 0) >= 0 ? "text-green-500" : "text-red-500"}`}
+                                    >
+                                        {Number(cryptoInfo?.changePercent24Hr || 0) >= 0 ? (
+                                            <ArrowUp className="h-4 w-4" />
+                                        ) : (
+                                            <ArrowDown className="h-4 w-4" />
+                                        )}
+                                        {Math.abs(Number(cryptoInfo?.changePercent24Hr || 0)).toFixed(2)}%
                                     </div>
                                 </div>
-                                <Chart
-                                    options={chartOptions}
-                                    series={[{ data: generateCandlestickData() }]}
-                                    type="candlestick"
-                                    height={400}
-                                />
+                                <div className="bg-[#121212] p-6 rounded-[1rem]">
+                                    <div className="text-sm text-gray-400 mb-2">Market Cap</div>
+                                    <div className="text-2xl font-bold">
+                                        ${Number(cryptoInfo?.marketCapUsd || 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                                    </div>
+                                    <div className="text-sm text-gray-400">Rank #{cryptoInfo?.rank || "-"}</div>
+                                </div>
                             </div>
 
-                            {/* Market Stats */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                                <div className="bg-[#121212] rounded-[1rem] p-4">
-                                    <div className="text-gray-400">24h Volume</div>
-                                    <div className="text-xl font-bold">$24.5B</div>
+                            <div className="bg-[#121212] rounded-[1rem] p-6">
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {timeFrames.map((tf) => (
+                                        <button
+                                            key={tf}
+                                            onClick={() => setTimeFrame(tf)}
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium ${timeFrame === tf ? "bg-orange-500" : "bg-[#1A1A1A] hover:bg-[#242424]"
+                                                }`}
+                                        >
+                                            {tf}
+                                        </button>
+                                    ))}
                                 </div>
-                                <div className="bg-[#121212] rounded-[1rem] p-4">
-                                    <div className="text-gray-400">Market Cap</div>
-                                    <div className="text-xl font-bold">$845.2B</div>
-                                </div>
-                                <div className="bg-[#121212] rounded-[1rem] p-4">
-                                    <div className="text-gray-400">Circulating Supply</div>
-                                    <div className="text-xl font-bold">19.5M BTC</div>
-                                </div>
+                                {isLoading ? (
+                                    <div className="h-[350px] flex items-center justify-center">Loading...</div>
+                                ) : (
+                                    <Chart options={chartOptions} series={[{ name: symbol, data: chartData }]} type="area" height={350} />
+                                )}
                             </div>
                         </div>
 
-                        {/* Right Panel - Actions */}
                         <div className="w-full lg:w-80 border-t lg:border-l border-gray-800/50 p-4 lg:p-5">
-                            <div className="space-y-4">
-                                <ActionButton href="deposit" icon={ArrowUp} label="Deposit" primary />
-                                <ActionButton href="send" icon={Send} label="Send" />
-                                <ActionButton href="swap" icon={Repeat} label="Swap" />
-                                <ActionButton href="p2p" icon={Users} label="P2P Trade" />
+                            <div className="mb-8">
+                                <div className="mb-4 text-lg font-medium">Quick Actions</div>
+                                <div className="grid gap-3">
+                                    <Link
+                                        href={`/dashboard/transactions/send?symbol=${symbol}`}
+                                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 py-3 text-sm font-medium transition-colors hover:bg-orange-600"
+                                    >
+                                        <Wallet className="h-4 w-4" />
+                                        Send {symbol}
+                                    </Link>
+                                    <Link
+                                        href={`/dashboard/transactions/swap?symbol=${symbol}`}
+                                        className="flex items-center justify-center gap-2 rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]"
+                                    >
+                                        Swap {symbol}
+                                    </Link>
+                                </div>
                             </div>
 
-                            {/* Transaction History */}
-                            <div className="mt-8">
-                                <h3 className="text-lg font-medium mb-4">Recent Transactions</h3>
-                                <div className="space-y-3">
-                                    {[...Array(3)].map((_, i) => (
-                                        <div key={i} className="bg-[#121212] rounded-lg p-3">
-                                            <div className="flex items-center justify-between">
-                                                <div className="text-sm font-medium">
-                                                    {i % 2 === 0 ? "Received" : "Sent"} BTC
-                                                </div>
-                                                <div className={`text-sm ${i % 2 === 0 ? "text-green-500" : "text-red-500"}`}>
-                                                    {i % 2 === 0 ? "+" : "-"}0.05 BTC
-                                                </div>
-                                            </div>
-                                            <div className="text-xs text-gray-400 mt-1">
-                                                2 hours ago
-                                            </div>
+                            <div className="space-y-4">
+                                <div className="text-lg font-medium">Asset Information</div>
+                                <div className="bg-[#121212] rounded-lg p-4 space-y-3">
+                                    <div>
+                                        <div className="text-sm text-gray-400">Volume (24h)</div>
+                                        <div>
+                                            ${Number(cryptoInfo?.volumeUsd24Hr || 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                                         </div>
-                                    ))}
+                                    </div>
+                                    <div>
+                                        <div className="text-sm text-gray-400">Supply</div>
+                                        <div>
+                                            {Number(cryptoInfo?.supply || 0).toLocaleString("en-US", { maximumFractionDigits: 0 })} {symbol}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-sm text-gray-400">Max Supply</div>
+                                        <div>
+                                            {cryptoInfo?.maxSupply
+                                                ? Number(cryptoInfo.maxSupply).toLocaleString("en-US", { maximumFractionDigits: 0 })
+                                                : "Unlimited"}{" "}
+                                            {symbol}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -186,3 +248,4 @@ export default function AssetPage({ params }: { params: Promise<{ symbol: string
         </div>
     )
 }
+
