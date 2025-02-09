@@ -60,6 +60,21 @@ interface UserData {
     balance: number;
     created_at: string;
   }[];
+  transactions: {
+    id: number;
+    user_id: number;
+    type: 'deposit' | 'withdrawal' | 'transfer' | 'trade' | 'p2p' | 'others';
+    currency: string;
+    amount: number;
+    fee: string;
+    status: 'pending' | 'completed' | 'failed' | 'cancelled';
+    from_address: string;
+    to_address: string;
+    tx_hash: string;
+    description: string;
+    created_at: string;
+    updated_at: string;
+  }[];
 }
 
 export function useUserData() {

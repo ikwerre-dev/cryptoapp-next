@@ -10,39 +10,12 @@ import type { ApexOptions } from "apexcharts"
 import { useUserData } from "@/hooks/useUserData"
 import { useCryptoData } from "@/hooks/useCryptoData"
 import { Button } from "@/components/ui/Button"
+import Link from "next/link"
+import { Coins, Wallet } from 'lucide-react';
 
 const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
- 
 
-const transactions = [
-  {
-    type: "Bitcoin",
-    amount: "+0.431 BTC",
-    value: "$3,489.90",
-    time: "10:34AM",
-    date: "2 Nov 2023",
-    status: "Completed",
-    isPositive: true,
-  },
-  {
-    type: "Ethereum",
-    amount: "-0.431 ETH",
-    value: "$3,489.90",
-    time: "07:21AM",
-    date: "2 Nov 2023",
-    status: "Terminated",
-    isPositive: false,
-  },
-  {
-    type: "Ethereum",
-    amount: "+0.431 ETH",
-    value: "$3,489.90",
-    time: "07:21AM",
-    date: "2 Nov 2023",
-    status: "Completed",
-    isPositive: true,
-  },
-]
+
 const generateChartData = (type: "price" | "candle", dataLength = 15) => {
   const now = new Date()
   return Array.from({ length: dataLength }, (_, i) => {
@@ -81,38 +54,37 @@ export default function DashboardPage() {
   const [btcValue, setBtcValue] = useState(0)
   const [isRefetching, setIsRefetching] = useState(false)
 
-
-
+  useEffect(() => {
+    console.log(userData?.user)
+  }, [userData])
   const balances = [
-    { name: "BTC", balance: Number.parseFloat(userData?.btc_balance || "0") },
-    { name: "ETH", balance: Number.parseFloat(userData?.eth_balance || "0") },
-    { name: "USDT", balance: Number.parseFloat(userData?.usdt_balance || "0") },
-    { name: "BNB", balance: Number.parseFloat(userData?.bnb_balance || "0") },
-    { name: "XRP", balance: Number.parseFloat(userData?.xrp_balance || "0") },
-    { name: "ADA", balance: Number.parseFloat(userData?.ada_balance || "0") },
-    { name: "DOGE", balance: Number.parseFloat(userData?.doge_balance || "0") },
-    { name: "SOL", balance: Number.parseFloat(userData?.sol_balance || "0") },
-    { name: "DOT", balance: Number.parseFloat(userData?.dot_balance || "0") },
-    { name: "MATIC", balance: Number.parseFloat(userData?.matic_balance || "0") },
-    { name: "LINK", balance: Number.parseFloat(userData?.link_balance || "0") },
-    { name: "UNI", balance: Number.parseFloat(userData?.uni_balance || "0") },
-    { name: "AVAX", balance: Number.parseFloat(userData?.avax_balance || "0") },
-    { name: "LTC", balance: Number.parseFloat(userData?.ltc_balance || "0") },
-    { name: "SHIB", balance: Number.parseFloat(userData?.shib_balance || "0") },
+    { name: "BTC", balance: Number(userData?.user.btc_balance || "0") },
+    { name: "ETH", balance: Number(userData?.user.eth_balance || "0") },
+    { name: "USDT", balance: Number(userData?.user.usdt_balance || "0") },
+    { name: "BNB", balance: Number(userData?.user.bnb_balance || "0") },
+    { name: "XRP", balance: Number(userData?.user.xrp_balance || "0") },
+    { name: "ADA", balance: Number(userData?.user.ada_balance || "0") },
+    { name: "DOGE", balance: Number(userData?.user.doge_balance || "0") },
+    { name: "SOL", balance: Number(userData?.user.sol_balance || "0") },
+    { name: "DOT", balance: Number(userData?.user.dot_balance || "0") },
+    { name: "MATIC", balance: Number(userData?.user.matic_balance || "0") },
+    { name: "LINK", balance: Number(userData?.user.link_balance || "0") },
+    { name: "UNI", balance: Number(userData?.user.uni_balance || "0") },
+    { name: "AVAX", balance: Number(userData?.user.avax_balance || "0") },
+    { name: "LTC", balance: Number(userData?.user.ltc_balance || "0") },
+    { name: "SHIB", balance: Number(userData?.user.shib_balance || "0") },
   ]
 
   const topAssets = balances
     .sort((a, b) => b.balance - a.balance)
-    .slice(0, 4)
+    .slice(0, 6)
     .map((asset) => ({
       name: asset.name,
       value: asset.balance,
-      change: Math.random() * 10 - 5,  
       icon: asset.name.charAt(0),
       iconBg: "bg-purple-500/20",
       iconColor: "text-purple-500",
     }))
-
 
 
   const fetchBtcBalance = () => {
@@ -214,12 +186,10 @@ export default function DashboardPage() {
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">
-          <TopBar title="Dashboard" />
+          <TopBar title="Dashboard" notices={userData?.notices} />
           <div className="flex flex-col lg:flex-row">
-            {/* Main Content */}
             <div className="flex-1 w-full lg:max-w-[calc(100%-320px)] p-4 lg:p-8">
-              {/* Total Asset Value */}
-              <div className="bg-[#121212] flex flex-col lg:flex-row justify-between items-center px-4 lg:px-[1.5rem] rounded-[1rem] py-4 lg:py-[1.5rem] mb-8">
+              <div className="bg-[#121212] flex  lg:flex-row justify-between md:items-center px-[1rem] lg:px-[1.5rem] rounded-[1rem] py-4 lg:py-[1.5rem] mb-8">
                 <div className="flex flex-col gap-2 mb-4 lg:mb-0">
                   <div className="text-sm text-gray-400">Total asset value</div>
                   <div className="flex items-center gap-2">
@@ -300,40 +270,63 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Transactions */}
               <div>
                 <div className="mb-4 flex items-center justify-between">
                   <div className="text-lg font-medium">Transaction</div>
-                  <button className="text-sm text-purple-500 hover:text-purple-400">Sell All</button>
+                  <Link href={"/transactions"} className="text-sm text-purple-500 hover:text-purple-400">Sell All</Link>
                 </div>
                 <div className="space-y-2">
-                  {transactions.map((tx, index) => (
+                  {userData?.transactions.slice(0, 5)?.map((tx, index) => (
                     <div key={index} className="flex items-center justify-between rounded-lg bg-[#121212] p-4">
                       <div className="flex items-center gap-4">
-                        <div className={`rounded-lg ${tx.isPositive ? "bg-green-500/20" : "bg-red-500/20"} p-2`}>
-                          {tx.isPositive ? (
+                        <div className={`rounded-lg ${tx.status == "completed" ? "bg-green-500/20" : tx.status == "pending" ? "bg-orange-500/20" : "bg-red-500/20"} p-2`}>
+                          {tx.status == "completed" ? (
                             <ArrowUp className="h-5 w-5 text-green-500" />
-                          ) : (
-                            <ArrowDown className="h-5 w-5 text-red-500" />
-                          )}
+                          ) : tx.status == "pending" ? (
+                            <ArrowDown className="h-5 w-5 text-orange-500" />
+                          ) :
+                            (
+                              <ArrowDown className="h-5 w-5 text-red-500" />
+                            )
+                          }
                         </div>
                         <div>
-                          <div className="font-medium">{tx.type}</div>
-                          <div className="text-sm text-gray-400">
-                            {tx.date} {tx.time}
+                          <div className="font-medium text-sm">{tx.type} - {tx.description}</div>
+                           <div className="text-sm text-gray-400">
+                            {(() => {
+                              const date = new Date(tx.created_at);
+                              const day = date.getDate();
+                              const suffix = (day: number) => {
+                                if (day > 3 && day < 21) return 'th';
+                                switch (day % 10) {
+                                  case 1: return 'st';
+                                  case 2: return 'nd';
+                                  case 3: return 'rd';
+                                  default: return 'th';
+                                }
+                              };
+                              return date.toLocaleDateString('en-GB', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric'
+                              }).replace(/\d+/, day + suffix(day));
+                            })()}
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className={tx.isPositive ? "text-green-500" : "text-red-500"}>{tx.amount}</div>
-                        <div className="text-sm text-gray-400">{tx.value}</div>
+                      <div className="text-right flex flex-col ">
+                        <div className={`${tx.status === "completed" ? "text-green-500" : tx.status === "pending" ? "text-orange-500" : "text-red-500"}`}>
+                          ${Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div className="flex flex-col justify-end items-end">
+                          <div
+                            className={` md:flex rounded-full text-end px-3 py-1 text-xs ${tx.status == "completed" ? "bg-green-500/20" : tx.status == "pending" ? "bg-orange-500/20" : "bg-red-500/20"}`}
+                          >
+                            {tx.status}
+                          </div>
+                        </div>
                       </div>
-                      <div
-                        className={`hidden md:flex rounded-full px-3 py-1 text-sm ${tx.status === "Completed" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"
-                          }`}
-                      >
-                        {tx.status}
-                      </div>
+
                     </div>
                   ))}
                 </div>
@@ -345,11 +338,11 @@ export default function DashboardPage() {
               <div className="flex border-b border-gray-800/50  flex-col">
                 <div className="mb-6 flex items-center justify-between">
                   <div className="text-lg font-medium">Assets</div>
-                  <button className="text-sm text-gray-400 hover:text-gray-300">See All</button>
+                  <Link href="/dashboard/portfolio" className="text-sm text-gray-400 hover:text-gray-300">See All</Link>
                 </div>
 
                 <div className="mb-8 grid grid-cols-2 gap-3">
-                  {assets.map((asset) => (
+                  {topAssets && topAssets.map((asset) => (
                     <div key={asset.name} className="rounded-lg bg-[#121212] p-3 transition-colors hover:bg-[#1A1A1A]">
                       <div className="mb-3 flex items-center gap-3">
                         <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${asset.iconBg}`}>
@@ -357,68 +350,47 @@ export default function DashboardPage() {
                         </div>
                         <span className="font-medium">{asset.name}</span>
                       </div>
-                      <div className="mb-1 text-lg font-bold">${asset.value.toLocaleString()}</div>
-                      <div
-                        className={`flex items-center gap-1 text-sm ${asset.change >= 0 ? "text-green-500" : "text-red-500"
-                          }`}
-                      >
-                        {asset.change >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                        {Math.abs(asset.change)}%
-                      </div>
+                      <div className="mb-1 text-lg font-bold">${asset.value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="my-5">
-                <div className="my-4 text-lg font-medium">Operation</div>
-                <div className="flex gap-2">
-                  <button className="flex-1 rounded-lg bg-orange-500 py-2 text-sm font-medium transition-colors hover:bg-orange-600">
-                    Buy
-                  </button>
-                  <button className="flex-1 rounded-lg bg-[#121212] py-2 text-sm font-medium transition-colors hover:bg-[#1A1A1A]">
-                    Sell
-                  </button>
-                  <button className="flex-1 rounded-lg bg-[#121212] py-2 text-sm font-medium transition-colors hover:bg-[#1A1A1A]">
-                    Exchange
-                  </button>
+
+              <div className="mt-4">
+                <div className="mb-4 text-lg font-medium">Quick Actions</div>
+                <div className="grid grid-cols-2 gap-3">
+                  <Link
+                    href="/dashboard/invest"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-orange-500 py-3 text-sm font-medium transition-colors hover:bg-orange-600"
+                  >
+                    <Coins className="h-4 w-4" />
+                    Invest
+                  </Link>
+                  <Link
+                    href="/dashboard/transactions/send"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]"
+                  >
+                    <Wallet className="h-4 w-4" />
+                    Send
+                  </Link>
+                  <Link
+                    href="/dashboard/transactions/deposit"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]"
+                  >
+                    <Wallet className="h-4 w-4" />
+                    Deposit
+                  </Link>
+                  <Link
+                    href="/dashboard/transactions/p2p"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-[#121212] py-3 text-sm font-medium transition-colors hover:bg-[#1A1A1A]"
+                  >
+                    <Wallet className="h-4 w-4" />
+                    P2P
+                  </Link>
                 </div>
               </div>
 
-              <div>
-                <div className="mb-4">
-                  <div className="text-sm text-gray-400">You pay</div>
-                  <div className="mt-2 flex items-center gap-2 rounded-lg bg-[#121212] p-3">
-                    <div className="flex-1">
-                      <input type="text" defaultValue="321.40" className="w-full bg-transparent text-lg outline-none" />
-                    </div>
-                    <button className="flex items-center gap-2 rounded-lg bg-orange-500/20 px-2 py-1 text-sm text-orange-500">
-                      UST
-                      <ChevronDown className="h-4 w-4" />
-                    </button>
-                    <div className="rounded bg-orange-500/20 px-2 py-1 text-xs text-orange-500">MAX</div>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="text-sm text-gray-400">You get</div>
-                  <div className="mt-2 flex items-center gap-2 rounded-lg bg-[#121212] p-3">
-                    <div className="flex-1">
-                      <input type="text" defaultValue="0.05" className="w-full bg-transparent text-lg outline-none" />
-                    </div>
-                    <button className="flex items-center gap-2 rounded-lg bg-orange-500/20 px-2 py-1 text-sm text-orange-500">
-                      BTC
-                      <ChevronDown className="h-4 w-4" />
-                    </button>
-                    <div className="rounded bg-orange-500/20 px-2 py-1 text-xs text-orange-500">MIN</div>
-                  </div>
-                </div>
-
-                <div className="mb-4 text-center text-sm text-gray-400">1 BTC = $2,345</div>
-
-                <button className="w-full rounded-lg bg-orange-500 py-3 font-medium transition-colors hover:bg-orange-600">
-                  Buy Bitcoin
-                </button>
-              </div>
             </div>
           </div>
         </div>

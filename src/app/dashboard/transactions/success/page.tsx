@@ -1,10 +1,11 @@
 "use client"
 
-import { use } from "react"
+import { use, useCallback, useEffect, useState } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
 import { CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { useUserData } from "@/hooks/useUserData"
 
 type TransactionType = "deposit" | "send" | "swap" | "p2p"
 interface TransactionParams {
@@ -21,7 +22,7 @@ const getTransactionMessage = (type: TransactionType, params: TransactionParams)
     case "deposit":
       return `Your ${params.symbol} deposit has been initiated`
     case "send":
-      return `Successfully sent ${params.amount} ${params.symbol} to ${params.to}`
+      return `Successfully sent $${params.amount} in ${params.symbol} to ${params.to}`
     case "swap":
       return `Successfully swapped ${params.amount} ${params.fromSymbol} for ${params.toAmount} ${params.toSymbol}`
     case "p2p":
@@ -40,13 +41,30 @@ export default function SuccessPage({ searchParams }: { searchParams: Promise<{
   toAmount?: string
 }> }) {
   const params = use(searchParams)
+  const { userData, isLoading, error, refetch, totalBalance } = useUserData()
+  const [isRefetching, setIsRefetching] = useState(false)
 
+  const handleRefetch = useCallback(async () => {
+    setIsRefetching(true)
+    await refetch()
+     setIsRefetching(false)
+  }, [refetch])
+
+ 
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleRefetch();
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">
-          <TopBar title="Transaction Success" />
+          <TopBar title="Transaction Success"  notices={userData?.notices} />
           <div className="p-4 lg:p-8 max-w-6xl mx-auto">
             <div className="bg-[#121212] rounded-[1rem] p-6 text-center">
               <div className="flex justify-center mb-6">

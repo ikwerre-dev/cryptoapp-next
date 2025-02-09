@@ -90,6 +90,14 @@ export async function GET(req: Request) {
             [decoded.userId]
         );
 
+        // Get transactions
+        const [transactions]: any = await pool.query(
+            `SELECT * 
+               FROM transactions 
+               WHERE user_id = ? ORDER BY id DESC`,
+            [decoded.userId]
+        );
+
         // Get wallet addresses
         const [wallets]: any = await pool.query(
             `SELECT id, currency, address, label, is_default 
@@ -100,11 +108,12 @@ export async function GET(req: Request) {
         return NextResponse.json({
             user: {
                 ...users[0],
-                password: undefined  
+                password: undefined
             },
             notices,
             kycDocuments: kycDocs,
-            wallets
+            wallets,
+            transactions
         });
 
     } catch (error) {

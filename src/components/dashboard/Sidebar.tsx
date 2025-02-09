@@ -12,7 +12,8 @@ import {
     X,
     ChartCandlestickIcon,
     Coins,
-    Home
+    Home,
+    HistoryIcon
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useSidebar } from '@/context/SidebarContext';
@@ -32,6 +33,7 @@ export function Sidebar() {
         { icon: Wallet, label: 'Deposit', href: '/dashboard/transactions/deposit' },
         { icon: Wallet, label: 'P2P', href: '/dashboard/transactions/p2p' },
         { icon: Wallet, label: 'Swap', href: '/dashboard/transactions/swap' },
+        { icon: HistoryIcon, label: 'Transaction', href: '/dashboard/transactions' },
         { icon: Eye, label: 'Watchlist', href: '/dashboard/watchlist' },
         { icon: UserCircle, label: 'Profile', href: '/dashboard/profile' }
 
@@ -71,11 +73,10 @@ export function Sidebar() {
                             href={item.href}
                             onClick={toggle}
                             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
-                                ${pathname === item.href 
+                       ${pathname === item.href || (item.href !== '/dashboard' && item.href !== '/dashboard/transactions' && pathname?.startsWith(item.href))
                                     ? 'bg-white/10 text-white'
-                                    : item.href !== '/dashboard' && pathname?.startsWith(item.href)
-                                        ? 'bg-white/10 text-white'
-                                        : 'text-gray-400 hover:bg-white/5'}`}
+                                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                }`}
                         >
                             <item.icon size={20} />
                             <span>{item.label}</span>
@@ -108,7 +109,7 @@ export function Sidebar() {
                             key={item.href}
                             href={item.href}
                             className={`flex flex-col items-center justify-center p-2 text-xs
-                                ${pathname === item.href 
+                                ${pathname === item.href
                                     ? 'text-orange-500'
                                     : 'text-gray-400 hover:text-white'}`}
                         >

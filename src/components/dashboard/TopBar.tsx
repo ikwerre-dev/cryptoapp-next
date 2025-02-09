@@ -8,12 +8,33 @@ import { useAuth } from '@/context/AuthContext';
 
 interface TopBarProps {
     title: string;
+    notices?: {
+        id: number;
+        type: 'security' | 'transaction' | 'kyc' | 'system' | 'promotion';
+        title: string;
+        message: string;
+        is_read: boolean;
+        created_at: string;
+    }[];
 }
 
-export function TopBar({ title }: TopBarProps) {
+export function TopBar({ title, notices = [] }: TopBarProps) {
     const { toggle } = useSidebar();
     const [isOpen, setIsOpen] = useState(false);
-    const { logout } = useAuth();
+    const [showNotices, setShowNotices] = useState(false);
+    const { logout, markNoticesAsRead } = useAuth();
+
+    const unreadCount = notices?.filter(notice => !notice.is_read).length || 0;
+
+    const handleNoticesOpen = () => {
+        setShowNotices(!showNotices);
+        if (!showNotices && unreadCount > 0) {
+            const unreadNoticeIds = notices
+                .filter(notice => !notice.is_read)
+                .map(notice => notice.id);
+            markNoticesAsRead(unreadNoticeIds);
+        }
+    };
 
     return (
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-800/50 bg-[#0A0A0A]/80 backdrop-blur">
@@ -36,10 +57,53 @@ export function TopBar({ title }: TopBarProps) {
                     </div>
                 </div>
                 <div className="flex items-center space-x-4">
-                    <button className="p-2 hover:bg-white/5 rounded-lg relative">
-                        <Bell size={20} className="text-gray-400" />
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
+                    <div className="relative">
+                        <button 
+                            onClick={handleNoticesOpen}
+                            className="p-2 hover:bg-white/5 rounded-lg relative"
+                        >
+                            <Bell size={20} className="text-gray-400" />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-xs">
+                                    {unreadCount}
+                                </span>
+                            )}
+                        </button>
+
+                        {showNotices && notices && notices.length > 0 && (
+                            <div className="absolute right-0 mt-2 w-80 rounded-lg bg-[#1A1A1A] border border-gray-800 shadow-lg max-h-[400px] overflow-y-auto">
+                                <div className="py-2">
+                                    <div className="px-4 py-2 border-b border-gray-800">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="font-medium">Notifications</h3>
+                                            <span className="text-xs text-gray-400">{unreadCount} unread</span>
+                                        </div>
+                                    </div>
+                                    {notices.map((notice) => (
+                                        <div 
+                                            key={notice.id}
+                                            className={`px-4 py-3 hover:bg-white/5 cursor-pointer ${
+                                                !notice.is_read ? 'bg-purple-500/10' : ''
+                                            }`}
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <div className={`mt-1 w-2 h-2 rounded-full ${
+                                                    !notice.is_read ? 'bg-purple-500' : 'bg-gray-500'
+                                                }`} />
+                                                <div>
+                                                    <div className="font-medium text-sm">{notice.title}</div>
+                                                    <p className="text-sm text-gray-400 mt-1">{notice.message}</p>
+                                                    <div className="text-xs text-gray-500 mt-1">
+                                                        {new Date(notice.created_at).toLocaleDateString()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                     <div className="relative">
                         <button 
                             onClick={() => setIsOpen(!isOpen)}

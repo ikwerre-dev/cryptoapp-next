@@ -20,6 +20,7 @@ interface AuthContextType {
   logout: () => void;
   userData: any;
   refreshUserData: () => Promise<void>;
+  markNoticesAsRead: (noticeIds: number[]) => Promise<void>;
 }
 const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -46,16 +47,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
         setUser(data.user);
         setIsAuthenticated(true);
       } else if (data.requireLogout) {
-         logout();
-         window.dispatchEvent(new CustomEvent('showNotification', { 
-          detail: { 
+        logout();
+        window.dispatchEvent(new CustomEvent('showNotification', {
+          detail: {
             message: data.error,
             type: 'error'
           }
@@ -156,22 +157,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      refreshUserData();
+  const markNoticesAsRead = async (noticeIds: number[]) => {
+    try {
+      const token = Cookies.get('auth-token');
+      if (!token || !isAuthenticated) return;
+
+      const response = await fetch('/api/notices/read', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ noticeIds }),
+      });
+
+      if (response.ok) {
+        setUserData((prev: any) => {
+          if (!prev || !prev.notices) return prev;
+          
+          return {
+            ...prev,
+            notices: prev.notices.map((notice: any) =>
+              noticeIds.includes(notice.id) ? { ...notice, is_read: true } : notice
+            )
+          };
+        });
+
+        // Refresh user data to ensure sync with server
+        await refreshUserData();
+      }
+    } catch (error) {
+      console.error('Failed to mark notices as read:', error);
     }
-  }, [isAuthenticated]);
+  };
 
   return (
-    <AuthContext.Provider value={{ 
+    <AuthContext.Provider value={{
       user,
-      isAuthenticated, 
-      isLoading, 
-      login, 
-      signup, 
+      isAuthenticated,
+      isLoading,
+      login,
+      signup,
       logout,
       userData,
-      refreshUserData
+      refreshUserData,
+      markNoticesAsRead
     }}>
       {children}
     </AuthContext.Provider>
