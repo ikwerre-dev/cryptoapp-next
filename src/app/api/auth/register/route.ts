@@ -36,11 +36,37 @@ export async function POST(req: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate unique username
+    async function generateUniqueUsername(): Promise<string> {
+      const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let username;
+      let isUnique = false;
+      
+      while (!isUnique) {
+        username = Array.from({ length: 5 }, () => 
+          characters.charAt(Math.floor(Math.random() * characters.length))
+        ).join('');
+        
+        const [existing]: any = await pool.query(
+          'SELECT id FROM users WHERE username = ?',
+          [username]
+        );
+        
+        if (existing.length === 0) {
+          isUnique = true;
+        }
+      }
+      return username as string;
+    }
+
+    const username = await generateUniqueUsername();
+
     // Insert new user with additional fields
     const [result]: any = await pool.query(
       `INSERT INTO users (
         email, 
-        password, 
+        password,
+        username, 
         status,
         kyc_status,
         login_ip,
@@ -48,8 +74,8 @@ export async function POST(req: Request) {
         btc_balance,
         eth_balance,
         usdt_balance
-      ) VALUES (?, ?, 'active', 'none', ?, NOW(), 0, 0, 0)`,
-      [email, hashedPassword, ip]
+      ) VALUES (?, ?, ?, 'active', 'none', ?, NOW(), 0, 0, 0)`,
+      [email, hashedPassword, username, ip]
     );
 
     // Create welcome notice
@@ -81,6 +107,7 @@ export async function POST(req: Request) {
       user: { 
         id: result.insertId, 
         email,
+        username,
         status: 'active',
         kycStatus: 'none',
         lastLogin: new Date(),

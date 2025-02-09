@@ -1,48 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ArrowDown, ArrowUp, ChevronDown, Eye, EyeOff } from "lucide-react"
+import { useState, useEffect, useCallback, useMemo } from "react"
+import { ArrowDown, ArrowUp, ChevronDown, Eye, EyeOff, RefreshCw } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
 import dynamic from "next/dynamic"
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
 import type { ApexOptions } from "apexcharts"
-const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
+import { useUserData } from "@/hooks/useUserData"
+import { useCryptoData } from "@/hooks/useCryptoData"
+import { Button } from "@/components/ui/Button"
 
-const assets = [
-  {
-    name: "BTC",
-    value: 24300.4,
-    change: -1.2,
-    icon: "₿",
-    iconBg: "bg-purple-500/20",
-    iconColor: "text-purple-500",
-  },
-  {
-    name: "UST",
-    value: 13400.2,
-    change: 0.4,
-    icon: "⊮",
-    iconBg: "bg-purple-500/20",
-    iconColor: "text-purple-500",
-  },
-  {
-    name: "ETH",
-    value: 4000.8,
-    change: 3.4,
-    icon: "Ξ",
-    iconBg: "bg-purple-500/20",
-    iconColor: "text-purple-500",
-  },
-  {
-    name: "CAR",
-    value: 1900.1,
-    change: -0.3,
-    icon: "◎",
-    iconBg: "bg-purple-500/20",
-    iconColor: "text-purple-500",
-  },
-]
+const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
+ 
 
 const transactions = [
   {
@@ -76,7 +46,7 @@ const transactions = [
 const generateChartData = (type: "price" | "candle", dataLength = 15) => {
   const now = new Date()
   return Array.from({ length: dataLength }, (_, i) => {
-    const date = new Date(now.getTime() - (dataLength - i) * 1000) // 1 second intervals
+    const date = new Date(now.getTime() - (dataLength - i) * 1000)
     const open = Number((Math.random() * 1000 + 20000).toFixed(0))
     const high = Number((open + Math.random() * 500).toFixed(0))
     const low = Number((open - Math.random() * 500).toFixed(0))
@@ -100,17 +70,81 @@ const generateNewDataPoint = () => {
   }
 }
 
-// Update the initial state
 export default function DashboardPage() {
   const [chartType] = useState<"price" | "candle">("candle")
   const [selectedTimeFilter, setSelectedTimeFilter] = useState("1M")
   const [showBalance, setShowBalance] = useState(true)
   const [chartData, setChartData] = useState(generateChartData("candle", 15))
-
   const toggleBalance = () => setShowBalance(!showBalance)
+  const { userData, isLoading, error, refetch, totalBalance } = useUserData()
+  const { cryptoData, calculateUserAssetValue } = useCryptoData()
+  const [btcValue, setBtcValue] = useState(0)
+  const [isRefetching, setIsRefetching] = useState(false)
+
+
+
+  const balances = [
+    { name: "BTC", balance: Number.parseFloat(userData?.btc_balance || "0") },
+    { name: "ETH", balance: Number.parseFloat(userData?.eth_balance || "0") },
+    { name: "USDT", balance: Number.parseFloat(userData?.usdt_balance || "0") },
+    { name: "BNB", balance: Number.parseFloat(userData?.bnb_balance || "0") },
+    { name: "XRP", balance: Number.parseFloat(userData?.xrp_balance || "0") },
+    { name: "ADA", balance: Number.parseFloat(userData?.ada_balance || "0") },
+    { name: "DOGE", balance: Number.parseFloat(userData?.doge_balance || "0") },
+    { name: "SOL", balance: Number.parseFloat(userData?.sol_balance || "0") },
+    { name: "DOT", balance: Number.parseFloat(userData?.dot_balance || "0") },
+    { name: "MATIC", balance: Number.parseFloat(userData?.matic_balance || "0") },
+    { name: "LINK", balance: Number.parseFloat(userData?.link_balance || "0") },
+    { name: "UNI", balance: Number.parseFloat(userData?.uni_balance || "0") },
+    { name: "AVAX", balance: Number.parseFloat(userData?.avax_balance || "0") },
+    { name: "LTC", balance: Number.parseFloat(userData?.ltc_balance || "0") },
+    { name: "SHIB", balance: Number.parseFloat(userData?.shib_balance || "0") },
+  ]
+
+  const topAssets = balances
+    .sort((a, b) => b.balance - a.balance)
+    .slice(0, 4)
+    .map((asset) => ({
+      name: asset.name,
+      value: asset.balance,
+      change: Math.random() * 10 - 5,  
+      icon: asset.name.charAt(0),
+      iconBg: "bg-purple-500/20",
+      iconColor: "text-purple-500",
+    }))
+
+
+
+  const fetchBtcBalance = () => {
+    const btcValue = calculateUserAssetValue(totalBalance, "bitcoin")
+
+    setBtcValue(btcValue && Number((totalBalance / btcValue).toFixed(6)))
+
+  }
+
+  const handleRefetch = useCallback(async () => {
+    setIsRefetching(true)
+    await refetch()
+    fetchBtcBalance()
+    setIsRefetching(false)
+  }, [refetch])
+
 
   useEffect(() => {
-    const interval = setInterval(() => { 
+    fetchBtcBalance()
+  }, [totalBalance, calculateUserAssetValue])
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleRefetch();
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
       setChartData((prevData) => {
         const newPoint = generateNewDataPoint()
         return [...prevData.slice(1), newPoint]
@@ -176,7 +210,7 @@ export default function DashboardPage() {
   }
 
   return (
-     <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">
@@ -185,27 +219,35 @@ export default function DashboardPage() {
             {/* Main Content */}
             <div className="flex-1 w-full lg:max-w-[calc(100%-320px)] p-4 lg:p-8">
               {/* Total Asset Value */}
-              <div className="bg-[#121212] flex  lg:flex-row justify-between px-4 lg:px-[1.5rem] rounded-[1rem] py-4 lg:py-[1.5rem] mb-8">
-                <div className=" flex flex-col gap-2">
+              <div className="bg-[#121212] flex flex-col lg:flex-row justify-between items-center px-4 lg:px-[1.5rem] rounded-[1rem] py-4 lg:py-[1.5rem] mb-8">
+                <div className="flex flex-col gap-2 mb-4 lg:mb-0">
                   <div className="text-sm text-gray-400">Total asset value</div>
                   <div className="flex items-center gap-2">
                     <div className="text-4xl font-bold tracking-tight">
-                      {showBalance ? "$ 345,045.31" : "$ ••••••••••"}
+                      {showBalance
+                        ? `$ ${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : "$ ••••••••••"}
                     </div>
                   </div>
-                  <div className="text-sm text-gray-400">≈ 13.4578 BTC</div>
+                  <div className="text-sm text-gray-400">≈ {btcValue} BTC</div>
                 </div>
-                <div className="flex flex-col items-center justify-center">
-                  <button className="rounded-full bg-white/20 p-3  hover:bg-gray-700/50" onClick={toggleBalance}>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={handleRefetch}
+                    disabled={isRefetching}
+                    className="rounded-full bg-white/20 p-3 hover:bg-gray-700/50"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`} />
+                  </button>
+                  <button className="rounded-full bg-white/20 p-3 hover:bg-gray-700/50" onClick={toggleBalance}>
                     {showBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
-              {/* Market Overview */}
               <div className="mb-8 ">
                 <div className="flex pl-1 items-center justify-between flex-wrap">
-                   <div className="mb-4 text-base font-medium">My Portfolio</div>
+                  <div className="mb-4 text-base font-medium">My Portfolio</div>
                   <div className="mb-4 flex items-center gap-4  ">
                     <div className="flex rounded-lg bg-[#121212]  p-1">
                       {timeFilters.map((filter) => (
@@ -225,9 +267,8 @@ export default function DashboardPage() {
                                       : 200
                             setChartData(generateChartData(chartType, dataLength))
                           }}
-                          className={`rounded px-3 py-1.5 text-sm ${
-                            selectedTimeFilter === filter ? "bg-purple-500" : "hover:bg-gray-800"
-                          }`}
+                          className={`rounded px-3 py-1.5 text-sm ${selectedTimeFilter === filter ? "bg-purple-500" : "hover:bg-gray-800"
+                            }`}
                         >
                           {filter}
                         </button>
@@ -245,7 +286,7 @@ export default function DashboardPage() {
                         ...chartOptions.chart,
                         animations: {
                           enabled: true,
-                           dynamicAnimation: {
+                          dynamicAnimation: {
                             speed: 1000,
                           },
                         },
@@ -288,9 +329,8 @@ export default function DashboardPage() {
                         <div className="text-sm text-gray-400">{tx.value}</div>
                       </div>
                       <div
-                        className={`hidden md:flex rounded-full px-3 py-1 text-sm ${
-                          tx.status === "Completed" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"
-                        }`}
+                        className={`hidden md:flex rounded-full px-3 py-1 text-sm ${tx.status === "Completed" ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"
+                          }`}
                       >
                         {tx.status}
                       </div>
@@ -319,9 +359,8 @@ export default function DashboardPage() {
                       </div>
                       <div className="mb-1 text-lg font-bold">${asset.value.toLocaleString()}</div>
                       <div
-                        className={`flex items-center gap-1 text-sm ${
-                          asset.change >= 0 ? "text-green-500" : "text-red-500"
-                        }`}
+                        className={`flex items-center gap-1 text-sm ${asset.change >= 0 ? "text-green-500" : "text-red-500"
+                          }`}
                       >
                         {asset.change >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
                         {Math.abs(asset.change)}%

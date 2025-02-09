@@ -18,13 +18,15 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  userData: any;
+  refreshUserData: () => Promise<void>;
 }
 const AuthContext = createContext<AuthContextType | null>(null);
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -134,6 +136,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   };
 
+  const refreshUserData = async () => {
+    try {
+      const token = Cookies.get('auth-token');
+      if (!token || !isAuthenticated) return;
+
+      const response = await fetch('/api/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data);
+      }
+    } catch (error) {
+      console.error('Failed to refresh user data:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshUserData();
+    }
+  }, [isAuthenticated]);
+
   return (
     <AuthContext.Provider value={{ 
       user,
@@ -141,7 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading, 
       login, 
       signup, 
-      logout 
+      logout,
+      userData,
+      refreshUserData
     }}>
       {children}
     </AuthContext.Provider>

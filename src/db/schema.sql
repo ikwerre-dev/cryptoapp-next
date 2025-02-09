@@ -84,3 +84,25 @@ CREATE TABLE api_keys (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+CREATE TABLE kyc_documents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    document_type ENUM('passport', 'national_id', 'drivers_license', 'proof_of_address') NOT NULL,
+    document_number VARCHAR(100),
+    document_url VARCHAR(255),
+    document_front_url VARCHAR(255),
+    document_back_url VARCHAR(255),
+    selfie_url VARCHAR(255),
+    status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
+    rejection_reason TEXT,
+    verified_by INT,
+    verified_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (verified_by) REFERENCES users(id)
+);
+
+CREATE INDEX idx_kyc_user_id ON kyc_documents(user_id);
+CREATE INDEX idx_kyc_status ON kyc_documents(status);
