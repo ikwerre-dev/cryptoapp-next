@@ -142,7 +142,7 @@ export default function PortfolioPage() {
                                         </thead>
                                         <tbody>
                                             {assets.map((asset) => (
-                                                <tr key={asset.name} onClick={() => ViewPortfolio(asset.name)} className="border-b border-gray-800/50 hover:bg-[#1A1A1A]">
+                                                <tr key={asset.name} onClick={() => ViewPortfolio(asset.name)} className="cursor-pointer  border-b border-gray-800/50 hover:bg-[#1A1A1A]">
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/20">

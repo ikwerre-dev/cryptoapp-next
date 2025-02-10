@@ -5,6 +5,7 @@ import { useSidebar } from '@/context/SidebarContext';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface TopBarProps {
     title: string;
@@ -19,6 +20,7 @@ interface TopBarProps {
 }
 
 export function TopBar({ title, notices = [] }: TopBarProps) {
+    const router = useRouter();
     const { toggle } = useSidebar();
     const [isOpen, setIsOpen] = useState(false);
     const [showNotices, setShowNotices] = useState(false);
@@ -33,6 +35,13 @@ export function TopBar({ title, notices = [] }: TopBarProps) {
                 .filter(notice => !notice.is_read)
                 .map(notice => notice.id);
             markNoticesAsRead(unreadNoticeIds);
+        }
+    };
+
+    const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+            router.push(`/dashboard/watchlist?search=${encodeURIComponent(e.currentTarget.value.trim())}`);
+            e.currentTarget.value = '';
         }
     };
 
@@ -53,6 +62,7 @@ export function TopBar({ title, notices = [] }: TopBarProps) {
                             type="text"
                             placeholder="Search your coins..."
                             className="w-full pl-10 pr-4 py-2 bg-[#1A1A1A] rounded-lg border border-gray-800 focus:border-[#8B5CF6] focus:ring-1 focus:ring-[#8B5CF6] text-white placeholder-gray-400 outline-none"
+                            onKeyDown={handleSearch}
                         />
                     </div>
                 </div>

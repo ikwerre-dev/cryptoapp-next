@@ -77,12 +77,12 @@ export function TransactionList({ transactions, number }: TransactionListProps) 
     }
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-2 cursor-pointer">
             {displayedTransactions.map((tx) => (
                 <div
                     key={tx.id}
                     onClick={() => setSelectedTx(tx)}
-                    className="flex items-center justify-between rounded-lg bg-[#121212] p-4 cursor-pointer hover:bg-[#1A1A1A] transition-colors"
+                    className="flex items-center  justify-between rounded-lg bg-[#121212] p-4 cursor-pointer hover:bg-[#1A1A1A] transition-colors"
                 >
                     <div className="flex items-center gap-4">
                         <div className={`rounded-lg ${tx.status === "completed" ? "bg-green-500/20" : tx.status === "pending" ? "bg-orange-500/20" : "bg-red-500/20"} p-2`}>
@@ -132,10 +132,10 @@ export function TransactionList({ transactions, number }: TransactionListProps) 
                                 </div>
                                 <div className="flex justify-center">
                                     <div className={`inline-flex items-center justify-center h-7 rounded-full px-4 text-sm font-medium ${selectedTx.status === "completed"
-                                            ? "bg-green-500/20 text-green-500"
-                                            : selectedTx.status === "pending"
-                                                ? "bg-orange-500/20 text-orange-500"
-                                                : "bg-red-500/20 text-red-500"
+                                        ? "bg-green-500/20 text-green-500"
+                                        : selectedTx.status === "pending"
+                                            ? "bg-orange-500/20 text-orange-500"
+                                            : "bg-red-500/20 text-red-500"
                                         }`} data-status-badge>
                                         {selectedTx.status}
                                     </div>
