@@ -7,7 +7,7 @@ import { CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useUserData } from "@/hooks/useUserData"
 
-type TransactionType = "deposit" | "send" | "swap" | "p2p" | "investment"
+type TransactionType = "deposit" | "send" | "swap" | "p2p" | "investment" | "trading"
 interface TransactionParams {
   symbol?: string;
   amount?: string;
@@ -23,6 +23,8 @@ const getTransactionMessage = (type: TransactionType, params: TransactionParams)
       return `Your ${params.symbol} deposit has been initiated`
     case "investment":
       return `Your ${params.symbol} Investment with a profit of $${params.amount} has been completed`
+    case "trading":
+      return `Your ${params.symbol} Trade has been closed successfully, Profits has been sent to your account`
     case "send":
       return `Successfully sent $${params.amount} in ${params.symbol} to ${params.to}`
     case "swap":

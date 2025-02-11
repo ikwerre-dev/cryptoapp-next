@@ -1,87 +1,110 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
-import {  Calendar } from "lucide-react"
+import { Clock } from "lucide-react"
+import Cookies from "js-cookie"
+import Link from "next/link"
 
-const historicalBots = [
-  {
-    id: 1,
-    name: "BTC Momentum Bot",
-    startDate: "Oct 15, 2023",
-    endDate: "Oct 22, 2023",
-    profit: "+23.5%",
-    trades: 45,
-    winRate: "68%"
-  },
-  {
-    id: 2,
-    name: "ETH Scalping Bot",
-    startDate: "Oct 1, 2023",
-    endDate: "Oct 15, 2023",
-    profit: "-5.2%",
-    trades: 128,
-    winRate: "48%"
-  },
-  {
-    id: 3,
-    name: "SOL DCA Bot",
-    startDate: "Sep 20, 2023",
-    endDate: "Sep 27, 2023",
-    profit: "+12.8%",
-    trades: 32,
-    winRate: "72%"
-  }
-]
+interface TradingSession {
+    id: number
+    bot_id: number
+    bot_name: string
+    initial_amount: number
+    currency: string
+    start_date: string
+    end_date: string
+    status: string
+    current_profit: number
+}
 
-export default function HistoryPage() {
-  return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
-      <div className="flex flex-col lg:flex-row">
-        <Sidebar />
-        <div className="flex-1 lg:ml-64">
-          <TopBar title="Bot History" />
-          <div className="p-4 lg:p-8">
-            <div className="bg-[#121212] rounded-[1rem] p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold">Trading History</h2>
-                <p className="text-gray-400">View your past trading bot performance</p>
-              </div>
+export default function TradingHistoryPage() {
+    const [sessions, setSessions] = useState<TradingSession[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState("")
 
-              <div className="space-y-4">
-                {historicalBots.map((bot) => (
-                  <div key={bot.id} className="bg-[#1A1A1A] p-4 rounded-lg">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="font-medium mb-1">{bot.name}</h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <Calendar size={14} />
-                          {bot.startDate} - {bot.endDate}
+    useEffect(() => {
+        fetchSessions()
+    }, [])
+
+    const fetchSessions = async () => {
+        try {
+            const response = await fetch("/api/trading/sessions?status=completed", {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("auth-token")}`,
+                },
+            })
+            const data = await response.json()
+            if (data.sessions) {
+                setSessions(data.sessions)
+            }
+        } catch (error) {
+            setError("Failed to load trading history")
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    if (isLoading) return <div>Loading...</div>
+    if (error) return <div>{error}</div>
+
+    return (
+        <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
+            <div className="flex flex-col lg:flex-row">
+                <Sidebar />
+                <div className="flex-1 lg:ml-64">
+                    <TopBar title="Trading History" />
+                    <div className="p-4 lg:p-8">
+                        <div className="bg-[#121212] rounded-[1rem] p-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-semibold">Completed Sessions</h2>
+                                <Link
+                                    href="/dashboard/Aitrading"
+                                    className="text-sm text-gray-400 hover:text-white"
+                                >
+                                    Back to Active Trading
+                                </Link>
+                            </div>
+
+                            <div className="space-y-4">
+                                {sessions.map((session) => (
+                                    <Link
+                                        key={session.id}
+                                        href={`/dashboard/Aitrading/${session.id}`}
+                                    >
+                                        <div className="bg-[#1A1A1A] p-4 rounded-lg hover:bg-[#242424] transition-colors">
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <div className="font-medium">{session.bot_name}</div>
+                                                    <div className="text-sm text-gray-400 flex items-center gap-2">
+                                                        <Clock size={14} />
+                                                        {new Date(session.end_date).toLocaleDateString()}
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className={`text-lg ${session.current_profit >= 0 ? "text-green-500" : "text-red-500"}`}>
+                                                        {session.current_profit >= 0 ? "+" : ""}{session.current_profit}%
+                                                    </div>
+                                                    <div className="text-sm text-gray-400">
+                                                        {session.currency} {session.initial_amount}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                ))}
+
+                                {sessions.length === 0 && (
+                                    <div className="text-center text-gray-400 py-8">
+                                        No completed trading sessions found
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                      </div>
-                      <div className={`text-lg font-medium ${
-                        bot.profit.startsWith('+') ? 'text-green-500' : 'text-red-500'
-                      }`}>
-                        {bot.profit}
-                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="text-sm text-gray-400">Total Trades</div>
-                        <div className="font-medium">{bot.trades}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-400">Win Rate</div>
-                        <div className="font-medium">{bot.winRate}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  )
+    )
 }

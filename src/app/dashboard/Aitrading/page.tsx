@@ -49,6 +49,7 @@ export default function AITradingPage() {
   const [error, setError] = useState("")
   const [totalProfit, setTotalProfit] = useState(0)
   const [totalInvested, setTotalInvested] = useState(0)
+  const [mytotalInvested, setmyTotalInvested] = useState(0)
   const [isUSD, setIsUSD] = useState(true)
   const [selectedCrypto, setSelectedCrypto] = useState<any>(null)
   const [sessionProfits, setSessionProfits] = useState<{ [key: string]: number }>({})
@@ -234,6 +235,7 @@ export default function AITradingPage() {
       profit += Number.parseFloat(session.current_profit.toString())
       invested += Number.parseFloat(session.initial_amount.toString())
     })
+    setmyTotalInvested(invested)
   }
 
   const availableCoins = useMemo(() => {
@@ -302,16 +304,15 @@ export default function AITradingPage() {
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">
-          <TopBar title="AI Trading" />
+          <TopBar title="AI Trading" notices={userData?.notices} />
           <div className="p-4 lg:p-8">
-            {/* Balance Cards */}
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div className="bg-[#121212] rounded-[1rem] p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold">Total Invested</h2>
                 </div>
                 <div className="text-3xl font-bold mb-2">
-                  ${totalInvested.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ${mytotalInvested.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </div>
 
@@ -353,9 +354,11 @@ export default function AITradingPage() {
                       const timestamp = new Date(d.timestamp).getTime()
                       return now - timestamp > 0 && now - timestamp <= 60000
                     })
-                    .slice(-1)[0]
+                    .slice(-1)
+                    .map((d: any) => {
+                      return d.change
+                    })
 
-                  const changeValue = recentData?.change ?? 0
 
                   return (
                     <div
@@ -365,101 +368,29 @@ export default function AITradingPage() {
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-medium">{session.bot_name}ss</div>
+                          <div className="font-medium">{session.bot_name}</div>
                           <div className="text-sm text-gray-400 flex items-center gap-2">
                             <Clock size={14} />
+                            {new Date(session.start_date).toLocaleDateString()}
+                            {" - "}
                             {new Date(session.end_date).toLocaleDateString()}
                           </div>
                         </div>
 
                         <div
-                          className={`text-lg ${sessionData[session.id] &&
-                            sessionData[session.id]
-                              .filter((d: any) => {
-                                const now = Date.now()
-                                const timestamp = new Date(d.timestamp).getTime()
-                                return now - timestamp > 0 && now - timestamp <= 60000
-                              })
-                              .slice(-1)
-                              .map((d: any) => {
-                                return d.change
-                              }) >= 0
+                          className={`text-lg ${recentData >= 0
                             ? "text-green-500"
                             : "text-red-500"
                             }`}
                         >
-                          {sessionData[session.id] &&
-                            sessionData[session.id]
-                              .filter((d: any) => {
-                                const now = Date.now()
-                                const timestamp = new Date(d.timestamp).getTime()
-                                return now - timestamp > 0 && now - timestamp <= 60000
-                              })
-                              .slice(-1)
-                              .map((d: any) => {
-                                return d.change
-                              }) >= 0
+                          {recentData >= 0
                             ? "+"
                             : ""}
-                          {sessionData[session.id] &&
-                            sessionData[session.id]
-                              .filter((d: any) => {
-                                const now = Date.now()
-                                const timestamp = new Date(d.timestamp).getTime()
-                                return now - timestamp > 0 && now - timestamp <= 60000
-                              })
-                              .slice(-1)
-                              .map((d: any) => {
-                                return d.change
-                              })}
+                          {recentData}
                           %
                         </div>
                       </div>
 
-                      {sessionData[session.id] && (
-                        <div className="h-[200px]">
-                          <Chart
-                            options={{
-                              ...chartOptions,
-                              xaxis: {
-                                ...chartOptions.xaxis,
-                                categories: sessionData[session.id]
-                                  .filter((d: any) => {
-                                    const now = Date.now()
-                                    const timestamp = new Date(d.timestamp).getTime()
-                                    return now - timestamp > 0 && now - timestamp <= 60000
-                                  })
-                                  .map((d: any) => {
-                                    const date = new Date(d.timestamp)
-                                    return date.toLocaleString("en-US", {
-                                      month: "2-digit",
-                                      day: "2-digit",
-                                      year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                      second: "2-digit",
-                                      hour12: false,
-                                    })
-                                  }),
-                              },
-                            }}
-                            series={[
-                              {
-                                name: "Balance",
-                                data: sessionData[session.id]
-                                  .filter((d: any) => {
-                                    const now = Date.now()
-                                    const timestamp = new Date(d.timestamp).getTime()
-                                    return now - timestamp > 0 && now - timestamp <= 60000
-                                  })
-                                  .map((d: any) => d.balance),
-                              },
-                            ]}
-                            type="line"
-                            height={200}
-                          />
-                        </div>
-                      )}
                     </div>
                   )
                 })}

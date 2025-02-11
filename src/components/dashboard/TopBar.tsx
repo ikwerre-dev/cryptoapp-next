@@ -99,7 +99,7 @@ export function TopBar({ title, notices = [] }: TopBarProps) {
                         </button>
 
                         {showNotices && notices && notices.length > 0 && (
-                            <div className="absolute right-0 mt-2 w-80 rounded-lg bg-[#1A1A1A] border border-gray-800 shadow-lg max-h-[400px] overflow-y-auto">
+                            <div className="fixed left-4 right-4 lg:absolute lg:left-auto lg:right-0 mt-2 w-auto lg:w-80 rounded-lg bg-[#1A1A1A] border border-gray-800 shadow-lg max-h-[400px] overflow-y-auto">
                                 <div className="py-2">
                                     <div className="px-4 py-2 border-b border-gray-800">
                                         <div className="flex justify-between items-center">
@@ -126,6 +126,15 @@ export function TopBar({ title, notices = [] }: TopBarProps) {
                                             </div>
                                         </div>
                                     ))}
+                                    <div className="sticky bottom-0 w-full bg-[#1A1A1A] border-t border-gray-800 p-2">
+                                        <Link 
+                                            href="/dashboard/notifications" 
+                                            className="block w-full text-center py-2 text-sm text-purple-500 hover:text-purple-400 font-medium"
+                                            onClick={() => setShowNotices(false)}
+                                        >
+                                            View All Notifications
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         )}

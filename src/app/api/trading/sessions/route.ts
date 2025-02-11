@@ -7,6 +7,10 @@ export async function GET(req: Request) {
     try {
         const headersList = headers()
         const authHeader = (await headersList).get("authorization")
+        
+        // Get status from URL params
+        const { searchParams } = new URL(req.url)
+        const status = searchParams.get('status') || 'active'
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -23,9 +27,9 @@ export async function GET(req: Request) {
                     tb.name as bot_name
                 FROM user_trading_sessions uts
                 JOIN trading_bots tb ON uts.bot_id = tb.id
-                WHERE uts.user_id = ?
+                WHERE uts.user_id = ? AND uts.status = ?
                 ORDER BY uts.start_date DESC`,
-                [decoded.userId]
+                [decoded.userId, status]
             )
 
             return NextResponse.json({ sessions })

@@ -16,42 +16,15 @@ import { TransactionList } from "@/components/dashboard/TransactionList"
 import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
 import { InvestmentList } from "@/components/dashboard/InvestmentList"
+import { TradingChart } from "@/components/trading/TradingChart"
 
 const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
 
-
-const generateChartData = (type: "price" | "candle", dataLength = 15) => {
-  const now = new Date()
-  return Array.from({ length: dataLength }, (_, i) => {
-    const date = new Date(now.getTime() - (dataLength - i) * 1000)
-    const open = Number((Math.random() * 1000 + 20000).toFixed(0))
-    const high = Number((open + Math.random() * 500).toFixed(0))
-    const low = Number((open - Math.random() * 500).toFixed(0))
-    const close = Number((low + Math.random() * (high - low)).toFixed(0))
-    return {
-      x: date.getTime(),
-      y: type === "price" ? [close] : [open, high, low, close],
-    }
-  })
-}
-
-const generateNewDataPoint = () => {
-  const now = new Date().getTime()
-  const open = Number((Math.random() * 1000 + 20000).toFixed(0))
-  const high = Number((open + Math.random() * 500).toFixed(0))
-  const low = Number((open - Math.random() * 500).toFixed(0))
-  const close = Number((low + Math.random() * (high - low)).toFixed(0))
-  return {
-    x: now,
-    y: [open, high, low, close],
-  }
-}
 
 export default function DashboardPage() {
   const [chartType] = useState<"price" | "candle">("candle")
   const [selectedTimeFilter, setSelectedTimeFilter] = useState("1M")
   const [showBalance, setShowBalance] = useState(true)
-  const [chartData, setChartData] = useState(generateChartData("candle", 15))
   const toggleBalance = () => setShowBalance(!showBalance)
   const { userData, isLoading, refetch, totalBalance } = useUserData()
   const { cryptoData, calculateUserAssetValue } = useCryptoData()
@@ -62,9 +35,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
-  useEffect(() => {
-    console.log(userData?.user)
-  }, [userData])
+ 
   const balances = [
     { name: "BTC", balance: Number(userData?.user.btc_balance || "0") },
     { name: "ETH", balance: Number(userData?.user.eth_balance || "0") },
@@ -150,71 +121,34 @@ export default function DashboardPage() {
     return () => clearInterval(interval)
   }, [])
 
+
+
+  {/* Chart */ }
+  // Add this state near your other state declarations
+  const [activeSession, setActiveSession] = useState<number | null>(null);
+
+  // Add this function before the return statement
+  const fetchActiveSession = async () => {
+    try {
+      const response = await fetch("/api/trading/sessions?status=active", {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("auth-token")}`,
+        },
+      });
+      const data = await response.json();
+      if (data.sessions && data.sessions.length > 0) {
+        setActiveSession(data.sessions[0].id);
+      }
+    } catch (error) {
+      console.error("Failed to fetch active session");
+    }
+  };
+
+  // Add this useEffect after your other useEffects
   useEffect(() => {
-    const interval = setInterval(() => {
-      setChartData((prevData) => {
-        const newPoint = generateNewDataPoint()
-        return [...prevData.slice(1), newPoint]
-      })
-    }, 1000)
+    fetchActiveSession();
+  }, []);
 
-    return () => clearInterval(interval)
-  }, [])
-
-  const chartOptions: ApexOptions = {
-    chart: {
-      type: chartType == "price" ? "line" : "candlestick",
-      height: 300,
-      width: "100%",
-      toolbar: { show: false },
-      background: "transparent",
-    },
-    theme: {
-      mode: "dark",
-    },
-    xaxis: {
-      type: "datetime",
-      labels: {
-        style: {
-          colors: "#fff",
-        },
-        datetimeFormatter: {
-          year: "yyyy",
-          month: "MMM 'yy",
-          day: "dd MMM",
-          hour: "HH:mm",
-        },
-      },
-    },
-    yaxis: {
-      tooltip: {
-        enabled: true,
-      },
-      labels: {
-        style: {
-          colors: "#fff",
-        },
-      },
-    },
-    tooltip: {
-      theme: "dark",
-    },
-    grid: {
-      borderColor: "#ffffff1a",
-    },
-    plotOptions: {
-      candlestick: {
-        colors: {
-          upward: "#26a69a",
-          downward: "#ef5350",
-        },
-      },
-    },
-    stroke: {
-      curve: "smooth",
-      width: chartType === "price" ? 2 : 1,
-    },
-  }
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white pb-[5rem]">
@@ -255,70 +189,36 @@ export default function DashboardPage() {
                   <div className="mb-4 text-base font-medium">My Portfolio</div>
                   <div className="mb-4 flex items-center gap-4  ">
                     <div className="flex rounded-lg bg-[#121212]  p-1">
-                      {timeFilters.map((filter) => (
-                        <button
-                          key={filter}
-                          onClick={() => {
-                            setSelectedTimeFilter(filter)
-                            const dataLength =
-                              filter === "1M"
-                                ? 15
-                                : filter === "5M"
-                                  ? 45
-                                  : filter === "15M"
-                                    ? 80
-                                    : filter === "30M"
-                                      ? 120
-                                      : 200
-                            setChartData(generateChartData(chartType, dataLength))
-                          }}
-                          className={`rounded px-3 py-1.5 text-sm ${selectedTimeFilter === filter ? "bg-purple-500" : "hover:bg-gray-800"
-                            }`}
-                        >
-                          {filter}
-                        </button>
-                      ))}
+
                     </div>
                   </div>
                 </div>
 
-                
-                {/* Chart */}
-                <div className="relative  w-full  rounded-[1rem] bg-[#121212] p-4">
-                  <Chart
-                    options={{
-                      ...chartOptions,
-                      chart: {
-                        ...chartOptions.chart,
-                        animations: {
-                          enabled: true,
-                          dynamicAnimation: {
-                            speed: 1000,
-                          },
-                        },
-                      },
-                    }}
-                    series={[{ data: chartData }]}
-                    type={chartType === "price" ? "line" : "candlestick"}
-                    height={300}
-                    width="100%"
-                  />
+
+                <div className="relative w-full rounded-[1rem] bg-[#121212] p-4">
+                  {activeSession ? (
+                    <TradingChart sessionId={activeSession} height="300px" />
+                  ) : (
+                    <div className="h-[300px] flex items-center justify-center text-gray-400">
+                      No active trading sessions
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="">
-                  <div className="bg-[#121212] rounded-[1rem] p-6 mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold">Recent Investments</h2>
-                      <button
-                        onClick={() => router.push('/dashboard/investments')}
-                        className="text-orange-500 hover:text-orange-600"
-                      >
-                        View All
-                      </button>
-                    </div>
-                    <InvestmentList investments={investments} limit={1} />
+                <div className="bg-[#121212] rounded-[1rem] p-6 mb-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold">Recent Investments</h2>
+                    <button
+                      onClick={() => router.push('/dashboard/investments')}
+                      className="text-orange-500 hover:text-orange-600"
+                    >
+                      View All
+                    </button>
                   </div>
+                  <InvestmentList investments={investments} limit={1} />
                 </div>
+              </div>
 
               <div>
                 <div className="mb-4 flex items-center justify-between">
@@ -341,7 +241,7 @@ export default function DashboardPage() {
 
                 <div className="mb-8 grid grid-cols-2 gap-3">
                   {topAssets && topAssets.map((asset) => (
-                    <div key={asset.name} className="rounded-lg bg-[#121212] p-3 transition-colors hover:bg-[#1A1A1A]">
+                    <div key={asset.name} onClick={() => router.push(`/dashboard/portfolio/${asset.name}`)} className="cursor-pointer rounded-lg bg-[#121212] p-3 transition-colors hover:bg-[#1A1A1A]">
                       <div className="mb-3 flex items-center gap-3">
                         <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${asset.iconBg}`}>
                           <span className={`text-lg ${asset.iconColor}`}>{asset.icon}</span>
@@ -356,7 +256,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="mt-4">
-              <div className="">
+                <div className="">
                   <div className="bg-[#121212] rounded-[1rem]  py-4 px-4 mb-6">
                     <div className="flex justify-between items-center mb-4">
                       <h2 className="text-sm font-semibold">Recent Investments</h2>

@@ -3,11 +3,14 @@
 import { useCallback, useEffect, useState } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
-import { ArrowDown, ArrowUp, Download, Eye, EyeOff, RefreshCw } from "lucide-react"
+import { Download, Eye, EyeOff, RefreshCw } from "lucide-react"
 import { useUserData } from "@/hooks/useUserData"
 import { useCryptoData } from "@/hooks/useCryptoData"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import Cookies from "js-cookie"
+import jsPDF from "jspdf"
+import "jspdf-autotable"
 
 export default function PortfolioPage() {
     const [showBalance, setShowBalance] = useState(true)
@@ -20,10 +23,7 @@ export default function PortfolioPage() {
         const btcValue = calculateUserAssetValue(totalBalance, "bitcoin")
 
         setBtcValue(btcValue && Number((totalBalance / btcValue).toFixed(6)))
-
     }
-
-
 
     const handleRefetch = useCallback(async () => {
         setIsRefetching(true)
@@ -32,15 +32,13 @@ export default function PortfolioPage() {
         setIsRefetching(false)
     }, [refetch])
 
-
     useEffect(() => {
         fetchBtcBalance()
     }, [totalBalance, calculateUserAssetValue])
 
-
     useEffect(() => {
         const interval = setInterval(() => {
-            handleRefetch();
+            handleRefetch()
         }, 5000)
 
         return () => clearInterval(interval)
@@ -62,39 +60,104 @@ export default function PortfolioPage() {
         { name: "AVAX", balance: Number(userData?.user.avax_balance || "0") },
         { name: "LTC", balance: Number(userData?.user.ltc_balance || "0") },
         { name: "SHIB", balance: Number(userData?.user.shib_balance || "0") },
-    ].map(asset => {
-        const priceUsd = asset.balance
-        return { ...asset, priceUsd }
-    }).sort((a, b) => b.priceUsd - a.priceUsd)
+    ]
+        .map((asset) => {
+            const priceUsd = asset.balance
+            return { ...asset, priceUsd }
+        })
+        .sort((a, b) => b.priceUsd - a.priceUsd)
 
     console.log(assets)
 
-    const downloadStatement = () => {
-        const statement = {
-            date: new Date().toISOString(),
-            totalBalance,
-            btcValue,
-            assets: assets.map(asset => ({
-                name: asset.name,
-                balance: asset.balance,
-                price: asset.priceUsd
-            }))
+    const downloadStatement = async () => {
+        try {
+            const endDate = new Date().toISOString()
+            const startDate = new Date()
+            startDate.setFullYear(startDate.getFullYear() - 1)
+
+            const response = await fetch("/api/transactions/statement", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("auth-token")}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    startDate: startDate.toISOString(),
+                    endDate,
+                }),
+            })
+
+            const data = await response.json()
+
+            if (data.success) {
+                const doc = new jsPDF()
+
+                // Header
+                doc.setFontSize(20)
+                doc.text("Account Statement", 105, 20, { align: "center" })
+
+                // Period
+                doc.setFontSize(12)
+                doc.text(
+                    `Period: ${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}`,
+                    20,
+                    35,
+                )
+
+                // Account Summary
+                doc.setFontSize(16)
+                doc.text("Account Summary", 20, 50)
+
+                doc.setFontSize(12)
+                doc.text(`Total Balance: $${totalBalance.toLocaleString()}`, 20, 60)
+                doc.text(`BTC Equivalent: ${btcValue} BTC`, 20, 70)
+
+                    // Assets Table
+                    ; (doc as any).autoTable({
+                        startY: 85,
+                        head: [["Asset", "Currency", "Balance"]],
+                        body: assets.map((asset) => [asset.name, "USD", `$${asset.priceUsd.toLocaleString()}`]),
+                        headStyles: { fillColor: [139, 92, 246] },
+                    })
+
+                // Transactions
+                doc.addPage()
+                doc.setFontSize(16)
+                doc.text("Transaction History", 20, 20)
+                    ; (doc as any).autoTable({
+                        startY: 30,
+                        head: [["Date", "Type", "Currency", "Amount", "Status"]],
+                        body: data.statement.transactions.map((tx: any) => [
+                            new Date(tx.created_at).toLocaleDateString(),
+                            tx.type.toUpperCase(),
+                            tx.currency,
+                            tx.amount,
+                            tx.status.charAt(0).toUpperCase() + tx.status.slice(1),
+                        ]),
+                        headStyles: { fillColor: [139, 92, 246] },
+                    })
+
+                // Footer
+                const pageCount = doc.getNumberOfPages()
+                for (let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i)
+                    doc.setFontSize(10)
+                    doc.text(
+                        `Generated on ${new Date().toLocaleString()} - Page ${i} of ${pageCount}`,
+                        105,
+                        doc.internal.pageSize.height - 10,
+                        { align: "center" },
+                    )
+                }
+
+                doc.save(`account-statement-${new Date().toLocaleDateString("en-US")}.pdf`)
+            }
+        } catch (error) {
+            console.error("Failed to generate statement:", error)
         }
-
-        const blob = new Blob([JSON.stringify(statement, null, 2)], { type: 'application/json' })
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.href = url
-        link.download = `portfolio-statement-${new Date().toISOString().split('T')[0]}.json`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url)
     }
-
     const ViewPortfolio = (selectedCrypto: string) => {
-        router.push(`/dashboard/portfolio/${selectedCrypto}`);
-
+        router.push(`/dashboard/portfolio/${selectedCrypto}`)
     }
 
     return (
@@ -125,7 +188,10 @@ export default function PortfolioPage() {
                                     >
                                         <RefreshCw className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`} />
                                     </button>
-                                    <button className="rounded-full bg-white/20 p-3 hover:bg-gray-700/50" onClick={() => setShowBalance(!showBalance)}>
+                                    <button
+                                        className="rounded-full bg-white/20 p-3 hover:bg-gray-700/50"
+                                        onClick={() => setShowBalance(!showBalance)}
+                                    >
                                         {showBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </button>
                                 </div>
@@ -142,7 +208,11 @@ export default function PortfolioPage() {
                                         </thead>
                                         <tbody>
                                             {assets.map((asset) => (
-                                                <tr key={asset.name} onClick={() => ViewPortfolio(asset.name)} className="cursor-pointer  border-b border-gray-800/50 hover:bg-[#1A1A1A]">
+                                                <tr
+                                                    key={asset.name}
+                                                    onClick={() => ViewPortfolio(asset.name)}
+                                                    className="cursor-pointer  border-b border-gray-800/50 hover:bg-[#1A1A1A]"
+                                                >
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/20">
@@ -152,8 +222,11 @@ export default function PortfolioPage() {
                                                         </div>
                                                     </td>
                                                     <td className="p-4 text-right">
-
-                                                        ${asset.priceUsd.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                        $
+                                                        {asset.priceUsd.toLocaleString("en-US", {
+                                                            minimumFractionDigits: 2,
+                                                            maximumFractionDigits: 2,
+                                                        })}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -201,3 +274,4 @@ export default function PortfolioPage() {
         </div>
     )
 }
+
