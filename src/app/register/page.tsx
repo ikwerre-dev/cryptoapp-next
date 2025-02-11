@@ -12,7 +12,11 @@ export default function Register() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        first_name: '',
+        last_name: '',
+        phone_number: '',
+        country: ''
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +29,14 @@ export default function Register() {
         }
         
         try {
-            await signup(formData.email, formData.password);
+            await signup(
+                formData.email, 
+                formData.password,
+                formData.first_name,
+                formData.last_name,
+                formData.phone_number,
+                formData.country
+            );
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create account');
         }
@@ -52,6 +63,36 @@ export default function Register() {
                     </div>
                 )}
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                            First Name
+                        </label>
+                        <Input
+                            type="text"
+                            name="first_name"
+                            value={formData.first_name}
+                            onChange={handleChange}
+                            placeholder="Enter your first name"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                            Last Name
+                        </label>
+                        <Input
+                            type="text"
+                            name="last_name"
+                            value={formData.last_name}
+                            onChange={handleChange}
+                            placeholder="Enter your last name"
+                            required
+                        />
+                    </div>
+                </div>
+
                 <div>
                     <label className="block text-sm font-medium text-gray-300 mb-1.5">
                         Email address
@@ -62,6 +103,34 @@ export default function Register() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Enter your email"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                        Phone Number
+                    </label>
+                    <Input
+                        type="tel"
+                        name="phone_number"
+                        value={formData.phone_number}
+                        onChange={handleChange}
+                        placeholder="Enter your phone number"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                        Country
+                    </label>
+                    <Input
+                        type="text"
+                        name="country"
+                        value={formData.country}
+                        onChange={handleChange}
+                        placeholder="Enter your country"
                         required
                     />
                 </div>

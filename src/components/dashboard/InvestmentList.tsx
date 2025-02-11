@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Cookies from "js-cookie"
+import { useRouter } from 'next/navigation';
 
 interface UserInvestment {
     id: number;
@@ -12,6 +14,7 @@ interface UserInvestment {
     duration_days: number;
     min_roi: number;
     max_roi: number;
+    status: 'active' | 'completed' | 'cancelled';
 }
 
 interface InvestmentListProps {
@@ -22,41 +25,83 @@ interface InvestmentListProps {
 export function InvestmentList({ investments, limit }: InvestmentListProps) {
     const [selectedInvestment, setSelectedInvestment] = useState<UserInvestment | null>(null);
     const displayedInvestments = limit ? investments.slice(0, limit) : investments;
+    const [mypackage, setPackage] = useState('');
+    const [profit, setProfit] = useState<number>(0);
 
+
+    console.log(mypackage)
+
+    const router = useRouter();
+    const handleClaimProfit = async (investmentId: number) => {
+        try {
+            const token = Cookies.get("auth-token");
+            const response = await fetch('/api/investments/claim', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ investmentId }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to claim profit');
+            }
+
+            router.push(
+                `/dashboard/transactions/success?amount=${profit}&symbol=${mypackage}&type=investment`,
+            )
+        } catch (error) {
+            console.error('Failed to claim profit:', error);
+        }
+    };
     return (
         <>
             <div className="space-y-4">
                 {displayedInvestments.map((investment) => {
+
+
                     const currentDate = new Date();
                     const startDate = new Date(investment.start_date);
                     const daysPassed = Math.floor((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
                     const dailyRoi = JSON.parse(investment.daily_roi);
                     const currentStage = daysPassed < dailyRoi.length ?
                         `+${(dailyRoi[daysPassed])}%` :
-                        'Completed';
+                        'Click to Claim';
                     let cumulativePercentage = 0;
+                    const initialAmount = investment.amount_usd;
 
                     for (let i = 0; i <= daysPassed && i < dailyRoi.length; i++) {
                         cumulativePercentage += dailyRoi[i] * (i + 1);
                     }
 
-                    const todayPercentage = cumulativePercentage;
+                    let totalAccumulatedAmount = Number(initialAmount);
+
+                    for (let i = 0; i <= daysPassed && i < dailyRoi.length; i++) {
+                        const dailyReturn = Number(dailyRoi[i]);
+                        totalAccumulatedAmount = totalAccumulatedAmount + ((totalAccumulatedAmount * dailyReturn) / 100);
+                    }
+
 
                     return (
                         <div
                             key={investment.id}
                             className="bg-[#1A1A1A] p-4 rounded-lg cursor-pointer hover:bg-[#242424] transition-colors"
-                            onClick={() => setSelectedInvestment(investment)}
+                            onClick={() => {
+                                setSelectedInvestment(investment)
+                                setPackage(investment?.package_name)
+                                setProfit(parseFloat(totalAccumulatedAmount.toFixed(2)))
+                            }}
                         >
                             <div className="flex justify-between items-start mb-2">
                                 <div>
                                     <h3 className="font-medium">{investment.package_name}</h3>
                                     <p className="text-sm text-gray-400">
-                                        ${investment.amount_usd.toLocaleString()} {investment.currency}
+                                        ${investment.amount_usd.toLocaleString()} - ({investment.currency})
                                     </p>
                                 </div>
                                 <div className="text-green-500">
-                                    {currentStage}
+                                    {investment.status == 'completed' ? "Claimed" : investment.status == "cancelled" ? "Cancelled" : currentStage}
                                 </div>
                             </div>
                             <div className="flex gap-4 text-sm text-gray-400">
@@ -82,11 +127,16 @@ export function InvestmentList({ investments, limit }: InvestmentListProps) {
                     cumulativePercentage += dailyRoi[i] * (i + 1);
                 }
 
-                let totalAccumulatedAmount = initialAmount;
+                let totalAccumulatedAmount = Number(initialAmount);
 
                 for (let i = 0; i <= daysPassed && i < dailyRoi.length; i++) {
-                    totalAccumulatedAmount += (totalAccumulatedAmount * dailyRoi[i]);
+                    const dailyReturn = Number(dailyRoi[i]);
+                    totalAccumulatedAmount = totalAccumulatedAmount + ((totalAccumulatedAmount * dailyReturn) / 100);
                 }
+                const formattedAmount = totalAccumulatedAmount.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
                 const todayPercentage = (cumulativePercentage);
 
                 return (
@@ -112,7 +162,7 @@ export function InvestmentList({ investments, limit }: InvestmentListProps) {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-400">Current Value</span>
-                                    <span>${totalAccumulatedAmount}</span>
+                                    <span>${formattedAmount}</span>
                                 </div>
 
                                 <div className="flex justify-between">
@@ -135,6 +185,23 @@ export function InvestmentList({ investments, limit }: InvestmentListProps) {
                                     <span className="text-gray-400">End Date</span>
                                     <span>{new Date(selectedInvestment.end_date).toLocaleDateString()}</span>
                                 </div>
+                                {selectedInvestment.status !== 'completed' && daysPassed >= dailyRoi.length && (
+                                    <button
+                                        onClick={() => handleClaimProfit(selectedInvestment.id)}
+                                        className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg mt-4"
+                                    >
+                                        Claim Profit
+                                    </button>
+                                )
+                                }
+
+                                {
+                                    selectedInvestment.status === 'completed' && (
+                                        <div className="w-full text-center bg-gray-700 text-white py-2 rounded-lg mt-4">
+                                            Investment Completed
+                                        </div>
+                                    )
+                                }
                             </div>
                         </div>
                     </div>

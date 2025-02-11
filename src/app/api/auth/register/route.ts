@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { email, password, first_name, last_name, phone_number, country } = await req.json();
     const headersList = headers();
     const ip = (await headersList).has('x-forwarded-for') 
       ? (await headersList).get('x-forwarded-for')?.split(',')[0] 
@@ -66,7 +66,11 @@ export async function POST(req: Request) {
       `INSERT INTO users (
         email, 
         password,
-        username, 
+        username,
+        first_name,
+        last_name,
+        phone_number,
+        country, 
         status,
         kyc_status,
         login_ip,
@@ -74,8 +78,8 @@ export async function POST(req: Request) {
         btc_balance,
         eth_balance,
         usdt_balance
-      ) VALUES (?, ?, ?, 'active', 'none', ?, NOW(), 0, 0, 0)`,
-      [email, hashedPassword, username, ip]
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'active', 'none', ?, NOW(), 0, 0, 0)`,
+      [email, hashedPassword, username, first_name, last_name, phone_number, country, ip]
     );
 
     // Create welcome notice
@@ -108,6 +112,10 @@ export async function POST(req: Request) {
         id: result.insertId, 
         email,
         username,
+        first_name,
+        last_name,
+        phone_number,
+        country,
         status: 'active',
         kycStatus: 'none',
         lastLogin: new Date(),

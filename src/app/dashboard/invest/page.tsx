@@ -54,6 +54,8 @@ interface UserInvestment {
     duration_days: number
     min_roi: number
     max_roi: number
+    status: 'active' | 'completed' | 'cancelled';
+
 }
 
 export default function InvestPage() {
@@ -244,7 +246,7 @@ export default function InvestPage() {
             <div className="flex flex-col lg:flex-row">
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
-                    <TopBar title="Invest" />
+                    <TopBar title="Investment"  notices={userData?.notices} />
                     <div className="p-4 lg:p-8">
                         {/* Active Investments */}
                         <div className="bg-[#121212] rounded-[1rem] p-6 mb-6">

@@ -7,7 +7,7 @@ import { CheckCircle, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useUserData } from "@/hooks/useUserData"
 
-type TransactionType = "deposit" | "send" | "swap" | "p2p"
+type TransactionType = "deposit" | "send" | "swap" | "p2p" | "investment"
 interface TransactionParams {
   symbol?: string;
   amount?: string;
@@ -21,6 +21,8 @@ const getTransactionMessage = (type: TransactionType, params: TransactionParams)
   switch (type) {
     case "deposit":
       return `Your ${params.symbol} deposit has been initiated`
+    case "investment":
+      return `Your ${params.symbol} Investment with a profit of $${params.amount} has been completed`
     case "send":
       return `Successfully sent $${params.amount} in ${params.symbol} to ${params.to}`
     case "swap":
@@ -31,15 +33,17 @@ const getTransactionMessage = (type: TransactionType, params: TransactionParams)
       return "Transaction completed successfully"
   }
 }
-export default function SuccessPage({ searchParams }: { searchParams: Promise<{
-  type: TransactionType
-  symbol?: string
-  amount?: string
-  to?: string
-  fromSymbol?: string
-  toSymbol?: string
-  toAmount?: string
-}> }) {
+export default function SuccessPage({ searchParams }: {
+  searchParams: Promise<{
+    type: TransactionType
+    symbol?: string
+    amount?: string
+    to?: string
+    fromSymbol?: string
+    toSymbol?: string
+    toAmount?: string
+  }>
+}) {
   const params = use(searchParams)
   const { userData, isLoading, error, refetch, totalBalance } = useUserData()
   const [isRefetching, setIsRefetching] = useState(false)
@@ -47,10 +51,10 @@ export default function SuccessPage({ searchParams }: { searchParams: Promise<{
   const handleRefetch = useCallback(async () => {
     setIsRefetching(true)
     await refetch()
-     setIsRefetching(false)
+    setIsRefetching(false)
   }, [refetch])
 
- 
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -64,7 +68,7 @@ export default function SuccessPage({ searchParams }: { searchParams: Promise<{
       <div className="flex flex-col lg:flex-row">
         <Sidebar />
         <div className="flex-1 lg:ml-64">
-          <TopBar title="Transaction Success"  notices={userData?.notices} />
+          <TopBar title="Transaction Success" notices={userData?.notices} />
           <div className="p-4 lg:p-8 max-w-6xl mx-auto">
             <div className="bg-[#121212] rounded-[1rem] p-6 text-center">
               <div className="flex justify-center mb-6">
@@ -97,7 +101,7 @@ export default function SuccessPage({ searchParams }: { searchParams: Promise<{
               {params.type === "deposit" && (
                 <div className="mt-8 bg-[#1A1A1A] rounded-lg p-4 text-left">
                   <p className="text-sm text-gray-400">
-                    Note: Your deposit will be credited to your account after network confirmation. 
+                    Note: Your deposit will be credited to your account after network confirmation.
                     This usually takes 10-30 minutes depending on network congestion.
                   </p>
                 </div>

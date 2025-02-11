@@ -120,7 +120,7 @@ export function useUserData() {
       if (!response.ok) throw new Error('Failed to fetch user data');
 
       const data = await response.json();
-      console.log('fetched user data')
+      // console.log('fetched user data')
       setUserData(data);
       setTotalBalance(calculateTotalBalance(data));
       setError(null);
@@ -135,11 +135,11 @@ export function useUserData() {
     fetchUserData();
   }, []);
 
-  return { 
-    userData, 
-    isLoading, 
-    error, 
+  return {
+    userData,
+    isLoading,
+    error,
     refetch: fetchUserData,
-    totalBalance 
+    totalBalance
   };
 }

@@ -13,6 +13,9 @@ import { Button } from "@/components/ui/Button"
 import Link from "next/link"
 import { Coins, Wallet } from 'lucide-react';
 import { TransactionList } from "@/components/dashboard/TransactionList"
+import { useRouter } from "next/navigation"
+import Cookies from "js-cookie"
+import { InvestmentList } from "@/components/dashboard/InvestmentList"
 
 const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
 
@@ -50,11 +53,15 @@ export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState(true)
   const [chartData, setChartData] = useState(generateChartData("candle", 15))
   const toggleBalance = () => setShowBalance(!showBalance)
-  const { userData, isLoading, error, refetch, totalBalance } = useUserData()
+  const { userData, isLoading, refetch, totalBalance } = useUserData()
   const { cryptoData, calculateUserAssetValue } = useCryptoData()
   const [btcValue, setBtcValue] = useState(0)
   const [isRefetching, setIsRefetching] = useState(false)
+  const [investments, setInvestments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  const router = useRouter();
   useEffect(() => {
     console.log(userData?.user)
   }, [userData])
@@ -87,6 +94,33 @@ export default function DashboardPage() {
       iconColor: "text-purple-500",
     }))
 
+  useEffect(() => {
+    const fetchInvestments = async () => {
+      try {
+        const token = Cookies.get("auth-token");
+        const response = await fetch("/api/investments/user", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch investments");
+
+        const data = await response.json();
+        if (data.success) {
+          setInvestments(data.investments);
+        } else {
+          throw new Error(data.error || "Failed to fetch investments");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load investments");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvestments();
+  }, []);
 
   const fetchBtcBalance = () => {
     const btcValue = calculateUserAssetValue(totalBalance, "bitcoin")
@@ -248,6 +282,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
+                
                 {/* Chart */}
                 <div className="relative  w-full  rounded-[1rem] bg-[#121212] p-4">
                   <Chart
@@ -270,6 +305,20 @@ export default function DashboardPage() {
                   />
                 </div>
               </div>
+              <div className="">
+                  <div className="bg-[#121212] rounded-[1rem] p-6 mb-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-semibold">Recent Investments</h2>
+                      <button
+                        onClick={() => router.push('/dashboard/investments')}
+                        className="text-orange-500 hover:text-orange-600"
+                      >
+                        View All
+                      </button>
+                    </div>
+                    <InvestmentList investments={investments} limit={1} />
+                  </div>
+                </div>
 
               <div>
                 <div className="mb-4 flex items-center justify-between">
@@ -277,7 +326,7 @@ export default function DashboardPage() {
                   <Link href={"/transactions"} className="text-sm text-purple-500 hover:text-purple-400">Sell All</Link>
                 </div>
                 <div className="space-y-2">
-                <TransactionList transactions={userData?.transactions || []} number={5} />
+                  <TransactionList transactions={userData?.transactions || []} number={5} />
                 </div>
               </div>
             </div>
@@ -307,6 +356,21 @@ export default function DashboardPage() {
               </div>
 
               <div className="mt-4">
+              <div className="">
+                  <div className="bg-[#121212] rounded-[1rem]  py-4 px-4 mb-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-sm font-semibold">Recent Investments</h2>
+                      <button
+                        onClick={() => router.push('/dashboard/investments')}
+                        className="text-orange-500 text-sm hover:text-orange-600"
+                      >
+                        View All
+                      </button>
+                    </div>
+                    <InvestmentList investments={investments} limit={2} />
+                  </div>
+                </div>
+
                 <div className="mb-4 text-lg font-medium">Quick Actions</div>
                 <div className="grid grid-cols-2 gap-3">
                   <Link

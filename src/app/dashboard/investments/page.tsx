@@ -5,11 +5,13 @@ import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
 import { InvestmentList } from "@/components/dashboard/InvestmentList"
 import Cookies from "js-cookie"
+import { useUserData } from "@/hooks/useUserData"
 
 export default function InvestmentsPage() {
     const [investments, setInvestments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { userData, isLoading, refetch, totalBalance } = useUserData()
 
     useEffect(() => {
         const fetchInvestments = async () => {
@@ -44,7 +46,7 @@ export default function InvestmentsPage() {
             <div className="flex flex-col lg:flex-row">
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
-                    <TopBar title="All Investments" />
+                    <TopBar title="All Investments"  notices={userData?.notices} />
                     <div className="p-4 lg:p-8">
                         {loading ? (
                             <div className="text-center py-8">Loading investments...</div>

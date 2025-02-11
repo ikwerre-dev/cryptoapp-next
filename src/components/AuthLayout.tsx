@@ -8,7 +8,7 @@ interface AuthLayoutProps {
     children: React.ReactNode;
     title: string;
     subtitle: string;
-    type: "login" | "register";
+    type: "login" | "register" | "reset-password" | "forgot-password";
 }
 
 export function AuthLayout({ children, title, subtitle, type }: AuthLayoutProps) {
