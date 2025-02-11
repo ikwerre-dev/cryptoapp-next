@@ -103,7 +103,7 @@ export default function SwapPage({ searchParams }: { searchParams: Promise<{ sym
             }
 
             await refetch()
-            router.push(`/dashboard/transactions/success?amount=${Number(amount) }&toAmount=${(finalAmount).toFixed(8)}&fromSymbol=${fromCrypto.symbol}&toSymbol=${toCrypto.symbol}&type=swap`)
+            router.push(`/dashboard/transactions/success?amount=${Number(amount)}&toAmount=${(finalAmount).toFixed(8)}&fromSymbol=${fromCrypto.symbol}&toSymbol=${toCrypto.symbol}&type=swap`)
         } catch (error) {
             setError(error instanceof Error ? error.message : "Swap failed")
         } finally {
@@ -133,38 +133,21 @@ export default function SwapPage({ searchParams }: { searchParams: Promise<{ sym
                                         <div className="bg-[#1A1A1A] p-4 rounded-lg">
                                             <div className="flex items-center justify-between mb-2">
                                                 <label className="text-sm text-gray-400">From</label>
-                                                <Select.Root
+                                                <select
                                                     value={fromCrypto?.symbol}
-                                                    onValueChange={(value) => {
-                                                        const crypto = availableCoins.find((c) => c.symbol === value)
-                                                        if (crypto) setFromCrypto(crypto)
+                                                    onChange={(event) => {
+                                                        const value = event.target.value;
+                                                        const crypto = availableCoins.find((c) => c.symbol === value);
+                                                        if (crypto) setFromCrypto(crypto);
                                                     }}
+                                                    className="bg-[#1A1A1A] text-white px-3 py-2 rounded-lg shadow-xl"
                                                 >
-                                                    <Select.Trigger className="flex items-center gap-2">
-                                                        <Select.Value />
-                                                        <Select.Icon>
-                                                            <ChevronDown className="h-4 w-4" />
-                                                        </Select.Icon>
-                                                    </Select.Trigger>
-
-                                                    <Select.Portal>
-                                                        <Select.Content className="bg-[#1A1A1A] rounded-lg p-1 shadow-xl">
-                                                            <Select.Viewport>
-                                                                {availableCoins.map((crypto) => (
-                                                                    <Select.Item
-                                                                        key={crypto.symbol}
-                                                                        value={crypto.symbol}
-                                                                        className="flex items-center px-3 py-2 hover:bg-[#242424] rounded cursor-pointer"
-                                                                    >
-                                                                        <Select.ItemText>
-                                                                            {crypto.symbol} (Balance: ${(crypto.balance * crypto.priceUsd).toFixed(2)})
-                                                                        </Select.ItemText>
-                                                                    </Select.Item>
-                                                                ))}
-                                                            </Select.Viewport>
-                                                        </Select.Content>
-                                                    </Select.Portal>
-                                                </Select.Root>
+                                                    {availableCoins.map((crypto) => (
+                                                        <option key={crypto.symbol} value={crypto.symbol}>
+                                                            {crypto.symbol} (Balance: ${(crypto.balance).toFixed(2)})
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </div>
                                             <div className="relative">
                                                 <input
@@ -192,38 +175,21 @@ export default function SwapPage({ searchParams }: { searchParams: Promise<{ sym
                                         <div className="bg-[#1A1A1A] p-4 rounded-lg">
                                             <div className="flex items-center justify-between mb-2">
                                                 <label className="text-sm text-gray-400">To</label>
-                                                <Select.Root
+                                                <select
                                                     value={toCrypto?.symbol}
-                                                    onValueChange={(value) => {
-                                                        const crypto = availableCoins.find((c) => c.symbol === value)
-                                                        if (crypto) setToCrypto(crypto)
+                                                    onChange={(event) => {
+                                                        const value = event.target.value;
+                                                        const crypto = availableCoins.find((c) => c.symbol === value);
+                                                        if (crypto) setToCrypto(crypto);
                                                     }}
+                                                    className="bg-[#1A1A1A] text-white px-3 py-2 rounded-lg shadow-xl"
                                                 >
-                                                    <Select.Trigger className="flex items-center gap-2">
-                                                        <Select.Value />
-                                                        <Select.Icon>
-                                                            <ChevronDown className="h-4 w-4" />
-                                                        </Select.Icon>
-                                                    </Select.Trigger>
-
-                                                    <Select.Portal>
-                                                        <Select.Content className="bg-[#1A1A1A] rounded-lg p-1 shadow-xl">
-                                                            <Select.Viewport>
-                                                                {availableCoins.map((crypto) => (
-                                                                    <Select.Item
-                                                                        key={crypto.symbol}
-                                                                        value={crypto.symbol}
-                                                                        className="flex items-center px-3 py-2 hover:bg-[#242424] rounded cursor-pointer"
-                                                                    >
-                                                                        <Select.ItemText>
-                                                                            {crypto.symbol} (Balance: ${(crypto.balance * crypto.priceUsd).toFixed(2)})
-                                                                        </Select.ItemText>
-                                                                    </Select.Item>
-                                                                ))}
-                                                            </Select.Viewport>
-                                                        </Select.Content>
-                                                    </Select.Portal>
-                                                </Select.Root>
+                                                    {availableCoins.map((crypto) => (
+                                                        <option key={crypto.symbol} value={crypto.symbol}>
+                                                            {crypto.symbol} (Balance: ${(crypto.balance).toFixed(2)})
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </div>
                                             <div className="w-full bg-[#242424] rounded-lg p-3 text-white">
                                                 ${finalAmount.toFixed(2)}

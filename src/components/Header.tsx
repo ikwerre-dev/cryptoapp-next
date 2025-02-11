@@ -26,16 +26,16 @@ export function Header() {
           </button>
 
           <div className={`${isMenuOpen ? 'flex' : 'hidden'} md:flex flex-col md:flex-row absolute md:relative top-full left-0 right-0 bg-[#1a1a1a] md:bg-transparent mt-2 md:mt-0 p-4 md:p-0 space-y-4 md:space-y-0 md:items-center md:space-x-8`}>
-            <Link href="/" className="hover:text-gray-300 text-center">
+            <Link href="/" className="text-white hover:text-gray-300 text-center">
               Home
             </Link>
-            <Link href="/dashboard" className="hover:text-gray-300 text-center">
+            <Link href="/dashboard" className="text-white hover:text-gray-300 text-center">
               Wallet
             </Link>
-            <Link href="/dashboard" className="hover:text-gray-300 text-center">
+            <Link href="/dashboard" className="text-white hover:text-gray-300 text-center">
               Invest
             </Link>
-            <Link href="/dashboard" className="hover:text-gray-300 text-center">
+            <Link href="/dashboard" className="text-white hover:text-gray-300 text-center">
               Trade
             </Link>
 

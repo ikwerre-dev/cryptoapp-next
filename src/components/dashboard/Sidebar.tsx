@@ -53,44 +53,50 @@ export function Sidebar() {
             `} onClick={toggle} />
             <div className={`
                 fixed top-0 left-0 h-screen bg-[#121212] z-50 transition-transform duration-300 ease-in-out
-                w-[280px] lg:w-64 p-4 lg:translate-x-0
+                w-[280px] lg:w-64 lg:translate-x-0 overflow-hidden flex flex-col
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
-                <div className="flex items-center justify-between mb-8">
-                    <Logo />
-                    <button
-                        onClick={toggle}
-                        className="lg:hidden p-2 text-gray-400 hover:text-white"
-                    >
-                        <X size={24} />
-                    </button>
+                <div className="flex-none p-4">
+                    <div className="flex items-center justify-between">
+                        <Logo />
+                        <button
+                            onClick={toggle}
+                            className="lg:hidden p-2 text-gray-400 hover:text-white"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
                 </div>
 
-                <nav className="space-y-2">
-                    {menuItems.map((item) => (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={toggle}
-                            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
-                       ${pathname === item.href || (item.href !== '/dashboard' && item.href !== '/dashboard/transactions' && pathname?.startsWith(item.href))
+                <nav className="flex-1 overflow-y-auto px-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full">
+                    <div className="space-y-2 pb-20">
+                        {menuItems.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={toggle}
+                                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
+                                ${pathname === item.href || (item.href !== '/dashboard' && item.href !== '/dashboard/transactions' && pathname?.startsWith(item.href))
                                     ? 'bg-white/10 text-white'
                                     : 'text-gray-400 hover:bg-white/5 hover:text-white'
                                 }`}
-                        >
-                            <item.icon size={20} />
-                            <span>{item.label}</span>
-                        </Link>
-                    ))}
+                            >
+                                <item.icon size={20} />
+                                <span>{item.label}</span>
+                            </Link>
+                        ))}
+                    </div>
                 </nav>
 
-                <button
-                    onClick={logout}
-                    className="flex items-center space-x-3 px-4 py-3 text-gray-400 hover:bg-white/5 rounded-lg mt-auto absolute bottom-8 w-[calc(100%-2rem)]"
-                >
-                    <LogOut size={20} />
-                    <span>Logout</span>
-                </button>
+                <div className="flex-none p-4 mt-auto">
+                    <button
+                        onClick={logout}
+                        className="flex items-center space-x-3 px-4 py-3 text-gray-400 hover:bg-white/5 rounded-lg w-full"
+                    >
+                        <LogOut size={20} />
+                        <span>Logout</span>
+                    </button>
+                </div>
             </div>
 
             {/* Mobile Bottom Navigation */}
@@ -98,7 +104,7 @@ export function Sidebar() {
                 <div className="flex items-center justify-around h-16">
                     <button
                         onClick={toggle}
-                        className="p-2 text-gray-400 hover:text-white flex flex-col items-center justify-center p-2 text-xs"
+                        className=" text-gray-400 hover:text-white flex flex-col items-center justify-center p-2 text-xs"
                     >
                         <Menu size={24} />
                         <span className="mt-1">Menu</span>

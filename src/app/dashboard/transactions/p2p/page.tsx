@@ -121,43 +121,25 @@ export default function P2PPage() {
 
                                 <div className="flex items-center justify-between mb-6">
                                     <h2 className="text-2xl font-bold">Send to User</h2>
-                                    <Select.Root
+                                    <select
                                         value={selectedCrypto?.symbol}
-                                        onValueChange={(value) => {
-                                            const crypto = availableCoins.find((c) => c.symbol === value)
-                                            if (crypto) setSelectedCrypto(crypto)
+                                        onChange={(event) => {
+                                            const value = event.target.value;
+                                            const crypto = availableCoins.find((c) => c.symbol === value);
+                                            if (crypto) setSelectedCrypto(crypto);
                                         }}
+                                        className="bg-[#1A1A1A] text-white px-3 py-2 rounded-lg"
                                     >
-                                        <Select.Trigger className="flex items-center gap-2 bg-[#1A1A1A] px-3 py-2 rounded-lg">
-                                            <Select.Value />
-                                            <Select.Icon>
-                                                <ChevronDown className="h-4 w-4" />
-                                            </Select.Icon>
-                                        </Select.Trigger>
-
-                                        <Select.Portal>
-                                            <Select.Content className="bg-[#1A1A1A] rounded-lg p-1 shadow-xl">
-                                                <Select.Viewport>
-                                                    {availableCoins.map((crypto) => (
-                                                        <Select.Item
-                                                            key={crypto.symbol}
-                                                            value={crypto.symbol}
-                                                            className="flex items-center px-3 py-2 hover:bg-[#242424] rounded cursor-pointer"
-                                                        >
-                                                            <Select.ItemText>
-                                                                {crypto.symbol} ($
-                                                                {crypto.balance.toLocaleString("en-US", {
-                                                                    minimumFractionDigits: 2,
-                                                                    maximumFractionDigits: 2,
-                                                                })}
-                                                                )
-                                                            </Select.ItemText>
-                                                        </Select.Item>
-                                                    ))}
-                                                </Select.Viewport>
-                                            </Select.Content>
-                                        </Select.Portal>
-                                    </Select.Root>
+                                        {availableCoins.map((crypto) => (
+                                            <option key={crypto.symbol} value={crypto.symbol}>
+                                                {crypto.symbol} ($
+                                                {crypto.balance.toLocaleString("en-US", {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
+                                                })})
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 <div className="bg-[#1A1A1A] p-4 rounded-lg mb-6">
