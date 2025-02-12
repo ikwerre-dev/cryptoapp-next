@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, BarChart3, RefreshCcw, Send, ArrowLeftRight, Bot, Settings } from 'lucide-react';
+import { Users, BarChart3, RefreshCcw, Send, ArrowLeftRight, Bot, Settings, LogOut, Mail, Info } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export function AdminSidebar() {
     const pathname = usePathname();
+    const { logout } = useAuth();
     
     const links = [
         { href: '/admin', label: 'Dashboard', icon: BarChart3 },
@@ -14,6 +16,8 @@ export function AdminSidebar() {
         { href: '/admin/bots', label: 'Bots', icon: Bot },
         { href: '/admin/bots/sessions', label: 'Recent Bots', icon: Bot },
         { href: '/admin/wallets', label: 'Wallet Address', icon: Settings },
+        { href: '/admin/mail', label: 'Send Mail', icon: Mail },
+        { href: '/admin/account-info', label: 'Send Account Memo', icon: Info },
     ];
 
     return (
@@ -41,6 +45,16 @@ export function AdminSidebar() {
                         );
                     })}
                 </nav>
+
+                <div className="flex-none p-4 mt-auto">
+                    <button
+                        onClick={logout}
+                        className="flex items-center space-x-3 px-4 py-3 text-gray-400 hover:bg-white/5 rounded-lg w-full"
+                    >
+                        <LogOut size={20} />
+                        <span>Logout</span>
+                    </button>
+                </div>
             </div>
         </div>
     );

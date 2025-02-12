@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
 import { InvestmentList } from "@/components/dashboard/InvestmentList"
 import { TradingChart } from "@/components/trading/TradingChart"
+import { AccountInfo } from "@/components/dashboard/AccountInfo";
 
 const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
 
@@ -35,7 +36,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
- 
+
   const balances = [
     { name: "BTC", balance: Number(userData?.user.btc_balance || "0") },
     { name: "ETH", balance: Number(userData?.user.eth_balance || "0") },
@@ -182,6 +183,9 @@ export default function DashboardPage() {
                     {showBalance ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+              </div>
+              <div className="mb-6">
+                <AccountInfo limit={1} />
               </div>
 
               <div className="mb-8 ">

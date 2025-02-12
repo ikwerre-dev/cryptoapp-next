@@ -12,8 +12,7 @@ export function Snackbar() {
     const [notification, setNotification] = useState<DepositNotification | null>(null);
     const [show, setShow] = useState(false);
 
-    const countries = ["USA", "UK", "Canada", "Australia", "Germany", "France", "Japan", "China"];
-
+    const countries = ["USA", "UK", "Canada", "Australia", "Germany", "France", "Japan", "China", "India", "Turkey", "Maurice", "Sudan", "Macedonia", "Tunisia", "Sierra Leone", "Guernsey", "Armenia"];
 
     useEffect(() => {
         const showNotification = () => {
