@@ -59,7 +59,8 @@ export async function GET(req: Request) {
         ltc_balance,
         shib_balance,
         created_at,
-        updated_at
+        updated_at,
+        is_admin
       FROM users 
       WHERE id = ?`,
             [decoded.userId]

@@ -8,8 +8,8 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
     const headersList = headers();
-    const ip = (await headersList).has('x-forwarded-for') 
-      ? (await headersList).get('x-forwarded-for')?.split(',')[0] 
+    const ip = (await headersList).has('x-forwarded-for')
+      ? (await headersList).get('x-forwarded-for')?.split(',')[0]
       : 'unknown';
 
     // Validate input
@@ -33,8 +33,13 @@ export async function POST(req: Request) {
       );
     }
 
-    const user = users[0];
+    const user = users[0]; 
 
+    // Check if user is admin
+    const is_admin = Boolean(user.is_admin);
+
+    console.log('admin:' + is_admin)
+    
     // Check account status
     switch (user.status) {
       case 'blocked':
@@ -82,7 +87,8 @@ export async function POST(req: Request) {
         userId: user.id,
         email: user.email,
         status: user.status,
-        kycStatus: user.kyc_status
+        kycStatus: user.kyc_status,
+        is_admin
       },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
@@ -107,6 +113,7 @@ export async function POST(req: Request) {
         email: user.email,
         status: user.status,
         kycStatus: user.kyc_status,
+        is_admin, // Add is_admin to response
         lastLogin: new Date(),
         loginIp: ip
       }

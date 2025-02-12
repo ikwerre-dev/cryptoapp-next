@@ -33,6 +33,7 @@ interface UserData {
     created_at: string;
     updated_at: string;
     unreadNotices: number;
+    is_admin: boolean
   };
   notices: {
     id: number;

@@ -73,7 +73,7 @@ export function TradingChart({ sessionId, height = "400px" }: TradingChartProps)
     }, [sessionId])
 
     const fetchChartData = async () => {
-        try {
+         try {
             const response = await fetch(`/api/trading/chart/${sessionId}`, {
                 headers: {
                     Authorization: `Bearer ${Cookies.get("auth-token")}`,

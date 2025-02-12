@@ -4,10 +4,11 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
-// Add User interface
+// Update User interface
 interface User {
   id: number;
   email: string;
+  is_admin?: boolean;
 }
 
 // Update AuthContextType
@@ -15,9 +16,10 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isAdmin: boolean;  // Add this line
   login: (email: string, password: string) => Promise<void>;
   signup: (
-    email: string, 
+    email: string,
     password: string,
     first_name: string,
     last_name: string,
@@ -33,6 +35,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
   const router = useRouter();
@@ -60,7 +63,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         setUser(data.user);
         setIsAuthenticated(true);
-      } else if (data.requireLogout) {
+        console.log(data.user.is_admin)
+        setIsAdmin(data.user.is_admin || false);  // Add this line
+      } 
+      else if (data.requireLogout) {
         logout();
         window.dispatchEvent(new CustomEvent('showNotification', {
           detail: {
@@ -99,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       Cookies.set('auth-token', data.token, { expires: 7 });
       setUser(data.user);
       setIsAuthenticated(true);
-      router.push('/dashboard');
+      router.push(data.user.is_admin ? '/admin' : '/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -109,29 +115,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signup = async (
-        email: string, 
-        password: string, 
-        first_name: string,
-        last_name: string,
-        phone_number: string,
-        country: string
-    ) => {
-        setIsLoading(true);
-        try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email,
-                    password,
-                    first_name,
-                    last_name,
-                    phone_number,
-                    country
-                }),
-            });
+    email: string,
+    password: string,
+    first_name: string,
+    last_name: string,
+    phone_number: string,
+    country: string
+  ) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          first_name,
+          last_name,
+          phone_number,
+          country
+        }),
+      });
 
       const data = await response.json();
 
@@ -195,7 +201,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         setUserData((prev: any) => {
           if (!prev || !prev.notices) return prev;
-          
+
           return {
             ...prev,
             notices: prev.notices.map((notice: any) =>
@@ -217,6 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isAuthenticated,
       isLoading,
+      isAdmin,  // Add this line
       login,
       signup,
       logout,

@@ -21,13 +21,15 @@ export async function GET(
     }
 
     const token = authHeader.split(" ")[1]
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number }
+     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number, is_admin: boolean }
 
     const connection = await pool.getConnection()
     try {
+
+      
       const [sessions]: any = await connection.query(
-        `SELECT trading_data_url FROM user_trading_sessions WHERE id = ? AND user_id = ?`,
-        [sessionId, decoded.userId]
+        `SELECT trading_data_url FROM user_trading_sessions WHERE id = ?`,
+        [sessionId]
       )
 
       if (!sessions.length) {
