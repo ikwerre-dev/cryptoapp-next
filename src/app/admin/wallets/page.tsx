@@ -61,7 +61,7 @@ export default function WalletAddressesPage() {
     return (
         <div className="min-h-screen bg-[#0A0A0A] text-white">
             <AdminSidebar />
-            <div className="ml-64 p-6">
+            <div className="md:ml-64 p-6">
                 <div className="max-w-7xl mx-auto">
                     <h1 className="text-2xl font-bold mb-8">Wallet Addresses</h1>
 
