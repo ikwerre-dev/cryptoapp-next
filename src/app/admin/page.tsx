@@ -94,6 +94,7 @@ export default function AdminDashboard() {
                                 <div className="p-3 bg-purple-500/20 rounded-lg">
                                     <Users className="h-6 w-6 text-purple-500" />
                                 </div>
+                                
                                 <div>
                                     <div className="text-sm text-gray-400">Total Users</div>
                                     <div className="text-2xl font-bold">{stats?.totalUsers}</div>
