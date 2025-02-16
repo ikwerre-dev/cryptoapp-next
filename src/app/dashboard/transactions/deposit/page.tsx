@@ -16,7 +16,33 @@ interface CryptoOption {
     balance: number
 }
 
-const generateCryptoOptions = (userData: any): CryptoOption[] => {
+interface UserWallet {
+    currency: string;
+    address: string;
+}
+
+interface UserData {
+    user: {
+        btc_balance: number;
+        eth_balance: number;
+        usdt_balance: number;
+        bnb_balance: number;
+        xrp_balance: number;
+        ada_balance: number;
+        doge_balance: number;
+        sol_balance: number;
+        dot_balance: number;
+        matic_balance: number;
+        link_balance: number;
+        uni_balance: number;
+        avax_balance: number;
+        ltc_balance: number;
+        shib_balance: number;
+    };
+    wallets: UserWallet[];
+}
+
+const generateCryptoOptions = (userData: UserData): CryptoOption[] => {
     if (!userData?.user || !userData?.wallets) return []
 
     console.log(userData.wallets)
@@ -45,11 +71,10 @@ const generateCryptoOptions = (userData: any): CryptoOption[] => {
         symbol: coin.name,
         name: coin.name,
         address: userData.wallets
-            .filter((wallet: any) => wallet.currency === coin.name)
-            .map((wallet: { address: string }) => wallet.address)[0] || '',
+            .filter((wallet: UserWallet) => wallet.currency === coin.name)
+            .map((wallet: UserWallet) => wallet.address)[0] || '',
         balance: coin.balance
     })).filter(coin => coin.address);
-
 }
 
 export default function DepositPage({ searchParams }: { searchParams: Promise<{ symbol: string }> }) {
