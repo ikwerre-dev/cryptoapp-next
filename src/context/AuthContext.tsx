@@ -11,7 +11,29 @@ interface User {
   is_admin?: boolean;
 }
 
-// Update AuthContextType
+interface Notice {
+  id: string;
+  is_read: boolean;
+}
+
+interface UserData {
+  user: {
+    id: number;
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    country: string;
+    btc_balance: string;
+    eth_balance: string;
+    usdt_balance: string;
+    bnb_balance: string;
+    created_at: string;
+  };
+  notices: Notice[];
+}
+
+// Update AuthContextType interface
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -27,7 +49,7 @@ interface AuthContextType {
     country: string
   ) => Promise<void>;
   logout: () => void;
-  userData: any;
+  userData: UserData | null;  // Update this line
   refreshUserData: () => Promise<void>;
   markNoticesAsRead: (noticeIds: number[]) => Promise<void>;
 }
@@ -37,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);  // Update this line
   const router = useRouter();
 
   useEffect(() => {
@@ -58,14 +80,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       });
 
-      const data = await response.json();
+      const data: { user: User; error?: string; requireLogout?: boolean } = await response.json();  // Add type here
 
       if (response.ok) {
         setUser(data.user);
         setIsAuthenticated(true);
         console.log(data.user.is_admin)
         setIsAdmin(data.user.is_admin || false);  // Add this line
-      } 
+      }
       else if (data.requireLogout) {
         logout();
         window.dispatchEvent(new CustomEvent('showNotification', {
@@ -199,18 +221,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (response.ok) {
-        setUserData((prev: any) => {
+        setUserData((prev: UserData | null) => {
           if (!prev || !prev.notices) return prev;
 
           return {
             ...prev,
-            notices: prev.notices.map((notice: any) =>
-              noticeIds.includes(notice.id) ? { ...notice, is_read: true } : notice
+            notices: prev.notices.map((notice) =>
+              noticeIds.includes(Number(notice.id)) ? { ...notice, is_read: true } : notice
             )
           };
         });
-
-        // Refresh user data to ensure sync with server
         await refreshUserData();
       }
     } catch (error) {

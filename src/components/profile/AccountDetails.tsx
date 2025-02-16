@@ -4,7 +4,21 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
  
-export function AccountDetails({ userData }: { userData: any }) {
+interface User {
+    email: string;
+    username: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    country: string;
+    profile_image?: string;
+}
+
+interface UserDataProps {
+    user: User;
+}
+
+export function AccountDetails({ userData }: { userData: UserDataProps }) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
     const [message, setMessage] = useState("")

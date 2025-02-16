@@ -9,7 +9,7 @@ interface UserInvestment {
     currency: string;
     start_date: string;
     end_date: string;
-    daily_roi: any;
+    daily_roi: string;  
     auto_compound: boolean;
     duration_days: number;
     min_roi: number;

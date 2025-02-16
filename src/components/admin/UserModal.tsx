@@ -2,8 +2,72 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import Cookies from 'js-cookie';
 
+interface User {
+    id: number;
+    email: string;
+    username?: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    country: string;
+    kyc_status: string;
+    two_factor_enabled: boolean;
+    last_login: string;
+    login_ip: string;
+    created_at: string;
+    updated_at: string;
+    is_admin: boolean;
+    status: string;
+    btc_balance: string;
+    eth_balance: string;
+    usdt_balance: string;
+    bnb_balance: string;
+    xrp_balance: string;
+    ada_balance: string;
+    doge_balance: string;
+    sol_balance: string;
+    dot_balance: string;
+    matic_balance: string;
+    link_balance: string;
+    uni_balance: string;
+    avax_balance: string;
+    ltc_balance: string;
+    shib_balance: string;
+}
+
+
+interface Transaction {
+    id: number;
+    type: string;
+    amount: number;
+    status: string;
+    currency: string;
+    created_at: string;
+
+}
+
+interface Investment {
+    id: number;
+    package_name: string;
+    amount_usd: number;
+    status: string;
+    start_date: string;
+    end_date: string;
+    created_at: string;
+    plan_name: string;
+}
+
+interface Bot {
+    id: number;
+    name: string;
+    status: string;
+    created_at: string;
+    bot_name: string;
+    initial_amount: number;
+}
+
 interface UserModalProps {
-    user: any;
+    user: User;
     onClose: () => void;
     onUpdate: () => void;
 }
@@ -11,9 +75,9 @@ interface UserModalProps {
 export function UserModal({ user, onClose, onUpdate }: UserModalProps) {
     const [activeTab, setActiveTab] = useState('profile');
     const [status, setStatus] = useState(user.status);
-    const [transactions, setTransactions] = useState<any[]>([]);
-    const [investments, setInvestments] = useState<any[]>([]);
-    const [bots, setBots] = useState<any[]>([]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [investments, setInvestments] = useState<Investment[]>([]);
+    const [bots, setBots] = useState<Bot[]>([]);
     const [balances, setBalances] = useState({
         btc: user.btc_balance || "0",
         eth: user.eth_balance || "0",
@@ -347,7 +411,7 @@ export function UserModal({ user, onClose, onUpdate }: UserModalProps) {
                                 <thead>
                                     <tr className="border-b border-gray-800">
                                         <th className="text-left p-4 text-sm font-medium text-gray-400">Name</th>
-                                         <th className="text-left p-4 text-sm font-medium text-gray-400">Amount</th>
+                                        <th className="text-left p-4 text-sm font-medium text-gray-400">Amount</th>
                                         <th className="text-left p-4 text-sm font-medium text-gray-400">Status</th>
                                     </tr>
                                 </thead>
@@ -355,7 +419,7 @@ export function UserModal({ user, onClose, onUpdate }: UserModalProps) {
                                     {bots && bots.map((bot) => (
                                         <tr key={bot.id} className="border-b border-gray-800/50">
                                             <td className="p-4">{bot.bot_name}</td>
-                                             <td className="p-4">${bot.initial_amount}</td>
+                                            <td className="p-4">${bot.initial_amount}</td>
                                             <td className="p-4">
                                                 <span className={`px-2 py-1 rounded-full text-xs ${bot.status === 'active' ? 'bg-green-500/20 text-green-500' :
                                                     bot.status === 'completed' ? 'bg-yellow-500/20 text-yellow-500' :

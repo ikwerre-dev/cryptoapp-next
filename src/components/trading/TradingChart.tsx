@@ -11,10 +11,20 @@ interface TradingChartProps {
     height?: string | number
 }
 
+interface TradingData {
+    timestamp: string;
+    balance: number;
+    change: number;
+}
+
+interface ChartError {
+    message: string;
+}
+
 export function TradingChart({ sessionId, height = "400px" }: TradingChartProps) {
-    const [sessionData, setSessionData] = useState<any[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState<any>("")
+    const [sessionData, setSessionData] = useState<TradingData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<ChartError | null>(null);
 
     const chartOptions: ApexOptions = {
         chart: {
@@ -73,25 +83,25 @@ export function TradingChart({ sessionId, height = "400px" }: TradingChartProps)
     }, [sessionId])
 
     const fetchChartData = async () => {
-         try {
+        try {
             const response = await fetch(`/api/trading/chart/${sessionId}`, {
                 headers: {
                     Authorization: `Bearer ${Cookies.get("auth-token")}`,
                 },
-            })
-            const data = await response.json()
+            });
+            const data = await response.json();
             if (data.tradingData) {
-                setSessionData(data.tradingData)
+                setSessionData(data.tradingData);
             }
-        } catch (error) {
-            setError(error)
+        } catch (err) {
+            setError({ message: err instanceof Error ? err.message : 'Failed to fetch chart data' });
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
-    }
+    };
 
     if (isLoading) return <div>Loading chart...</div>
-    if (error) return <div>{error}</div>
+    if (error) return <div>error</div>
 
     return (
         <div style={{ height }}>
@@ -101,13 +111,15 @@ export function TradingChart({ sessionId, height = "400px" }: TradingChartProps)
                     {
                         name: "Price",
                         data: sessionData
-                            .filter((d: any) => {
-                                const now = Date.now()
-                                const timestamp = new Date(d.timestamp).getTime()
-                                return now - timestamp > 0 && now - timestamp <= 80000
+                            .filter((d: TradingData) => {
+                                const now = Date.now();
+                                const timestamp = new Date(d.timestamp).getTime();
+                                return now - timestamp > 0 && now - timestamp <= 80000;
                             })
-                            .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                            .map((d: any) => ({
+                            .sort((a: TradingData, b: TradingData) =>
+                                new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+                            )
+                            .map((d: TradingData) => ({
                                 x: new Date(new Date(d.timestamp).setHours(new Date(d.timestamp).getHours() + 1)),
                                 y: [
                                     parseFloat(d.balance.toFixed(2)),
@@ -122,5 +134,5 @@ export function TradingChart({ sessionId, height = "400px" }: TradingChartProps)
                 height="100%"
             />
         </div>
-    )
+    );
 }
