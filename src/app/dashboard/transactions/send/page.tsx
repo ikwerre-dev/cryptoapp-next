@@ -3,8 +3,6 @@
 import { use, useEffect, useMemo, useState } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
-import { ChevronDown } from 'lucide-react'
-import * as Select from "@radix-ui/react-select"
 import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
 import { useUserData } from "@/hooks/useUserData"

@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useCallback, useEffect, useState } from "react"
+import { use, useCallback, useEffect } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
 import { CheckCircle, ArrowLeft } from "lucide-react"
@@ -47,13 +47,10 @@ export default function SuccessPage({ searchParams }: {
   }>
 }) {
   const params = use(searchParams)
-  const { userData, isLoading, error, refetch, totalBalance } = useUserData()
-  const [isRefetching, setIsRefetching] = useState(false)
-
+  const { userData, refetch } = useUserData()
+ 
   const handleRefetch = useCallback(async () => {
-    setIsRefetching(true)
     await refetch()
-    setIsRefetching(false)
   }, [refetch])
 
 

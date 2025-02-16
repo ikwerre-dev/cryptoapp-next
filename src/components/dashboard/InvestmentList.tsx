@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Cookies from "js-cookie"
 import { useRouter } from 'next/navigation';
 
@@ -68,12 +68,8 @@ export function InvestmentList({ investments, limit }: InvestmentListProps) {
                     const currentStage = daysPassed < dailyRoi.length ?
                         `+${(dailyRoi[daysPassed])}%` :
                         'Click to Claim';
-                    let cumulativePercentage = 0;
                     const initialAmount = investment.amount_usd;
 
-                    for (let i = 0; i <= daysPassed && i < dailyRoi.length; i++) {
-                        cumulativePercentage += dailyRoi[i] * (i + 1);
-                    }
 
                     let totalAccumulatedAmount = Number(initialAmount);
 

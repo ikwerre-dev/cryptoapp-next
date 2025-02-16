@@ -11,7 +11,7 @@ export default function InvestmentsPage() {
     const [investments, setInvestments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { userData, isLoading, refetch, totalBalance } = useUserData()
+    const { userData } = useUserData()
 
     useEffect(() => {
         const fetchInvestments = async () => {

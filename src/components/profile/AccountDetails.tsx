@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
-import { Upload } from "lucide-react"
-
+ 
 export function AccountDetails({ userData }: { userData: any }) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
@@ -30,17 +29,12 @@ export function AccountDetails({ userData }: { userData: any }) {
             })
         }
     }, [userData?.user])
-    const [avatar, setAvatar] = useState<File | null>(null)
-
+ 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setAvatar(e.target.files[0])
-        }
-    }
+   
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -49,23 +43,8 @@ export function AccountDetails({ userData }: { userData: any }) {
 
         try {
             const token = Cookies.get("auth-token")
-            let imageUrl = userData?.user?.profile_image
-
-            if (avatar) {
-                const formData = new FormData()
-                formData.append("file", avatar)
-                formData.append("upload_preset", "your_cloudinary_upload_preset")
-
-                const uploadResponse = await fetch(
-                    `https://api.cloudinary.com/v1_1/your_cloud_name/image/upload`,
-                    {
-                        method: "POST",
-                        body: formData,
-                    }
-                )
-                const uploadData = await uploadResponse.json()
-                imageUrl = uploadData.secure_url
-            }
+            const imageUrl = userData?.user?.profile_image
+ 
 
             const response = await fetch("/api/user/profile", {
                 method: "PUT",

@@ -12,8 +12,7 @@ export default function AdminInvestmentsPage() {
     const { userData, isLoading: userDataLoading } = useUserData();
     const [packages, setPackages] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-
+ 
     useEffect(() => {
         if (!userDataLoading && !userData?.user?.is_admin) {
             router.push('/dashboard');

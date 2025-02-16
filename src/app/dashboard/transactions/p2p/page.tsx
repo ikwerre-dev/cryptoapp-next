@@ -1,11 +1,10 @@
 "use client"
 
-import { use, useEffect, useState } from "react"
+import {  useEffect, useState } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
-import { ChevronDown, Copy, Check } from 'lucide-react'
-import * as Select from "@radix-ui/react-select"
-import { useRouter } from "next/navigation"
+import {  Copy, Check } from 'lucide-react'
+ import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
 import { useUserData } from "@/hooks/useUserData"
 import { useCryptoData } from "@/hooks/useCryptoData"
@@ -17,7 +16,7 @@ export default function P2PPage() {
     const { cryptoData } = useCryptoData()
     const [recipientTag, setRecipientTag] = useState("")
     const [amount, setAmount] = useState("")
-    const [isUSD, setIsUSD] = useState(true)
+    const [isUSD] = useState(true)
     const [error, setError] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [copied, setCopied] = useState(false)

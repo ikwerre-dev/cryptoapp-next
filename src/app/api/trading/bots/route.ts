@@ -12,7 +12,7 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
         console.log(req)
-        const token = authHeader.split(" ")[1]
+        // const token = authHeader.split(" ")[1]
         // const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number }
 
         const connection = await pool.getConnection()

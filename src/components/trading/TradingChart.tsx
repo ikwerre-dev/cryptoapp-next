@@ -14,7 +14,7 @@ interface TradingChartProps {
 export function TradingChart({ sessionId, height = "400px" }: TradingChartProps) {
     const [sessionData, setSessionData] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState("")
+    const [error, setError] = useState<any>("")
 
     const chartOptions: ApexOptions = {
         chart: {
@@ -84,7 +84,7 @@ export function TradingChart({ sessionId, height = "400px" }: TradingChartProps)
                 setSessionData(data.tradingData)
             }
         } catch (error) {
-            setError("Failed to fetch chart data")
+            setError(error)
         } finally {
             setIsLoading(false)
         }

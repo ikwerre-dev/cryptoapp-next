@@ -179,17 +179,13 @@ export default function AITradingPage() {
     } catch (error) {
       console.error("Failed to fetch data:", error)
       setError("Failed to load trading data")
-    } finally {
-      
-    }
+    } 
   }
   console.log(sessionProfits)
 
   const calculateTotals = (sessions: TradingSession[]) => {
-    let profit = 0
     let invested = 0
     sessions.forEach((session) => {
-      profit += Number.parseFloat(session.current_profit.toString())
       invested += Number.parseFloat(session.initial_amount.toString())
     })
     setmyTotalInvested(invested)

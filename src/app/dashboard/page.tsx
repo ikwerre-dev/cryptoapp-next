@@ -1,15 +1,11 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo } from "react"
-import { ArrowDown, ArrowUp, ChevronDown, Eye, EyeOff, RefreshCw } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { Eye, EyeOff, RefreshCw } from "lucide-react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
-import dynamic from "next/dynamic"
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
-import type { ApexOptions } from "apexcharts"
 import { useUserData } from "@/hooks/useUserData"
 import { useCryptoData } from "@/hooks/useCryptoData"
-import { Button } from "@/components/ui/Button"
 import Link from "next/link"
 import { Coins, Wallet } from 'lucide-react';
 import { TransactionList } from "@/components/dashboard/TransactionList"
@@ -19,21 +15,16 @@ import { InvestmentList } from "@/components/dashboard/InvestmentList"
 import { TradingChart } from "@/components/trading/TradingChart"
 import { AccountInfo } from "@/components/dashboard/AccountInfo";
 
-const timeFilters = ["1M", "5M", "15M", "30M", "1H"]
 
 
 export default function DashboardPage() {
-  const [chartType] = useState<"price" | "candle">("candle")
-  const [selectedTimeFilter, setSelectedTimeFilter] = useState("1M")
   const [showBalance, setShowBalance] = useState(true)
   const toggleBalance = () => setShowBalance(!showBalance)
-  const { userData, isLoading, refetch, totalBalance } = useUserData()
-  const { cryptoData, calculateUserAssetValue } = useCryptoData()
+  const { userData, refetch, totalBalance } = useUserData()
+  const { calculateUserAssetValue } = useCryptoData()
   const [btcValue, setBtcValue] = useState(0)
   const [isRefetching, setIsRefetching] = useState(false)
   const [investments, setInvestments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -85,9 +76,7 @@ export default function DashboardPage() {
           throw new Error(data.error || "Failed to fetch investments");
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load investments");
-      } finally {
-        setLoading(false);
+        console.error(err instanceof Error ? err.message : "Failed to load investments");
       }
     };
 
@@ -124,11 +113,8 @@ export default function DashboardPage() {
 
 
 
-  {/* Chart */ }
-  // Add this state near your other state declarations
   const [activeSession, setActiveSession] = useState<number | null>(null);
 
-  // Add this function before the return statement
   const fetchActiveSession = async () => {
     try {
       const response = await fetch("/api/trading/sessions?status=active", {
@@ -141,11 +127,10 @@ export default function DashboardPage() {
         setActiveSession(data.sessions[0].id);
       }
     } catch (error) {
-      console.error("Failed to fetch active session");
+      console.error(error);
     }
   };
 
-  // Add this useEffect after your other useEffects
   useEffect(() => {
     fetchActiveSession();
   }, []);

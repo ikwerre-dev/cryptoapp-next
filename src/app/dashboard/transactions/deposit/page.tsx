@@ -3,11 +3,10 @@
 import { use, useEffect, useState } from "react"
 import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
-import { Copy, ChevronDown } from "lucide-react"
+import { Copy } from "lucide-react"
 import Cookies from "js-cookie"
 import QRCode from "react-qr-code"
-import * as Select from '@radix-ui/react-select'
-import { useRouter } from 'next/navigation'
+ import { useRouter } from 'next/navigation'
 import { useUserData } from "@/hooks/useUserData"
 
 interface CryptoOption {

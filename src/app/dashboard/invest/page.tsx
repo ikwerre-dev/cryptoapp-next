@@ -6,7 +6,6 @@ import { TopBar } from "@/components/dashboard/TopBar"
 import { ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useUserData } from "@/hooks/useUserData"
-import { useCryptoData } from "@/hooks/useCryptoData"
 import Cookies from "js-cookie"
 import { InvestmentList } from "@/components/dashboard/InvestmentList"
 // Type definitions
@@ -60,8 +59,8 @@ interface UserInvestment {
 
 export default function InvestPage() {
     const router = useRouter()
-    const { userData,  refetch } = useUserData()
-    
+    const { userData, refetch } = useUserData()
+
     const [investmentPackages, setInvestmentPackages] = useState<InvestmentPackage[]>([])
     const [userInvestments, setUserInvestments] = useState<UserInvestment[]>([])
     const [loading, setLoading] = useState(true)
@@ -73,14 +72,12 @@ export default function InvestPage() {
     const [showConfirm, setShowConfirm] = useState(false)
     const [selectedPackage, setSelectedPackage] = useState<InvestmentPackage | null>(null)
     const [amount, setAmount] = useState("")
-    const [isRefetching, setIsRefetching] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     const handleRefetch = useCallback(async () => {
-        setIsRefetching(true)
         await refetch()
-        setIsRefetching(false)
     }, [refetch])
+
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -245,13 +242,13 @@ export default function InvestPage() {
             <div className="flex flex-col lg:flex-row">
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
-                    <TopBar title="Investment"  notices={userData?.notices} />
+                    <TopBar title="Investment" notices={userData?.notices} />
                     <div className="p-4 lg:p-8">
                         {/* Active Investments */}
                         <div className="bg-[#121212] rounded-[1rem] p-6 mb-6">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl font-semibold">Recent Investments</h2>
-                                <button 
+                                <button
                                     onClick={() => router.push('/dashboard/investments')}
                                     className="text-orange-500 hover:text-orange-600"
                                 >

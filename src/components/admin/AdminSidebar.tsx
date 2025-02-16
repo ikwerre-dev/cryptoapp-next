@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, BarChart3, RefreshCcw, Send, ArrowLeftRight, Bot, Settings, LogOut, Mail, Info } from 'lucide-react';
+import { Users, BarChart3, RefreshCcw, Send, Bot, Settings, LogOut, Mail, Info } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';

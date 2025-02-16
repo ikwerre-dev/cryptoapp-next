@@ -14,8 +14,8 @@ import "jspdf-autotable"
 
 export default function PortfolioPage() {
     const [showBalance, setShowBalance] = useState(true)
-    const { userData, isLoading, refetch, totalBalance } = useUserData()
-    const { cryptoData, calculateUserAssetValue } = useCryptoData()
+    const { userData,  refetch, totalBalance } = useUserData()
+    const {  calculateUserAssetValue } = useCryptoData()
     const [isRefetching, setIsRefetching] = useState(false)
     const [btcValue, setBtcValue] = useState(0)
     const router = useRouter()
