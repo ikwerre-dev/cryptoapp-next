@@ -8,6 +8,7 @@ export async function GET(
     { params }: { params: { id: string } }
 ) {
     try {
+        console.log(req)
         const headersList = headers()
         const authHeader = (await headersList).get("authorization")
 

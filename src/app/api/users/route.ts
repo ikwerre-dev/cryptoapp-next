@@ -15,13 +15,14 @@ export async function GET(req: Request) {
                 { status: 401 }
             );
         }
-
+        console.log(req)
         const token = authHeader.split(' ')[1];
         let decoded;
 
         try {
             decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
         } catch (error) {
+            console.error(error)
             return NextResponse.json(
                 { error: 'Invalid token' },
                 { status: 401 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { headers } from "next/headers"
-import jwt from "jsonwebtoken"
+// import jwt from "jsonwebtoken"
 import { gunzip } from 'zlib'
 import { promisify } from 'util'
 
@@ -20,9 +20,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const token = authHeader.split(" ")[1]
-     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number, is_admin: boolean }
-
+    // const token = authHeader.split(" ")[1]
     const connection = await pool.getConnection()
     try {
 

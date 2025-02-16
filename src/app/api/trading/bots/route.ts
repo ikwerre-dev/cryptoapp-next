@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { headers } from "next/headers"
-import jwt from "jsonwebtoken"
+// import jwt from "jsonwebtoken"
 
 export async function GET(req: Request) {
     try {
@@ -11,9 +11,9 @@ export async function GET(req: Request) {
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
-
+        console.log(req)
         const token = authHeader.split(" ")[1]
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number }
+        // const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number }
 
         const connection = await pool.getConnection()
         try {

@@ -11,7 +11,7 @@ export async function GET(req: Request) {
         if (!token) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
-
+        console.log(req)
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
 
         // Verify admin status
@@ -63,6 +63,7 @@ export async function GET(req: Request) {
 
         return NextResponse.json({ success: true, users });
     } catch (error) {
+        console.error(error)
         return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
     }
 }

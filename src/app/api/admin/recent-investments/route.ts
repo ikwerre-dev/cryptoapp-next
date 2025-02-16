@@ -7,6 +7,7 @@ export async function GET(req: Request) {
     try {
         const headersList = headers();
         const authHeader = (await headersList).get("authorization");
+        console.log(req)
 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

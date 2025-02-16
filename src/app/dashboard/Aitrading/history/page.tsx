@@ -40,6 +40,7 @@ export default function TradingHistoryPage() {
                 setSessions(data.sessions)
             }
         } catch (error) {
+            console.error(error)
             setError("Failed to load trading history")
         } finally {
             setIsLoading(false)

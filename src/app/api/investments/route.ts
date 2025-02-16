@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken"
 
 export async function GET(req: Request) {
     try {
+        console.log(req)
         const headersList = headers()
         const authHeader = (await headersList).get("authorization")
 

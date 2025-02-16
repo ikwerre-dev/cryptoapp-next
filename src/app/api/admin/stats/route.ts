@@ -7,6 +7,7 @@ export async function GET(req: Request) {
     try {
         const headersList = headers();
         const token = (await headersList).get('authorization')?.split(' ')[1];
+        console.log(req)
 
         if (!token) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -40,6 +41,7 @@ export async function GET(req: Request) {
             }
         });
     } catch (error) {
+        console.error(error)
         return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
     }
 }

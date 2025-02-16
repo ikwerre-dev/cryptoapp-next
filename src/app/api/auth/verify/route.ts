@@ -14,7 +14,7 @@ export async function GET(req: Request) {
         { status: 401 }
       );
     }
-
+    console.log(req)
     const token = authHeader.split(' ')[1];
     let decoded;
 
@@ -26,6 +26,7 @@ export async function GET(req: Request) {
         kycStatus: string;
       };
     } catch (error) {
+      console.error(error)
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }

@@ -60,9 +60,8 @@ interface UserInvestment {
 
 export default function InvestPage() {
     const router = useRouter()
-    const { userData, isLoading, refetch, totalBalance } = useUserData()
-    const { cryptoData, calculateUserAssetValue } = useCryptoData()
-
+    const { userData,  refetch } = useUserData()
+    
     const [investmentPackages, setInvestmentPackages] = useState<InvestmentPackage[]>([])
     const [userInvestments, setUserInvestments] = useState<UserInvestment[]>([])
     const [loading, setLoading] = useState(true)

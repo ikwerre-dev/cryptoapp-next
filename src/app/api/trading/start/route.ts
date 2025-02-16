@@ -42,20 +42,7 @@ function generateTradingData(initialBalance: number, targetRoi: number, interval
     return data
 }
 
-function compressRLE(data: string): string {
-    let compressed = ""
-    let count = 1
-    for (let i = 1; i <= data.length; i++) {
-        if (i < data.length && data[i] === data[i - 1]) {
-            count++
-        } else {
-            compressed += count + data[i - 1]
-            count = 1
-        }
-    }
-    return compressed
-}
-
+ 
 export async function POST(req: Request) {
     try {
         const headersList = headers()

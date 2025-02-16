@@ -5,11 +5,8 @@ import { Sidebar } from "@/components/dashboard/Sidebar"
 import { TopBar } from "@/components/dashboard/TopBar"
 import { Clock, X, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
-import type { ApexOptions } from "apexcharts"
 import { useUserData } from "@/hooks/useUserData"
 import { useCryptoData } from "@/hooks/useCryptoData"
 import { getCryptoName } from "@/lib/getCryptoName"
@@ -45,8 +42,7 @@ export default function AITradingPage() {
   const [amount, setAmount] = useState("")
   const [availableBots, setAvailableBots] = useState<TradingBot[]>([])
   const [runningSessions, setRunningSessions] = useState<TradingSession[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState("")
+   const [error, setError] = useState("")
   const [totalProfit, setTotalProfit] = useState(0)
   const [totalInvested, setTotalInvested] = useState(0)
   const [mytotalInvested, setmyTotalInvested] = useState(0)
@@ -62,10 +58,10 @@ export default function AITradingPage() {
 
   useEffect(() => {
     fetchData()
-    const interval = setInterval(fetchData, 5000) // Refresh every 5 seconds
+    const interval = setInterval(fetchData, 5000)
     return () => clearInterval(interval)
   }, [])
-
+ 
   useEffect(() => {
 
     const profit = Object.values(sessionProfits).reduce((acc, curr) => acc + curr, 0);
@@ -103,45 +99,6 @@ export default function AITradingPage() {
     setSessionProfits(newSessionProfits)
     setSessionAmountProfits(newSessionAmountProfits)
   }, [sessionData, runningSessions])
-
-  const chartOptions: ApexOptions = {
-    chart: {
-      type: "line",
-      toolbar: { show: false },
-      background: "transparent",
-    },
-    theme: { mode: "dark" },
-    stroke: {
-      curve: "smooth",
-      width: 2,
-    },
-    xaxis: {
-      type: "datetime",
-      labels: {
-        style: { colors: "#fff" },
-        datetimeFormatter: {
-          year: "yyyy",
-          month: "MMM",
-          day: "dd",
-          hour: "HH:mm",
-        },
-      },
-    },
-    yaxis: {
-      labels: {
-        style: { colors: "#fff" },
-        formatter: (value) => `$${value.toFixed(2)}`,
-      },
-    },
-    grid: { borderColor: "#ffffff1a" },
-    colors: ["#26a69a"],
-    tooltip: {
-      theme: "dark",
-      x: {
-        format: "dd MMM yyyy HH:mm",
-      },
-    },
-  }
 
   const fetchData = async () => {
     try {
@@ -223,7 +180,7 @@ export default function AITradingPage() {
       console.error("Failed to fetch data:", error)
       setError("Failed to load trading data")
     } finally {
-      setIsLoading(false)
+      
     }
   }
   console.log(sessionProfits)

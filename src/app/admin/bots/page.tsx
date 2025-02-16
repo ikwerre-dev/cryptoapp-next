@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useUserData } from "@/hooks/useUserData";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import { Plus, Pencil, ArrowRight } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 
 interface TradingBot {

@@ -138,6 +138,7 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                 setSessionData(data.session.trading_data || [])
             }
         } catch (error) {
+            console.error(error)
             setError("Failed to fetch session data")
         } finally {
             setIsLoading(false)

@@ -11,7 +11,7 @@ export async function GET(req: Request) {
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return NextResponse.json({ error: "No token provided" }, { status: 401 })
         }
-
+        console.log(req)
         const token = authHeader.split(' ')[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number }
 

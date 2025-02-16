@@ -124,7 +124,7 @@ export async function POST(req: Request) {
             // Send emails with error handling
             for (const user of users) {
                 try {
-                    let personalizedBody = emailBody
+                    const personalizedBody = emailBody
                         .replace(/{username}/g, user.username)
                         .replace(/{first_name}/g, user.first_name || '')
                         .replace(/{last_name}/g, user.last_name || '');
