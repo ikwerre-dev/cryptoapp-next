@@ -2,6 +2,19 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { headers } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import { RowDataPacket } from 'mysql2';
+
+interface Transaction extends RowDataPacket {
+    id: number;
+    type: string;
+    currency: string;
+    amount: string;
+    status: string;
+    created_at: Date;
+    to_address?: string;
+    from_address?: string;
+    description: string;
+}
 
 export async function POST(req: Request) {
     try {
@@ -21,7 +34,7 @@ export async function POST(req: Request) {
 
         try {
             // Fetch transactions for the statement
-            const [transactions]: any = await connection.query(
+            const [transactions] = await connection.query<Transaction[]>(
                 `SELECT 
                     id,
                     type,

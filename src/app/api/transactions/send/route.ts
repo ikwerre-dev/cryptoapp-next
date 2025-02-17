@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { headers } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+interface UserBalance extends RowDataPacket {
+    balance: string;
+}
 
 export async function POST(req: Request) {
     try {
@@ -17,11 +22,11 @@ export async function POST(req: Request) {
         const { amount, currency, address } = await req.json();
 
         // Check if user has sufficient balance
-        const [userBalance]: any = await pool.query(
+        const [userBalance] = await pool.query<UserBalance[]>(
             `SELECT ${currency.toLowerCase()}_balance as balance FROM users WHERE id = ?`,
             [decoded.userId]
         );
-
+        
         if (!userBalance.length || parseFloat(userBalance[0].balance) < (parseFloat(amount) + 0.0005)) {
             return NextResponse.json(
                 { error: 'Insufficient balance for this transaction' },
@@ -35,7 +40,7 @@ export async function POST(req: Request) {
 
         try {
             // Create transaction record
-            const [result]: any = await connection.query(
+            const [result] = await connection.query<ResultSetHeader>(
                 `INSERT INTO transactions 
                 (user_id, type, currency, amount, fee, status, to_address, description) 
                 VALUES (?, 'transfer', ?, ?, ?, 'completed', ?, ?)`,

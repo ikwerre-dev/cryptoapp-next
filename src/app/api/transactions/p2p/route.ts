@@ -2,6 +2,17 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { headers } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+interface SenderInfo extends RowDataPacket {
+    username: string;
+    balance: string;
+}
+
+interface RecipientInfo extends RowDataPacket {
+    id: number;
+    username: string;
+}
 
 export async function POST(req: Request) {
     try {
@@ -16,21 +27,10 @@ export async function POST(req: Request) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
         const { recipientTag, amount, currency, mainAmount } = await req.json();
 
-        // Get sender's username and check balance
-        const [sender]: any = await pool.query(
-            `SELECT username, ${currency.toLowerCase()}_balance as balance FROM users WHERE id = ?`,
-            [decoded.userId]
-        );
 
-        if (!sender.length || parseFloat(sender[0].balance) < parseFloat(amount)) {
-            return NextResponse.json(
-                { error: 'Insufficient balance for this transaction' },
-                { status: 400 }
-            );
-        }
 
         // Find recipient
-        const [recipient]: any = await pool.query(
+        const [recipient] = await pool.query<RecipientInfo[]>(
             'SELECT id, username FROM users WHERE username = ?',
             [recipientTag]
         );
@@ -44,9 +44,29 @@ export async function POST(req: Request) {
         await connection.beginTransaction();
 
         try {
-            
+
             // Create sender's transaction record
-            const [result]: any = await connection.query(
+            // Get sender's username and check balance (add this back)
+            const [sender] = await pool.query<SenderInfo[]>(
+                `SELECT username, ${currency.toLowerCase()}_balance as balance FROM users WHERE id = ?`,
+                [decoded.userId]
+            );
+
+            if (!sender.length || parseFloat(sender[0].balance) < parseFloat(amount)) {
+                return NextResponse.json(
+                    { error: 'Insufficient balance for this transaction' },
+                    { status: 400 }
+                );
+            }
+
+            // Update recipient query type
+            const [recipient] = await pool.query<RecipientInfo[]>(
+                'SELECT id, username FROM users WHERE username = ?',
+                [recipientTag]
+            );
+
+            // Fix the transaction insert query type
+            const [result] = await connection.query<ResultSetHeader>(
                 `INSERT INTO transactions 
                 (user_id, type, currency, amount, status, to_address, description) 
                 VALUES (?, 'p2p', ?, ?, 'completed', ?, ?)`,
