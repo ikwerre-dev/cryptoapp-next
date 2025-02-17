@@ -19,13 +19,15 @@ interface TradingBot {
     status: string;
 }
 
-interface PageParams {
-    id: string;
-}
 
-export default function EditTradingBot({ params }: { params: PageParams }) {
+
+export default function EditTradingBot({
+    params,
+}: {
+    params: { id: string }
+}) {
     const resolvedParams = params;
-    
+
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
     const [loading, setLoading] = useState(true);
