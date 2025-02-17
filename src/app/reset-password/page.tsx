@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { AuthLayout } from "@/components/AuthLayout"
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 
-export default function ResetPassword() {
+function ResetPasswordContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [formData, setFormData] = useState({
@@ -148,5 +148,23 @@ export default function ResetPassword() {
                 </Button>
             </form>
         </AuthLayout>
+    )
+}
+
+export default function ResetPassword() {
+    return (
+        <Suspense fallback={
+            <AuthLayout
+                title="Reset your password"
+                subtitle="Enter the code sent to your email and your new password"
+                type="reset-password"
+            >
+                <div className="flex items-center justify-center p-8">
+                    Loading...
+                </div>
+            </AuthLayout>
+        }>
+            <ResetPasswordContent />
+        </Suspense>
     )
 }
