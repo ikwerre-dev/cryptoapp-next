@@ -4,6 +4,19 @@ import { headers } from "next/headers"
 import jwt from "jsonwebtoken"
 import { gzip } from 'zlib'
 import { promisify } from 'util'
+import { RowDataPacket, ResultSetHeader } from 'mysql2'
+
+// Add these interfaces after imports
+interface UserBalance extends RowDataPacket {
+    balance: string;
+}
+
+interface TradingBot extends RowDataPacket {
+    id: number;
+    duration_days: number;
+    max_roi: number;
+    status: string;
+}
 
 const gzipAsync = promisify(gzip)
 
@@ -57,7 +70,8 @@ export async function POST(req: Request) {
         const { botId, amount, currency } = await req.json()
 
         // Check if user has sufficient balance
-        const [userBalance]: any = await pool.query(
+        // Update user balance query
+        const [userBalance] = await pool.query<UserBalance[]>(
             `SELECT ${currency.toLowerCase()}_balance as balance FROM users WHERE id = ?`,
             [decoded.userId]
         );
@@ -72,9 +86,11 @@ export async function POST(req: Request) {
         const connection = await pool.getConnection()
         try {
             // Get bot details
-            const [bots]: any = await connection.query('SELECT * FROM trading_bots WHERE id = ? AND status = "active"', [
-                botId,
-            ])
+            // Update bot query
+            const [bots] = await pool.query<TradingBot[]>(
+                'SELECT * FROM trading_bots WHERE id = ? AND status = "active"',
+                [botId]
+            );
 
             if (!bots.length) {
                 throw new Error("Bot not found or inactive")
@@ -108,12 +124,13 @@ export async function POST(req: Request) {
             // Update user balance
             const uploadResult = await uploadResponse.json()
             const balanceColumn = `${currency.toLowerCase()}_balance`
-            const [balanceResult]: any = await connection.query(
+            // Update balance update query
+            const [balanceResult] = await connection.query<ResultSetHeader>(
                 `UPDATE users 
                 SET ${balanceColumn} = ${balanceColumn} - ? 
                 WHERE id = ?`,
                 [amount, decoded.userId]
-            )
+            );
 
 
 
@@ -123,12 +140,13 @@ export async function POST(req: Request) {
             const endDate = new Date()
             endDate.setDate(endDate.getDate() + bot.duration_days)
             console.log('before adding session')
-            const [sessionResult]: any = await connection.query(
+            // Update session insert query
+            const [sessionResult] = await connection.query<ResultSetHeader>(
                 `INSERT INTO user_trading_sessions 
                 (user_id, bot_id, initial_amount, currency, start_date, end_date, status, trading_data_url)
                 VALUES (?, ?, ?, ?, NOW(), ?, 'active', ?)`,
                 [decoded.userId, botId, amount, currency, endDate, fileUrl]
-            )
+            );
             console.log('after adding session')
 
             // Commit transaction

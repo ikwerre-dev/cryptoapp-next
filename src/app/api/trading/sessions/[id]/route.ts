@@ -4,6 +4,20 @@ import { headers } from "next/headers"
 import jwt from "jsonwebtoken"
 import { gunzip } from 'zlib'
 import { promisify } from 'util'
+import { RowDataPacket } from 'mysql2'
+
+interface TradingSession extends RowDataPacket {
+    id: number;
+    user_id: number;
+    bot_id: number;
+    initial_amount: number;
+    currency: string;
+    status: string;
+    trading_data_url: string;
+    current_profit: number;
+    bot_name?: string;
+    bot_description?: string;
+}
 
 const gunzipAsync = promisify(gunzip)
 
@@ -26,10 +40,11 @@ export async function POST(
     const connection = await pool.getConnection()
     try {
       // Fetch the session and trading data
-      const [sessions]: any = await connection.query(
-        `SELECT * FROM user_trading_sessions WHERE id = ? AND user_id = ?`,
-        [sessionId, decoded.userId]
-      )
+      // Update POST query
+      const [sessions] = await connection.query<TradingSession[]>(
+          `SELECT * FROM user_trading_sessions WHERE id = ? AND user_id = ?`,
+          [sessionId, decoded.userId]
+      );
 
       if (!sessions.length) {
         return NextResponse.json({ error: "Session not found" }, { status: 404 })
@@ -113,16 +128,17 @@ export async function GET(
 
     const connection = await pool.getConnection()
     try {
-      const [sessions]: any = await connection.query(
-        `SELECT 
-          uts.*,
-          tb.name as bot_name,
-          tb.description as bot_description
-        FROM user_trading_sessions uts
-        JOIN trading_bots tb ON uts.bot_id = tb.id
-        WHERE uts.id = ? AND uts.user_id = ?`,
-        [sessionId, decoded.userId]
-      )
+      // Update GET query
+      const [sessions] = await connection.query<TradingSession[]>(
+          `SELECT 
+              uts.*,
+              tb.name as bot_name,
+              tb.description as bot_description
+          FROM user_trading_sessions uts
+          JOIN trading_bots tb ON uts.bot_id = tb.id
+          WHERE uts.id = ? AND uts.user_id = ?`,
+          [sessionId, decoded.userId]
+      );
 
       if (!sessions.length) {
         return NextResponse.json({ error: "Session not found" }, { status: 404 })

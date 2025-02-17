@@ -2,6 +2,22 @@ import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { headers } from "next/headers"
 import jwt from "jsonwebtoken"
+import { RowDataPacket, ResultSetHeader } from 'mysql2'
+
+interface InvestmentPackage extends RowDataPacket {
+    id: number;
+    name: string;
+    min_amount_usd: number;
+    max_amount_usd: number;
+    min_roi: number;
+    max_roi: number;
+    duration_days: number;
+    is_active: boolean;
+}
+
+interface UserBalance extends RowDataPacket {
+    balance: number;
+}
 
 export async function GET(req: Request) {
     try {
@@ -54,7 +70,7 @@ export async function POST(req: Request) {
 
         try {
             // Get package details
-            const [packageDetails]: any = await connection.query(
+            const [packageDetails] = await connection.query<InvestmentPackage[]>(
                 'SELECT * FROM investment_packages WHERE id = ? AND is_active = TRUE',
                 [packageId]
             );
@@ -72,7 +88,8 @@ export async function POST(req: Request) {
 
             // Check user's balance
             const balanceColumn = `${currency.toLowerCase()}_balance`;
-            const [userBalance]: any = await connection.query(
+            // Update user balance query
+            const [userBalance] = await connection.query<UserBalance[]>(
                 `SELECT ${balanceColumn} as balance FROM users WHERE id = ?`,
                 [decoded.userId]
             );
@@ -97,7 +114,7 @@ export async function POST(req: Request) {
             console.log('Daily ROI:', dailyRoi);
 
             // Create investment record
-            const [investment]: any = await connection.query(
+            const [investment] = await connection.query<ResultSetHeader>(
                 `INSERT INTO user_investments 
                 (user_id, package_id, amount_usd, currency, 
                  end_date, daily_roi, auto_compound) 

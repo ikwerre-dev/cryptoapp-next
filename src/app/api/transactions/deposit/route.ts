@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { headers } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import { ResultSetHeader } from 'mysql2';
 
 export async function POST(req: Request) {
     try {
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
 
         try {
             // Create pending transaction record
-            const [result]: any = await connection.query(
+            const [result] = await connection.query<ResultSetHeader>(
                 `INSERT INTO transactions 
                 (user_id, type, currency, status, amount, to_address, description) 
                 VALUES (?, 'deposit', ?, 'pending', ?, ?, ?)`,

@@ -4,6 +4,11 @@ import { headers } from "next/headers"
 // import jwt from "jsonwebtoken"
 import { gunzip } from 'zlib'
 import { promisify } from 'util'
+import { RowDataPacket } from 'mysql2'
+
+interface TradingSession extends RowDataPacket {
+    trading_data_url: string;
+}
 
 const gunzipAsync = promisify(gunzip)
 
@@ -25,10 +30,10 @@ export async function GET(
     try {
 
       
-      const [sessions]: any = await connection.query(
-        `SELECT trading_data_url FROM user_trading_sessions WHERE id = ?`,
-        [sessionId]
-      )
+      const [sessions] = await connection.query<TradingSession[]>(
+          `SELECT trading_data_url FROM user_trading_sessions WHERE id = ?`,
+          [sessionId]
+      );
 
       if (!sessions.length) {
         return NextResponse.json({ error: "Session not found" }, { status: 404 })
