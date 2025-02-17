@@ -62,7 +62,6 @@ export async function PATCH(
 }
 
 export async function DELETE(
-    request: NextRequest,
     context: { params: { id: string } }
 ) {
     try {
