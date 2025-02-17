@@ -6,9 +6,12 @@ import { TopBar } from "@/components/dashboard/TopBar"
 import { ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useUserData } from "@/hooks/useUserData"
- import Cookies from "js-cookie"
+import Cookies from "js-cookie"
 import { InvestmentList } from "@/components/dashboard/InvestmentList"
 // Type definitions
+interface RawPackage extends InvestmentPackage {
+    features: string[];
+}
 type Currency =
     | "BTC"
     | "ETH"
@@ -59,8 +62,8 @@ interface UserInvestment {
 
 export default function InvestPage() {
     const router = useRouter()
-    const { userData,  refetch } = useUserData()
-    
+    const { userData, refetch } = useUserData()
+
     const [investmentPackages, setInvestmentPackages] = useState<InvestmentPackage[]>([])
     const [userInvestments, setUserInvestments] = useState<UserInvestment[]>([])
     const [loading, setLoading] = useState(true)
@@ -72,13 +75,13 @@ export default function InvestPage() {
     const [showConfirm, setShowConfirm] = useState(false)
     const [selectedPackage, setSelectedPackage] = useState<InvestmentPackage | null>(null)
     const [amount, setAmount] = useState("")
-     const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     const handleRefetch = useCallback(async () => {
-         await refetch()
-     }, [refetch])
+        await refetch()
+    }, [refetch])
 
- 
+
     useEffect(() => {
         const interval = setInterval(() => {
             handleRefetch()
@@ -113,6 +116,7 @@ export default function InvestPage() {
         }))
         .filter((asset) => asset.balance > 0)
 
+
     useEffect(() => {
         const fetchPackages = async () => {
             try {
@@ -127,7 +131,7 @@ export default function InvestPage() {
 
                 const data = await response.json()
                 if (data.success) {
-                    const transformedPackages = data.packages.map((pkg: any) => ({
+                    const transformedPackages = data.packages.map((pkg: RawPackage) => ({
                         ...pkg,
                         features: Array.isArray(pkg.features)
                             ? pkg.features
@@ -242,13 +246,13 @@ export default function InvestPage() {
             <div className="flex flex-col lg:flex-row">
                 <Sidebar />
                 <div className="flex-1 lg:ml-64">
-                    <TopBar title="Investment"  notices={userData?.notices} />
+                    <TopBar title="Investment" notices={userData?.notices} />
                     <div className="p-4 lg:p-8">
                         {/* Active Investments */}
                         <div className="bg-[#121212] rounded-[1rem] p-6 mb-6">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl font-semibold">Recent Investments</h2>
-                                <button 
+                                <button
                                     onClick={() => router.push('/dashboard/investments')}
                                     className="text-orange-500 hover:text-orange-600"
                                 >

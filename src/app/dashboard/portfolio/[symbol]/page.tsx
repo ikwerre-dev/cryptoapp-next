@@ -27,7 +27,7 @@ interface ChartData {
 
 interface ChartSeries {
     name: string;
-    data: [number, number][];  // Update to specify tuple type for timestamp and price
+    data: [number, number][]; 
 }
 
 export default function CoinDetails({ params }: CoinDetailsProps) {
@@ -60,15 +60,28 @@ export default function CoinDetails({ params }: CoinDetailsProps) {
         }
     }
 
+    // Add this interface with the other interfaces at the top
+    interface CoinCapDataPoint {
+        time: number;
+        priceUsd: string;
+    }
+
+    interface CoinCapResponse {
+        data: CoinCapDataPoint[];
+    }
+
     const fetchCoinData = useCallback(async () => {
         try {
             setIsLoading(true)
             const cryptoId = getCryptoName(symbol, "lowercase-hyphen")
             const interval = getInterval(timeFrame)
             const res = await fetch(`https://api.coincap.io/v2/assets/${cryptoId}/history?interval=${interval}`)
-            const response = await res.json()
+            const response: CoinCapResponse = await res.json()
             setChartData(
-                response.data.map((point: any) => [new Date(point.time).getTime(), Number.parseFloat(point.priceUsd)]),
+                response.data.map((point) => ({
+                    timestamp: new Date(point.time).toISOString(),
+                    price: Number.parseFloat(point.priceUsd)
+                }))
             )
         } catch (error) {
             console.error("Error fetching coin data:", error)

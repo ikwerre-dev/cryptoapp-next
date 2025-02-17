@@ -8,11 +8,20 @@ import { useAuth } from "@/context/AuthContext"
 import { NotificationModal } from "@/components/notifications/NotificationModal"
 
 
-export default function NotificationsPage() {
+interface Notice {
+    id: number;
+    title: string;
+    message: string;
+    created_at: string;
+    is_read: boolean;
+    type: string;
 
+}
+
+export default function NotificationsPage() {
     const { userData, refetch } = useUserData()
     const { markNoticesAsRead } = useAuth()
-    const [selectedNotice, setSelectedNotice] = useState<any>(null)
+    const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null)
 
     const handleRefetch = useCallback(async () => {
         await refetch()
@@ -26,7 +35,7 @@ export default function NotificationsPage() {
         return () => clearInterval(interval)
     }, [handleRefetch])
 
-    const handleNoticeClick = (notice: any) => {
+    const handleNoticeClick = (notice: Notice) => {
         setSelectedNotice(notice)
         if (!notice.is_read) {
             markNoticesAsRead([notice.id])

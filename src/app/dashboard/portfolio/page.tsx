@@ -12,10 +12,19 @@ import Cookies from "js-cookie"
 import jsPDF from "jspdf"
 import "jspdf-autotable"
 
+interface AutoTableOptions {
+    startY: number;
+    head: string[][];
+    body: (string | number)[][];
+    headStyles: {
+        fillColor: number[];
+    };
+}
+
 export default function PortfolioPage() {
     const [showBalance, setShowBalance] = useState(true)
-    const { userData,  refetch, totalBalance } = useUserData()
-    const {  calculateUserAssetValue } = useCryptoData()
+    const { userData, refetch, totalBalance } = useUserData()
+    const { calculateUserAssetValue } = useCryptoData()
     const [isRefetching, setIsRefetching] = useState(false)
     const [btcValue, setBtcValue] = useState(0)
     const router = useRouter()
@@ -76,11 +85,11 @@ export default function PortfolioPage() {
         amount: number;
         status: string;
     }
-    
+
     interface Statement {
         transactions: Transaction[];
     }
-    
+
     interface ApiResponse {
         success: boolean;
         statement: Statement;
@@ -107,8 +116,12 @@ export default function PortfolioPage() {
             const data: ApiResponse = await response.json();
 
             if (data.success) {
-                const doc = new jsPDF()
+                // Add this type declaration at the top of the file
+                interface ExtendedJsPDF extends jsPDF {
+                    autoTable: (options: AutoTableOptions) => void;
+                }
 
+                const doc = new jsPDF() as ExtendedJsPDF;
                 // Header
                 doc.setFontSize(20)
                 doc.text("Account Statement", 105, 20, { align: "center" })
@@ -127,21 +140,19 @@ export default function PortfolioPage() {
 
                 doc.setFontSize(12)
                 doc.text(`Total Balance: $${totalBalance.toLocaleString()}`, 20, 60)
-                doc.text(`BTC Equivalent: ${btcValue} BTC`, 20, 70)
-
-                    // Assets Table
-                    ; (doc as any).autoTable({
-                        startY: 85,
-                        head: [["Asset", "Currency", "Balance"]],
-                        body: assets.map((asset) => [asset.name, "USD", `$${asset.priceUsd.toLocaleString()}`]),
-                        headStyles: { fillColor: [139, 92, 246] },
-                    })
-
+                doc.text(`BTC Equivalent: ${btcValue} BTC`, 20, 70);
+                // Then update both autoTable calls
+                doc.autoTable({
+                    startY: 85,
+                    head: [["Asset", "Currency", "Balance"]],
+                    body: assets.map((asset) => [asset.name, "USD", `$${asset.priceUsd.toLocaleString()}`]),
+                    headStyles: { fillColor: [139, 92, 246] },
+                });
                 // Transactions
                 doc.addPage()
                 doc.setFontSize(16)
                 doc.text("Transaction History", 20, 20)
-                    ; (doc as any).autoTable({
+                    ; doc.autoTable({
                         startY: 30,
                         head: [["Date", "Type", "Currency", "Amount", "Status"]],
                         body: data.statement.transactions.map((tx: Transaction) => [
