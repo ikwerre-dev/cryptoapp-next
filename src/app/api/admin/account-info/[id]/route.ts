@@ -63,7 +63,7 @@ export async function PATCH(
 
 export async function DELETE(
     _request: NextRequest,
-    context: { params: { id: string } }
+    context: { params: { id: number } }
 ) {
     try {
         const headersList = headers();
