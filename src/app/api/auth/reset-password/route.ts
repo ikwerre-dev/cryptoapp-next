@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import pool from '@/lib/db'
 import bcrypt from 'bcryptjs'
+import { RowDataPacket } from 'mysql2'
+
+interface PasswordReset extends RowDataPacket {
+    user_id: number;
+}
 
 export async function POST(req: Request) {
     try {
@@ -9,7 +14,7 @@ export async function POST(req: Request) {
         const connection = await pool.getConnection()
         try {
             // Verify OTP
-            const [resets]: any = await connection.query(
+            const [resets] = await connection.query<PasswordReset[]>(
                 `SELECT user_id FROM password_resets 
                  WHERE email = ? AND otp = ? AND expires_at > NOW()
                  AND used = 0`,

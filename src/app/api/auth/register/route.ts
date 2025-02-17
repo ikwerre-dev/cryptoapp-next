@@ -3,6 +3,16 @@ import bcrypt from 'bcryptjs';
 import pool from '@/lib/db';
 import jwt from 'jsonwebtoken';
 import { headers } from 'next/headers';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+interface ExistingUser extends RowDataPacket {
+    id: number;
+    email: string;
+}
+
+interface UserName extends RowDataPacket {
+    id: number;
+}
 
 export async function POST(req: Request) {
   try {
@@ -21,9 +31,10 @@ export async function POST(req: Request) {
     }
 
     // Check if user already exists
-    const [existingUsers]: any = await pool.query(
-      'SELECT * FROM users WHERE email = ?',
-      [email]
+    // Update existing users check
+    const [existingUsers] = await pool.query<ExistingUser[]>(
+        'SELECT * FROM users WHERE email = ?',
+        [email]
     );
 
     if (existingUsers.length > 0) {
@@ -47,9 +58,10 @@ export async function POST(req: Request) {
           characters.charAt(Math.floor(Math.random() * characters.length))
         ).join('');
         
-        const [existing]: any = await pool.query(
-          'SELECT id FROM users WHERE username = ?',
-          [username]
+        // Update username check in generateUniqueUsername
+        const [existing] = await pool.query<UserName[]>(
+            'SELECT id FROM users WHERE username = ?',
+            [username]
         );
         
         if (existing.length === 0) {
@@ -62,24 +74,25 @@ export async function POST(req: Request) {
     const username = await generateUniqueUsername();
 
     // Insert new user with additional fields
-    const [result]: any = await pool.query(
-      `INSERT INTO users (
-        email, 
-        password,
-        username,
-        first_name,
-        last_name,
-        phone_number,
-        country, 
-        status,
-        kyc_status,
-        login_ip,
-        last_login,
-        btc_balance,
-        eth_balance,
-        usdt_balance
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'active', 'none', ?, NOW(), 0, 0, 0)`,
-      [email, hashedPassword, username, first_name, last_name, phone_number, country, ip]
+    // Update user insert
+    const [result] = await pool.query<ResultSetHeader>(
+        `INSERT INTO users (
+            email, 
+            password,
+            username,
+            first_name,
+            last_name,
+            phone_number,
+            country, 
+            status,
+            kyc_status,
+            login_ip,
+            last_login,
+            btc_balance,
+            eth_balance,
+            usdt_balance
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'active', 'none', ?, NOW(), 0, 0, 0)`,
+        [email, hashedPassword, username, first_name, last_name, phone_number, country, ip]
     );
 
     // Create welcome notice

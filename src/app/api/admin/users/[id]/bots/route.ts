@@ -2,6 +2,27 @@ import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { headers } from "next/headers"
 import jwt from "jsonwebtoken"
+import { RowDataPacket } from 'mysql2'
+
+interface TradingSession extends RowDataPacket {
+    id: number;
+    bot_id: number;
+    bot_name: string;
+    description: string;
+    min_roi: number;
+    max_roi: number;
+    duration_days: number;
+    initial_amount: number;
+    currency: string;
+    start_date: Date;
+    end_date: Date;
+    status: string;
+    trading_data_url: string;
+    created_at: Date;
+    bot_status: string;
+    price_amount: number;
+    price_currency: string;
+}
 
 export async function GET(
     req: Request,
@@ -27,7 +48,7 @@ export async function GET(
 
         const connection = await pool.getConnection()
         try {
-            const [sessions]: any = await connection.query(`
+            const [sessions] = await connection.query<TradingSession[]>(`
                 SELECT 
                     s.*,
                     b.name as bot_name,
@@ -43,11 +64,10 @@ export async function GET(
                 WHERE s.user_id = ?
                 ORDER BY s.start_date DESC`,
                 [userId]
-            )
-
+            );
             return NextResponse.json({
                 success: true,
-                sessions: sessions.map((session: any) => ({
+                sessions: sessions.map((session) => ({
                     id: session.id,
                     bot_id: session.bot_id,
                     bot_name: session.bot_name,

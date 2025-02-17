@@ -2,6 +2,32 @@ import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { headers } from "next/headers"
 import jwt from "jsonwebtoken"
+import { RowDataPacket } from 'mysql2'
+
+interface TradingBot extends RowDataPacket {
+    id: number;
+    name: string;
+    description: string;
+    min_roi: number;
+    max_roi: number;
+    duration_days: number;
+    price_amount: number;
+    price_currency: string;
+    status: string;
+}
+
+interface TradingSession extends RowDataPacket {
+    id: number;
+    user_id: number;
+    bot_id: number;
+    initial_amount: number;
+    currency: string;
+    start_date: Date;
+    end_date: Date;
+    status: string;
+    trading_data_url: string;
+    created_at: Date;
+}
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
     try {
@@ -22,19 +48,19 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
         const connection = await pool.getConnection()
         try {
-            const [bots]: any = await connection.query(
+            const [bots] = await connection.query<TradingBot[]>(
                 `SELECT * FROM trading_bots WHERE id = ?`,
                 [params.id]
-            )
-
+            );
+            
             if (!bots.length) {
                 return NextResponse.json({ error: "Bot not found" }, { status: 404 })
             }
-
-            const [sessions]: any = await connection.query(
+            
+            const [sessions] = await connection.query<TradingSession[]>(
                 `SELECT * FROM user_trading_sessions WHERE bot_id = ? ORDER BY created_at DESC`,
                 [params.id]
-            )
+            );
 
             return NextResponse.json({
                 success: true,

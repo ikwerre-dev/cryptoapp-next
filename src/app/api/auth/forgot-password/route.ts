@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import pool from '@/lib/db'
 import nodemailer from 'nodemailer'
+import { RowDataPacket } from 'mysql2'
+
+interface User extends RowDataPacket {
+    id: number;
+}
 
 export async function POST(req: Request) {
     try {
@@ -13,10 +18,11 @@ export async function POST(req: Request) {
         const connection = await pool.getConnection()
         try {
             // Check if user exists
-            const [users]: any = await connection.query(
+            // Check if user exists with proper typing
+            const [users] = await connection.query<User[]>(
                 'SELECT id FROM users WHERE email = ?',
                 [email]
-            )
+            );
 
             if (users.length === 0) {
                 // Return success even if user doesn't exist for security

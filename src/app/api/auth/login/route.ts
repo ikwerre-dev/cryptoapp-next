@@ -3,6 +3,16 @@ import bcrypt from 'bcryptjs';
 import pool from '@/lib/db';
 import jwt from 'jsonwebtoken';
 import { headers } from 'next/headers';
+import { RowDataPacket } from 'mysql2';
+
+interface User extends RowDataPacket {
+    id: number;
+    email: string;
+    password: string;
+    status: string;
+    kyc_status: string;
+    is_admin: number;
+}
 
 export async function POST(req: Request) {
   try {
@@ -20,10 +30,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get user
-    const [users]: any = await pool.query(
-      'SELECT * FROM users WHERE email = ?',
-      [email]
+    // Get user with proper typing
+    const [users] = await pool.query<User[]>(
+        'SELECT * FROM users WHERE email = ?',
+        [email]
     );
 
     if (users.length === 0) {
