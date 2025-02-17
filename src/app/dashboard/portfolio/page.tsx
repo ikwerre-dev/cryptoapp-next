@@ -69,6 +69,23 @@ export default function PortfolioPage() {
 
     console.log(assets)
 
+    interface Transaction {
+        created_at: string;
+        type: string;
+        currency: string;
+        amount: number;
+        status: string;
+    }
+    
+    interface Statement {
+        transactions: Transaction[];
+    }
+    
+    interface ApiResponse {
+        success: boolean;
+        statement: Statement;
+    }
+
     const downloadStatement = async () => {
         try {
             const endDate = new Date().toISOString()
@@ -87,7 +104,7 @@ export default function PortfolioPage() {
                 }),
             })
 
-            const data = await response.json()
+            const data: ApiResponse = await response.json();
 
             if (data.success) {
                 const doc = new jsPDF()
@@ -127,7 +144,7 @@ export default function PortfolioPage() {
                     ; (doc as any).autoTable({
                         startY: 30,
                         head: [["Date", "Type", "Currency", "Amount", "Status"]],
-                        body: data.statement.transactions.map((tx: any) => [
+                        body: data.statement.transactions.map((tx: Transaction) => [
                             new Date(tx.created_at).toLocaleDateString(),
                             tx.type.toUpperCase(),
                             tx.currency,

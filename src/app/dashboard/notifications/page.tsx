@@ -7,7 +7,9 @@ import { useUserData } from "@/hooks/useUserData"
 import { useAuth } from "@/context/AuthContext"
 import { NotificationModal } from "@/components/notifications/NotificationModal"
 
+
 export default function NotificationsPage() {
+
     const { userData, refetch } = useUserData()
     const { markNoticesAsRead } = useAuth()
     const [selectedNotice, setSelectedNotice] = useState<any>(null)
@@ -34,10 +36,10 @@ export default function NotificationsPage() {
     return (
         <div className="min-h-screen bg-[#0A0A0A] text-white">
             <div className="flex flex-col lg:flex-row">
-                <Sidebar  />
+                <Sidebar />
                 <div className="flex-1 lg:ml-64">
-                <TopBar title="Notifications" notices={userData?.notices} />
-                <div className="p-4 lg:p-8">
+                    <TopBar title="Notifications" notices={userData?.notices} />
+                    <div className="p-4 lg:p-8">
                         <div className="bg-[#121212] rounded-[1rem] p-6">
                             <div className="space-y-4">
                                 {userData?.notices && userData.notices.length > 0 ? (
@@ -45,16 +47,14 @@ export default function NotificationsPage() {
                                         <div
                                             key={notice.id}
                                             onClick={() => handleNoticeClick(notice)}
-                                            className={`p-4 rounded-lg cursor-pointer transition-colors ${
-                                                !notice.is_read 
-                                                    ? 'bg-purple-500/10 hover:bg-purple-500/20' 
-                                                    : 'bg-[#1A1A1A] hover:bg-[#242424]'
-                                            }`}
+                                            className={`p-4 rounded-lg cursor-pointer transition-colors ${!notice.is_read
+                                                ? 'bg-purple-500/10 hover:bg-purple-500/20'
+                                                : 'bg-[#1A1A1A] hover:bg-[#242424]'
+                                                }`}
                                         >
                                             <div className="flex items-start gap-3">
-                                                <div className={`mt-1 w-2 h-2 rounded-full ${
-                                                    !notice.is_read ? 'bg-purple-500' : 'bg-gray-500'
-                                                }`} />
+                                                <div className={`mt-1 w-2 h-2 rounded-full ${!notice.is_read ? 'bg-purple-500' : 'bg-gray-500'
+                                                    }`} />
                                                 <div className="flex-1">
                                                     <div className="flex justify-between items-start">
                                                         <div className="font-medium">{notice.title}</div>
@@ -77,10 +77,10 @@ export default function NotificationsPage() {
                     </div>
                 </div>
             </div>
-            
-            <NotificationModal 
-                notice={selectedNotice} 
-                onClose={() => setSelectedNotice(null)} 
+
+            <NotificationModal
+                notice={selectedNotice}
+                onClose={() => setSelectedNotice(null)}
             />
         </div>
     )

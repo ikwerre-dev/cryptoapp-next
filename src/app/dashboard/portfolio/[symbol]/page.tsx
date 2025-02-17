@@ -20,12 +20,24 @@ interface CoinDetailsProps {
     }>
 }
 
+interface ChartData {
+    timestamp: string;
+    price: number;
+}
+
+interface ChartSeries {
+    name: string;
+    data: [number, number][];  // Update to specify tuple type for timestamp and price
+}
+
 export default function CoinDetails({ params }: CoinDetailsProps) {
     const { symbol } = use(params)
     const { userData } = useUserData()
     const { cryptoData } = useCryptoData()
     const [timeFrame, setTimeFrame] = useState("1D")
-    const [chartData, setChartData] = useState<[number, number][]>([])
+    
+    // Update the type annotation where the any is used
+    const [chartData, setChartData] = useState<ChartData[]>([]);
     const [isLoading, setIsLoading] = useState(true)
 
 
@@ -190,7 +202,18 @@ export default function CoinDetails({ params }: CoinDetailsProps) {
                                 {isLoading ? (
                                     <div className="h-[350px] flex items-center justify-center">Loading...</div>
                                 ) : (
-                                    <Chart options={chartOptions} series={[{ name: symbol, data: chartData }]} type="area" height={350} />
+                                    <Chart 
+                                        options={chartOptions} 
+                                        series={[{ 
+                                            name: symbol, 
+                                            data: chartData.map(point => [
+                                                new Date(point.timestamp).getTime(),
+                                                point.price
+                                            ])
+                                        }] as ChartSeries[]} 
+                                        type="area" 
+                                        height={350} 
+                                    />
                                 )}
                             </div>
                         </div>
