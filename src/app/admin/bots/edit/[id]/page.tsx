@@ -21,17 +21,16 @@ interface TradingBot {
 
 interface Props {
     params: Promise<{ id: string }>;
-    searchParams: { [key: string]: string | string[] | undefined };
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function EditTradingBot({ params, searchParams }: Props) {
-    const resolvedParams = await params;
+const EditTradingBotClient = ({ id }: { id: string }) => {
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<TradingBot>({
-        id: parseInt(resolvedParams.id),
+        id: parseInt(id),
         name: '',
         description: '',
         min_roi: 0,
@@ -51,11 +50,11 @@ export default async function EditTradingBot({ params, searchParams }: Props) {
         if (!userDataLoading && userData?.user?.is_admin) {
             fetchBot();
         }
-    }, [userData, userDataLoading, router, resolvedParams.id]);
+    }, [userData, userDataLoading, router, id]);
 
     const fetchBot = async () => {
         try {
-            const response = await fetch(`/api/admin/trading-bots/${resolvedParams.id}`, {
+            const response = await fetch(`/api/admin/trading-bots/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${Cookies.get('auth-token')}`
                 }
@@ -225,4 +224,11 @@ export default async function EditTradingBot({ params, searchParams }: Props) {
             </div>
         </div>
     );
+};
+
+export default async function EditTradingBot({ params, searchParams }: Props) {
+    const resolvedParams = await params;
+    await searchParams; // We need to await this even if we don't use it
+
+    return <EditTradingBotClient id={resolvedParams.id} />;
 }
