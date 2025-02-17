@@ -5,11 +5,11 @@ import { TopBar } from "@/components/dashboard/TopBar"
 import { ArrowDown, ArrowUp, Search } from "lucide-react"
 import { useUserData } from "@/hooks/useUserData"
 import { useCryptoData } from "@/hooks/useCryptoData"
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSearchParams } from "next/navigation"
 
-export default function WatchlistPage() {
+function WatchlistContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { userData } = useUserData()
@@ -128,5 +128,17 @@ export default function WatchlistPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function WatchlistPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center">
+                Loading...
+            </div>
+        }>
+            <WatchlistContent />
+        </Suspense>
     )
 }
