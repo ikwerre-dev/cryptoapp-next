@@ -71,7 +71,7 @@ export default function SwapPage({ searchParams }: { searchParams: Promise<{ sym
             return
         }
 
-        const fromCryptoAmount = usdAmount / fromCrypto.priceUsd
+        const fromCryptoAmount = usdAmount; 
         if (fromCryptoAmount > fromCrypto.balance) {
             setError(`Insufficient ${fromCrypto.symbol} balance`)
             setIsSubmitting(false)
@@ -90,7 +90,7 @@ export default function SwapPage({ searchParams }: { searchParams: Promise<{ sym
                     fromAmount: fromCryptoAmount.toFixed(8),
                     fromCurrency: fromCrypto.symbol,
                     toCurrency: toCrypto.symbol,
-                    toAmount: (finalAmount / toCrypto.priceUsd).toFixed(8),
+                    toAmount: (finalAmount).toFixed(8),
                     fee: (fee),
                     usdAmount: amount
                 }),

@@ -76,7 +76,6 @@ export default function PortfolioPage() {
         })
         .sort((a, b) => b.priceUsd - a.priceUsd)
 
-    console.log(assets)
 
     interface Transaction {
         created_at: string;

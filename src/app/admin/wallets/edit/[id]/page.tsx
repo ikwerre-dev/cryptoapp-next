@@ -21,7 +21,8 @@ interface PageParams {
 }
 
 export default function EditWalletPage({ params }: { params: PageParams }) {
-    const resolvedParams = React.use(params as any) as PageParams;
+    const resolvedParams = params;
+    
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
     const [loading, setLoading] = useState(true);

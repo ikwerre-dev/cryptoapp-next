@@ -8,14 +8,48 @@ import { Search } from 'lucide-react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { UserModal } from '@/components/admin/UserModal';
 
+// Add this interface after the imports
+interface AdminUser {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone_number: string;
+    country: string;
+    kyc_status: string;
+    two_factor_enabled: boolean;
+    btc_balance: string;
+    eth_balance: string;
+    is_admin: boolean;
+    usdt_balance: string;
+    bnb_balance: string;
+    xrp_balance: string;
+    ada_balance: string;
+    doge_balance: string;
+    sol_balance: string;
+    dot_balance: string;
+    matic_balance: string;
+    link_balance: string;
+    uni_balance: string;
+    avax_balance: string;
+    ltc_balance: string;
+    shib_balance: string;
+    status: string;
+    created_at: string;
+    updated_at: string;
+    last_login: string;
+    login_ip: string;
+}
+
 export default function AdminUsersPage() {
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<AdminUser[]>([]);
+    const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+
     const [loading, setLoading] = useState(true);
-    const [selectedUser, setSelectedUser] = useState<any>(null);
     const itemsPerPage = 20;
 
     useEffect(() => {
@@ -117,9 +151,8 @@ export default function AdminUsersPage() {
                                             <td className="p-4 text-right">{Number(user.eth_balance).toFixed(8)}</td>
                                             <td className="p-4 text-right">{Number(user.usdt_balance).toFixed(2)}</td>
                                             <td className="p-4 text-right">
-                                                <span className={`px-2 py-1 rounded text-xs ${
-                                                    user.status == "active" ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
-                                                }`}>
+                                                <span className={`px-2 py-1 rounded text-xs ${user.status == "active" ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                                                    }`}>
                                                     {user.status == "active" ? 'Active' : 'Inactive'}
                                                 </span>
                                             </td>
@@ -141,11 +174,10 @@ export default function AdminUsersPage() {
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                     disabled={currentPage === 1}
-                                    className={`px-3 py-1 rounded ${
-                                        currentPage === 1
+                                    className={`px-3 py-1 rounded ${currentPage === 1
                                             ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                                             : 'bg-gray-800 text-white hover:bg-gray-700'
-                                    }`}
+                                        }`}
                                 >
                                     Previous
                                 </button>
@@ -161,11 +193,10 @@ export default function AdminUsersPage() {
                                             )}
                                             <button
                                                 onClick={() => setCurrentPage(page)}
-                                                className={`px-3 py-1 rounded ${
-                                                    currentPage === page
+                                                className={`px-3 py-1 rounded ${currentPage === page
                                                         ? 'bg-blue-600 text-white'
                                                         : 'bg-gray-800 text-white hover:bg-gray-700'
-                                                }`}
+                                                    }`}
                                             >
                                                 {page}
                                             </button>
@@ -174,11 +205,10 @@ export default function AdminUsersPage() {
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                     disabled={currentPage === totalPages}
-                                    className={`px-3 py-1 rounded ${
-                                        currentPage === totalPages
+                                    className={`px-3 py-1 rounded ${currentPage === totalPages
                                             ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                                             : 'bg-gray-800 text-white hover:bg-gray-700'
-                                    }`}
+                                        }`}
                                 >
                                     Next
                                 </button>

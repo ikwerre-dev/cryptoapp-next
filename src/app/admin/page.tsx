@@ -10,19 +10,57 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { UserModal } from '@/components/admin/UserModal';
 import { Search } from 'lucide-react';
 
+// Add these interfaces after the imports
+interface AdminStats {
+    totalUsers: number;
+    totalTransactions: number;
+    totalVolume: number;
+}
+
+interface AdminUser {
+    id: number;
+    email: string;
+    username?: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    country: string;
+    kyc_status: string;
+    two_factor_enabled: boolean;
+    last_login: string;
+    login_ip: string;
+    created_at: string;
+    updated_at: string;
+    is_admin: boolean;
+    status: string;
+    btc_balance: string;
+    eth_balance: string;
+    usdt_balance: string;
+    bnb_balance: string;
+    xrp_balance: string;
+    ada_balance: string;
+    doge_balance: string;
+    sol_balance: string;
+    dot_balance: string;
+    matic_balance: string;
+    link_balance: string;
+    uni_balance: string;
+    avax_balance: string;
+    ltc_balance: string;
+    shib_balance: string;
+}
+
 export default function AdminDashboard() {
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData()
-    const [stats, setStats] = useState<any>(null);
+    const [stats, setStats] = useState<AdminStats | null>(null);
+    const [users, setUsers] = useState<AdminUser[]>([]);
+    const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
+    
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-
-    const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedUser, setSelectedUser] = useState<any>("");
-
-    // Add pagination and search logic
     const filteredUsers = users.filter(user => {
         const searchStr = searchTerm.toLowerCase();
         return (

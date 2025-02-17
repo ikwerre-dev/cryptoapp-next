@@ -7,12 +7,24 @@ import Cookies from "js-cookie";
 import { Search, ChevronDown } from 'lucide-react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 
+// Add this interface after the imports
+interface Transaction {
+    id: number;
+    user_email: string;
+    transaction_id: string;
+    amount: string;
+    currency: string;
+    type: string;
+    status: string;
+    created_at: string;
+}
+
 export default function AdminTransactionsPage() {
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [transactions, setTransactions] = useState<any[]>([]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const itemsPerPage = 20;
 

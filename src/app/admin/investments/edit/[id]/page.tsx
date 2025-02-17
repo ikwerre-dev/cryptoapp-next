@@ -26,7 +26,8 @@ interface PageParams {
 }
 
 export default function EditInvestmentPackage({ params }: { params: PageParams }) {
-    const resolvedParams = React.use(params as any) as PageParams;
+    const resolvedParams = params;
+
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
     const [loading, setLoading] = useState(true);
@@ -44,7 +45,7 @@ export default function EditInvestmentPackage({ params }: { params: PageParams }
         max_amount_usd: 0,
         is_active: true
     });
-    
+
     // Update featuresList state initialization
     const [featuresList, setFeaturesList] = useState<string[]>([]);
 
@@ -82,12 +83,12 @@ export default function EditInvestmentPackage({ params }: { params: PageParams }
         }));
     };
 
-  
+
     const handleAddFeature = () => {
         setFeaturesList(prev => [...prev, '']);
     };
 
-   
+
 
     const handleRemoveFeature = (index: number) => {
         setFeaturesList(prev => {
@@ -228,38 +229,38 @@ export default function EditInvestmentPackage({ params }: { params: PageParams }
                                 />
                             </div>
                             <div>
-        <label className="block text-sm font-medium text-gray-400 mb-2">
-            Features
-        </label>
-        <div className="space-y-2">
-            {featuresList.map((feature, index) => (
-                <div key={index} className="flex gap-2">
-                    <input
-                        type="text"
-                        value={feature}
-                        onChange={(e) => handleFeatureChange(index, e.target.value)}
-                        className="flex-1 bg-[#1A1A1A] border border-gray-800 rounded-lg px-4 py-2"
-                        placeholder="Enter feature"
-                    />
-                    <button
-                        type="button"
-                        onClick={() => handleRemoveFeature(index)}
-                        className="px-3 py-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20"
-                    >
-                        Remove
-                    </button>
-                </div>
-            ))}
-            <button
-                type="button"
-                onClick={handleAddFeature}
-                className="w-full px-4 py-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white flex items-center justify-center gap-2"
-            >
-                <Plus className="h-4 w-4" />
-                Add Feature
-            </button>
-        </div>
-    </div>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">
+                                    Features
+                                </label>
+                                <div className="space-y-2">
+                                    {featuresList.map((feature, index) => (
+                                        <div key={index} className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                value={feature}
+                                                onChange={(e) => handleFeatureChange(index, e.target.value)}
+                                                className="flex-1 bg-[#1A1A1A] border border-gray-800 rounded-lg px-4 py-2"
+                                                placeholder="Enter feature"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveFeature(index)}
+                                                className="px-3 py-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={handleAddFeature}
+                                        className="w-full px-4 py-2 bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white flex items-center justify-center gap-2"
+                                    >
+                                        <Plus className="h-4 w-4" />
+                                        Add Feature
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-6">

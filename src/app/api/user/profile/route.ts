@@ -2,6 +2,11 @@ import { NextResponse } from "next/server"
 import pool from "@/lib/db"
 import { headers } from "next/headers"
 import jwt from "jsonwebtoken"
+import { RowDataPacket } from 'mysql2'
+
+interface UserRow extends RowDataPacket {
+    id: number;
+}
 
 export async function PUT(req: Request) {
     try {
@@ -14,13 +19,13 @@ export async function PUT(req: Request) {
 
         const token = authHeader.split(" ")[1]
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number }
-        
+
         const { email, username, first_name, last_name, phone_number, country, profile_image } = await req.json()
 
         const connection = await pool.getConnection()
         try {
             // Check if email is already taken by another user
-            const [existingUser]: any = await connection.query(
+            const [existingUser] = await connection.query<UserRow[]>(
                 'SELECT id FROM users WHERE email = ? AND id != ?',
                 [email, decoded.userId]
             )

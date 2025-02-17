@@ -3,6 +3,11 @@ import pool from "@/lib/db"
 import { headers } from "next/headers"
 import jwt from "jsonwebtoken"
 import bcrypt from "bcryptjs"
+import { RowDataPacket } from 'mysql2'
+
+interface UserPassword extends RowDataPacket {
+    password: string;
+}
 
 export async function PUT(req: Request) {
     try {
@@ -21,7 +26,7 @@ export async function PUT(req: Request) {
         const connection = await pool.getConnection()
         try {
             // Get current user's password
-            const [users]: any = await connection.query(
+            const [users] = await connection.query<UserPassword[]>(
                 'SELECT password FROM users WHERE id = ?',
                 [decoded.userId]
             )

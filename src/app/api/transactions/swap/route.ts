@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { headers } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
+
+// Add these interfaces after imports
+interface BalanceResult extends RowDataPacket {
+    balance: number;
+}
 
 export async function POST(req: Request) {
     try {
@@ -21,12 +27,13 @@ export async function POST(req: Request) {
 
         try {
             // Check user's balance
-            const [balanceResult]: any = await connection.query(
+            // Update the balance check query
+            const [balanceResult] = await connection.query<BalanceResult[]>(
                 `SELECT ${fromCurrency.toLowerCase()}_balance as balance FROM users WHERE id = ?`,
                 [decoded.userId]
             );
 
-            if (!balanceResult || Number(balanceResult.balance) < Number(fromAmount)) {
+            if (!balanceResult[0] || Number(balanceResult[0].balance) < Number(fromAmount)) {
                 throw new Error('Insufficient balance');
             }
 
@@ -47,7 +54,8 @@ export async function POST(req: Request) {
             );
 
             // Create swap transaction record for outgoing
-            const [fromResult]: any = await connection.query(
+            // Update the transaction insert query
+            const [fromResult] = await connection.query<ResultSetHeader>(
                 `INSERT INTO transactions 
                 (user_id, type, currency, amount, fee, status, description, created_at, updated_at) 
                 VALUES (?, 'swap', ?, ?, ?, 'completed', ?, NOW(), NOW())`,

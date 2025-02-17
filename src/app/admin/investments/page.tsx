@@ -6,11 +6,23 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import {   Pencil } from 'lucide-react';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
-
+interface InvestmentPackage {
+    id: number
+    name: string
+    min_amount_usd: number
+    max_amount_usd: number
+    duration_days: number
+    min_roi: number
+    max_roi: number
+    risk_level: "low" | "medium" | "high"
+    description: string
+    features: string[]
+    is_active: boolean
+}
 export default function AdminInvestmentsPage() {
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
-    const [packages, setPackages] = useState<any[]>([]);
+    const [packages, setPackages] = useState<InvestmentPackage[]>([]);
     const [loading, setLoading] = useState(true);
  
     useEffect(() => {

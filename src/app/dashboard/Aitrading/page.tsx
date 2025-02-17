@@ -10,7 +10,23 @@ import Cookies from "js-cookie"
 import { useUserData } from "@/hooks/useUserData"
 import { useCryptoData } from "@/hooks/useCryptoData"
 import { getCryptoName } from "@/lib/getCryptoName"
+interface TradingData {
+  timestamp: string;
+  change: number;
+  balance: number;
+}
 
+interface SessionData {
+  [key: number]: TradingData[];
+}
+
+interface CryptoAsset {
+  symbol: string;
+  name: string;
+  balance: number;
+  priceUsd: number;
+  gasFee: number;
+}
 interface TradingBot {
   id: number
   name: string
@@ -42,15 +58,15 @@ export default function AITradingPage() {
   const [amount, setAmount] = useState("")
   const [availableBots, setAvailableBots] = useState<TradingBot[]>([])
   const [runningSessions, setRunningSessions] = useState<TradingSession[]>([])
-   const [error, setError] = useState("")
+  const [error, setError] = useState("")
   const [totalProfit, setTotalProfit] = useState(0)
   const [totalInvested, setTotalInvested] = useState(0)
   const [mytotalInvested, setmyTotalInvested] = useState(0)
   const [isUSD, setIsUSD] = useState(true)
-  const [selectedCrypto, setSelectedCrypto] = useState<any>(null)
-  const [sessionProfits, setSessionProfits] = useState<{ [key: string]: number }>({})
-  const [sessionAmountProfits, setSessionAmountProfits] = useState<{ [key: string]: number }>({})
-  const [sessionData, setSessionData] = useState<{ [key: number]: any }>({})
+  const [selectedCrypto, setSelectedCrypto] = useState<CryptoAsset | null>(null);
+  const [sessionProfits, setSessionProfits] = useState<{ [key: string]: number }>({});
+  const [sessionAmountProfits, setSessionAmountProfits] = useState<{ [key: string]: number }>({});
+  const [sessionData, setSessionData] = useState<SessionData>({});
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { userData } = useUserData()
@@ -61,7 +77,7 @@ export default function AITradingPage() {
     const interval = setInterval(fetchData, 5000)
     return () => clearInterval(interval)
   }, [])
- 
+
   useEffect(() => {
 
     const profit = Object.values(sessionProfits).reduce((acc, curr) => acc + curr, 0);
@@ -75,7 +91,7 @@ export default function AITradingPage() {
     const newSessionProfits: Record<string, number> = {};
     runningSessions.forEach((session) => {
       const recentData = sessionData[session.id]
-        ?.filter((d: any) => {
+        ?.filter((d: TradingData) => {
           const now = Date.now()
           const timestamp = new Date(d.timestamp).getTime()
           return now - timestamp > 0 && now - timestamp <= 60000
@@ -87,7 +103,7 @@ export default function AITradingPage() {
     const newSessionAmountProfits: Record<string, number> = {};
     runningSessions.forEach((session) => {
       const recentData = sessionData[session.id]
-        ?.filter((d: any) => {
+        ?.filter((d: TradingData) => {
           const now = Date.now()
           const timestamp = new Date(d.timestamp).getTime()
           return now - timestamp > 0 && now - timestamp <= 60000
@@ -136,23 +152,23 @@ export default function AITradingPage() {
           if (data?.session?.trading_data) {
             const latestProfit =
               data.session.trading_data
-                .filter((d: any) => {
+                .filter((d: TradingData) => {
                   const now = Date.now()
                   const timestamp = new Date(d.timestamp).getTime()
                   return now - timestamp > 0 && now - timestamp <= 60000
                 })
                 .slice(-1)
-                .map((d: any) => d.change)[0] || 0
+                .map((d: TradingData) => d.change)[0] || 0
 
             const latestAmountProfit =
               data.session.trading_data
-                .filter((d: any) => {
+                .filter((d: TradingData) => {
                   const now = Date.now()
                   const timestamp = new Date(d.timestamp).getTime()
                   return now - timestamp > 0 && now - timestamp <= 60000
                 })
                 .slice(-1)
-                .map((d: any) => d.balance)[0] || 0
+                .map((d: TradingData) => d.balance)[0] || 0
 
 
             setSessionProfits((prev) => ({
@@ -179,7 +195,7 @@ export default function AITradingPage() {
     } catch (error) {
       console.error("Failed to fetch data:", error)
       setError("Failed to load trading data")
-    } 
+    }
   }
   console.log(sessionProfits)
 
@@ -302,13 +318,13 @@ export default function AITradingPage() {
               <div className="space-y-4">
                 {runningSessions.map((session) => {
                   const recentData = sessionData[session.id]
-                    ?.filter((d: any) => {
+                    ?.filter((d: TradingData) => {
                       const now = Date.now()
                       const timestamp = new Date(d.timestamp).getTime()
                       return now - timestamp > 0 && now - timestamp <= 60000
                     })
                     .slice(-1)
-                    .map((d: any) => {
+                    .map((d: TradingData) => {
                       return d.change
                     })
 
@@ -331,16 +347,13 @@ export default function AITradingPage() {
                         </div>
 
                         <div
-                          className={`text-lg ${recentData >= 0
+                          className={`text-lg ${(recentData?.[0] || 0) >= 0
                             ? "text-green-500"
                             : "text-red-500"
                             }`}
                         >
-                          {recentData >= 0
-                            ? "+"
-                            : ""}
-                          {recentData}
-                          %
+                          {(recentData?.[0] || 0) >= 0 ? "+" : ""}
+                          {recentData}%
                         </div>
                       </div>
 
@@ -411,7 +424,7 @@ export default function AITradingPage() {
                       className="w-full bg-[#1A1A1A] rounded-lg px-4 py-2 text-white"
                       onChange={(e) => {
                         const coin = availableCoins.find((c) => c.symbol === e.target.value)
-                        setSelectedCrypto(coin)
+                        setSelectedCrypto(coin || null)
                       }}
                       value={selectedCrypto?.symbol || ""}
                     >

@@ -10,11 +10,18 @@ const Chart = dynamic(() => import("react-apexcharts"), { ssr: false })
 import type { ApexOptions } from 'apexcharts'
 import { useRouter } from "next/navigation"
 
+interface TradingData {
+    id: number;
+    timestamp: string;
+    change: number;
+    balance: number;
+    recentData: number;
+}
+
 interface TradingSession {
     id: number
     bot_id: number
     bot_name: string
-    bot_description: string
     initial_amount: number
     currency: string
     start_date: string
@@ -24,10 +31,15 @@ interface TradingSession {
     trading_data_url: string
 }
 
+
+interface SessionData {
+    [key: number]: TradingData[];
+}
+
 export default function BotDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params)
     const [session, setSession] = useState<TradingSession | null>(null)
-    const [sessionData, setSessionData] = useState<any[]>([])
+    const [sessionData, setSessionData] = useState<SessionData>({});
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState("")
     const [isClosing, setIsClosing] = useState(false)
@@ -135,7 +147,8 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
 
             if (data.session) {
                 setSession(data.session)
-                setSessionData(data.session.trading_data || [])
+                // Update this line to properly set the session data
+                setSessionData({ [data.session.id]: data.session.trading_data || [] })
             }
         } catch (error) {
             console.error(error)
@@ -146,14 +159,15 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
     }
 
     console.log(session)
-    const recentData = sessionData
-        ?.filter((d: any) => {
+    const recentData = session ? sessionData[session.id]
+        ?.filter((d: TradingData) => {
             const now = Date.now()
             const timestamp = new Date(d.timestamp).getTime()
             return now - timestamp > 0 && now - timestamp <= 80000
         })
-        .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .sort((a: TradingData, b: TradingData) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
         .slice(0)[0]
+        : null;
 
     if (isLoading) return <div>Loading...</div>
     if (error) return <div>{error}</div>
@@ -177,8 +191,8 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <div className={`text-lg ${recentData?.change >= 0 ? "text-green-500" : "text-red-500"}`}>
-                                        {recentData?.change >= 0 ? "+" : ""}{recentData?.change || 0}%
+                                    <div className={`text-lg ${(recentData?.change || 0) >= 0 ? "text-green-500" : "text-red-500"}`}>
+                                        {(recentData?.change || 0) >= 0 ? "+" : ""}{recentData?.change || 0}%
                                     </div>
                                     <button
                                         onClick={handleCloseTrading}
@@ -216,14 +230,14 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                                     series={[
                                         {
                                             name: "Price",
-                                            data: sessionData
-                                                .filter((d: any) => {
+                                            data: sessionData[session.id]
+                                                ?.filter((d: TradingData) => {
                                                     const now = Date.now()
                                                     const timestamp = new Date(d.timestamp).getTime()
                                                     return now - timestamp > 0 && now - timestamp <= 80000
                                                 })
-                                                .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                                                .map((d: any) => ({
+                                                .sort((a: TradingData, b: TradingData) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                                                .map((d: TradingData) => ({
                                                     x: new Date(new Date(d.timestamp).setHours(new Date(d.timestamp).getHours() + 1)),
                                                     y: [
                                                         parseFloat(d.balance.toFixed(2)),
@@ -249,14 +263,14 @@ export default function BotDetailsPage({ params }: { params: Promise<{ id: strin
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {sessionData
-                                            .filter((d: any) => {
+                                        {sessionData[session.id]
+                                            ?.filter((d: TradingData) => {
                                                 const now = Date.now()
                                                 const timestamp = new Date(d.timestamp).getTime()
                                                 return now - timestamp > 0 && now - timestamp <= 80000
                                             })
-                                            .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                                            .map((data: any) => (
+                                            .sort((a: TradingData, b: TradingData) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                                            .map((data: TradingData) => (
                                                 <tr key={data.id} className="border-t border-[#ffffff1a]">
                                                     <td className="p-2">
                                                         {new Date(data.timestamp).toLocaleString("en-US")}
