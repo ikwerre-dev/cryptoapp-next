@@ -2,6 +2,19 @@ import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { headers } from "next/headers";
 import jwt from "jsonwebtoken";
+import { RowDataPacket } from 'mysql2';
+
+interface Investment extends RowDataPacket {
+    id: number;
+    user_id: number;
+    package_id: number;
+    amount_usd: number;
+    currency: string;
+    status: string;
+    start_date: Date;
+    daily_roi: string;
+    package_name: string;
+}
 
 export async function POST(req: Request) {
     try {
@@ -21,7 +34,7 @@ export async function POST(req: Request) {
 
         try {
             // Get investment details
-            const [investments]: any = await connection.query(
+            const [investments] = await connection.query<Investment[]>(
                 `SELECT ui.*, ip.name as package_name 
                  FROM user_investments ui 
                  JOIN investment_packages ip ON ui.package_id = ip.id 

@@ -2,6 +2,27 @@ import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import jwt from 'jsonwebtoken';
 import { headers } from 'next/headers';
+import { RowDataPacket } from 'mysql2';
+
+interface User extends RowDataPacket {
+    id: number;
+    email: string;
+    status: string;
+    kyc_status: string;
+    username: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    country: string;
+    two_factor_enabled: boolean;
+    last_login: Date;
+    login_ip: string;
+    created_at: Date;
+}
+
+interface NoticeCount extends RowDataPacket {
+    count: number;
+}
 
 export async function GET(req: Request) {
   try {
@@ -34,24 +55,25 @@ export async function GET(req: Request) {
     }
 
     // Get user data
-    const [users]: any = await pool.query(
-      `SELECT 
-        id,
-        email,
-        status,
-        kyc_status,
-        username,
-        first_name,
-        last_name,
-        phone_number,
-        country,
-        two_factor_enabled,
-        last_login,
-        login_ip,
-        created_at
-      FROM users 
-      WHERE id = ?`,  // Removed AND status = 'active' to check status
-      [decoded.userId]
+    // Update user query
+    const [users] = await pool.query<User[]>(
+        `SELECT 
+            id,
+            email,
+            status,
+            kyc_status,
+            username,
+            first_name,
+            last_name,
+            phone_number,
+            country,
+            two_factor_enabled,
+            last_login,
+            login_ip,
+            created_at
+        FROM users 
+        WHERE id = ?`,
+        [decoded.userId]
     );
 
     if (users.length === 0) {
@@ -79,11 +101,12 @@ export async function GET(req: Request) {
     }
 
     // Get unread notices count
-    const [noticesCount]: any = await pool.query(
-      `SELECT COUNT(*) as count 
-       FROM account_notices 
-       WHERE user_id = ? AND is_read = false`,
-      [decoded.userId]
+    // Update notices count query
+    const [noticesCount] = await pool.query<NoticeCount[]>(
+        `SELECT COUNT(*) as count 
+         FROM account_notices 
+         WHERE user_id = ? AND is_read = false`,
+        [decoded.userId]
     );
 
     return NextResponse.json({
