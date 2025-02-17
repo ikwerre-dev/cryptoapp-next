@@ -19,20 +19,19 @@ interface TradingBot {
     status: string;
 }
 
-interface PageProps {
-    params: {
-        id: string;
-    };
+interface Props {
+    params: Promise<{ id: string }>;
     searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export default function EditTradingBot({ params }: PageProps) {
+export default async function EditTradingBot({ params, searchParams }: Props) {
+    const resolvedParams = await params;
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<TradingBot>({
-        id: parseInt(params.id),
+        id: parseInt(resolvedParams.id),
         name: '',
         description: '',
         min_roi: 0,
@@ -52,11 +51,11 @@ export default function EditTradingBot({ params }: PageProps) {
         if (!userDataLoading && userData?.user?.is_admin) {
             fetchBot();
         }
-    }, [userData, userDataLoading, router, params.id]);
+    }, [userData, userDataLoading, router, resolvedParams.id]);
 
     const fetchBot = async () => {
         try {
-            const response = await fetch(`/api/admin/trading-bots/${params.id}`, {
+            const response = await fetch(`/api/admin/trading-bots/${resolvedParams.id}`, {
                 headers: {
                     'Authorization': `Bearer ${Cookies.get('auth-token')}`
                 }
