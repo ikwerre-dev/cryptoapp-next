@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { headers } from "next/headers";
 import jwt from "jsonwebtoken";
 
 export async function PATCH(
-    request: Request,
-    { params }: { params: { id: string } }
+    request: NextRequest,
+    context: { params: { id: string } }
 ) {
     try {
         const headersList = headers();
@@ -30,7 +30,7 @@ export async function PATCH(
                 `UPDATE account_info 
                 SET title = ?, message = ?, priority = ?
                 WHERE id = ?`,
-                [title, message, priority, params.id]
+                [title, message, priority, context.params.id]
             );
 
             // Update the notice as well
@@ -42,7 +42,7 @@ export async function PATCH(
                 ) AND title = (
                     SELECT title FROM account_info WHERE id = ?
                 )`,
-                [title, message, priority === 'urgent' ? 'security' : 'info', params.id, params.id]
+                [title, message, priority === 'urgent' ? 'security' : 'info', context.params.id, context.params.id]
             );
 
             return NextResponse.json({
@@ -62,8 +62,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-    request: Request,
-    { params }: { params: { id: string } }
+    request: NextRequest,
+    context: { params: { id: string } }
 ) {
     try {
         const headersList = headers();
@@ -90,13 +90,13 @@ export async function DELETE(
                 ) AND title = (
                     SELECT title FROM account_info WHERE id = ?
                 )`,
-                [params.id, params.id]
+                [context.params.id, context.params.id]
             );
 
             // Then delete from account_info
             await connection.query(
                 'DELETE FROM account_info WHERE id = ?',
-                [params.id]
+                [context.params.id]
             );
 
             return NextResponse.json({
