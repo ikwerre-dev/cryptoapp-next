@@ -16,19 +16,19 @@ interface WalletAddress {
     created_at: string;
 }
 
-interface PageParams {
-    id: string;
+interface Props {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
+function EditWalletPageClient({ id }: { id: string }) {
 
-export default function EditWalletPage({ params }: { params: PageParams }) {
-    const resolvedParams = params;
-    
+
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<WalletAddress>({
-        id: parseInt(resolvedParams.id),
+        id: parseInt(id),
         currency: '',
         address: '',
         label: '',
@@ -45,11 +45,11 @@ export default function EditWalletPage({ params }: { params: PageParams }) {
         if (!userDataLoading && userData?.user?.is_admin) {
             fetchWallet();
         }
-    }, [userData, userDataLoading, router, resolvedParams.id]);
+    }, [userData, userDataLoading, router, id]);
 
     const fetchWallet = async () => {
         try {
-            const response = await fetch(`/api/admin/wallets/${resolvedParams.id}`, {
+            const response = await fetch(`/api/admin/wallets/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${Cookies.get('auth-token')}`
                 }
@@ -67,7 +67,7 @@ export default function EditWalletPage({ params }: { params: PageParams }) {
         e.preventDefault();
         setSaving(true);
         try {
-            const response = await fetch(`/api/admin/wallets/${resolvedParams.id}`, {
+            const response = await fetch(`/api/admin/wallets/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get('auth-token')}`,
@@ -174,4 +174,11 @@ export default function EditWalletPage({ params }: { params: PageParams }) {
             </div>
         </div>
     );
+}
+
+export default async function EditWalletPage({ params, searchParams }: Props) {
+    const resolvedParams = await params;
+    await searchParams;  
+
+    return <EditWalletPageClient id={resolvedParams.id} />;
 }

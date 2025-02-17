@@ -21,19 +21,19 @@ interface InvestmentPackage {
     is_active: boolean;
 }
 
-interface PageParams {
-    id: string;
+
+
+interface Props {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
-
-export default function EditInvestmentPackage({ params }: { params: PageParams }) {
-    const resolvedParams = params;
-
+function EditInvestmentPackageClient({ id }: { id: string }) {
     const router = useRouter();
     const { userData, isLoading: userDataLoading } = useUserData();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<InvestmentPackage>({
-        id: parseInt(resolvedParams.id),
+        id: parseInt(id),
         name: '',
         description: '',
         duration_days: 0,
@@ -58,7 +58,7 @@ export default function EditInvestmentPackage({ params }: { params: PageParams }
         if (!userDataLoading && userData?.user?.is_admin) {
             fetchPackage();
         }
-    }, [userData, userDataLoading, router, resolvedParams.id]);
+    }, [userData, userDataLoading, router, id]);
 
     useEffect(() => {
         // Convert features string to array when formData changes
@@ -110,11 +110,11 @@ export default function EditInvestmentPackage({ params }: { params: PageParams }
         if (!userDataLoading && userData?.user?.is_admin) {
             fetchPackage();
         }
-    }, [userData, userDataLoading, router, resolvedParams.id]);
+    }, [userData, userDataLoading, router, id]);
 
     const fetchPackage = async () => {
         try {
-            const response = await fetch(`/api/admin/investment-packages/${resolvedParams.id}`, {
+            const response = await fetch(`/api/admin/investment-packages/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${Cookies.get('auth-token')}`
                 }
@@ -355,4 +355,12 @@ export default function EditInvestmentPackage({ params }: { params: PageParams }
             </div>
         </div>
     );
+}
+
+
+export default async function EditInvestmentPackage({ params, searchParams }: Props) {
+    const resolvedParams = await params;
+    await searchParams;
+
+    return <EditInvestmentPackageClient id={resolvedParams.id} />;
 }

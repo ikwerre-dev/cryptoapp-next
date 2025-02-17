@@ -228,7 +228,7 @@ const EditTradingBotClient = ({ id }: { id: string }) => {
 
 export default async function EditTradingBot({ params, searchParams }: Props) {
     const resolvedParams = await params;
-    await searchParams; // We need to await this even if we don't use it
+    await searchParams;  
 
     return <EditTradingBotClient id={resolvedParams.id} />;
 }
