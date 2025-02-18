@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AuthLayout } from "@/components/AuthLayout";
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 export default function Register() {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const { signup, isLoading } = useAuth();
     const [error, setError] = useState('');
+    const [verificationCode, setVerificationCode] = useState('');
+    const [generatedCode, setGeneratedCode] = useState('');
+    const [showVerification, setShowVerification] = useState(false);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -19,9 +23,85 @@ export default function Register() {
         country: ''
     });
 
+    // Generate random verification code
+    const generateVerificationCode = () => {
+        console.log('genrated')
+        const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+        setGeneratedCode(code);
+        setShowVerification(true);
+
+        // Draw the code on canvas
+        if (canvasRef.current) {
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#1A1A1A';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Add noise
+                for (let i = 0; i < 50; i++) {
+                    ctx.fillStyle = `rgba(139, 92, 246, ${Math.random() * 0.5})`;
+                    ctx.fillRect(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height,
+                        2,
+                        2
+                    );
+                }
+
+                // Draw text
+                ctx.font = 'bold 24px monospace';
+                ctx.fillStyle = '#8B5CF6';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Draw each character with slight rotation
+                const chars = code.split('');
+                chars.forEach((char, i) => {
+                    const x = canvas.width / 2 - ((chars.length - 1) * 15) + (i * 30);
+                    const y = canvas.height / 2;
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate((Math.random() - 0.5) * 0.5);
+                    ctx.fillText(char, 0, 0);
+                    ctx.restore();
+                });
+
+                // Add lines
+                ctx.strokeStyle = 'rgba(139, 92, 246, 0.3)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < 3; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, Math.random() * canvas.height);
+                    ctx.bezierCurveTo(
+                        canvas.width / 3, Math.random() * canvas.height,
+                        canvas.width * 2/3, Math.random() * canvas.height,
+                        canvas.width, Math.random() * canvas.height
+                    );
+                    ctx.stroke();
+                }
+            }
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+
+        if (!showVerification) {
+            setShowVerification(true);
+            // Use setTimeout to ensure state is updated before generating code
+            setTimeout(() => {
+                generateVerificationCode();
+            }, 0);
+            return;
+        }
+
+        if (verificationCode !== generatedCode) {
+            setError('Invalid verification code');
+            return;
+        }
 
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
@@ -51,11 +131,7 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout 
-            title="Create your account" 
-            subtitle="Start your crypto journey today"
-            type="register"
-        >
+        <AuthLayout title="Create your account" subtitle="Start your crypto journey today" type="register">
             <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                     <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/50 text-red-500 text-sm">
@@ -163,6 +239,41 @@ export default function Register() {
                     />
                 </div>
 
+                {showVerification && (
+                    <div className="space-y-4">
+                        <div className="p-4 bg-purple-500/10 border border-purple-500/50 rounded-lg text-center">
+                            <canvas
+                                ref={canvasRef}
+                                width="200"
+                                height="80"
+                                className="mx-auto mb-2"
+                            />
+                            <p className="text-sm text-gray-400">
+                                Please enter the code shown above to verify you're human
+                            </p>
+                            <button
+                                type="button"
+                                onClick={generateVerificationCode}
+                                className="text-sm text-purple-500 hover:text-purple-400 mt-2"
+                            >
+                                Generate new code
+                            </button>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-1.5">
+                                Verification Code
+                            </label>
+                            <Input
+                                type="text"
+                                value={verificationCode}
+                                onChange={(e) => setVerificationCode(e.target.value.toUpperCase())}
+                                placeholder="Enter the code shown above"
+                                required
+                            />
+                        </div>
+                    </div>
+                )}
+
                 <div className="mt-2">
                     <label className="flex items-center">
                         <input 
@@ -186,9 +297,15 @@ export default function Register() {
                 <Button
                     type="submit"
                     disabled={isLoading}
+
                     className="w-full mt-6"
                 >
-                    {isLoading ? "Creating account..." : "Create account"}
+                    {!showVerification 
+                        ? "Continue" 
+                        : isLoading 
+                            ? "Creating account..." 
+                            : "Create account"
+                    }
                 </Button>
             </form>
         </AuthLayout>
