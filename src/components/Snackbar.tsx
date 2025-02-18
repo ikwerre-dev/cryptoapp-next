@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 interface DepositNotification {
     country: string;
     amount: number;
+    action: string;
 }
 
 export function Snackbar() {
@@ -13,13 +14,25 @@ export function Snackbar() {
     const [show, setShow] = useState(false);
 
     const countries = ["USA", "UK", "Canada", "Australia", "Germany", "France", "Japan", "China", "India", "Turkey", "Maurice", "Sudan", "Macedonia", "Tunisia", "Sierra Leone", "Guernsey", "Armenia"];
+    
+    const actions = [
+        "just deposited",
+        "just withdrew",
+        "just invested",
+        "just closed a trade of"
+    ];
 
     useEffect(() => {
         const showNotification = () => {
             const randomCountry = countries[Math.floor(Math.random() * countries.length)];
             const randomAmount = Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000;
+            const randomAction = actions[Math.floor(Math.random() * actions.length)];
 
-            setNotification({ country: randomCountry, amount: randomAmount });
+            setNotification({ 
+                country: randomCountry, 
+                amount: randomAmount,
+                action: randomAction 
+            });
             setShow(true);
 
             setTimeout(() => {
@@ -45,7 +58,7 @@ export function Snackbar() {
                 >
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                     <p className="text-lg font-bold md:text-sm md:font-medium">
-                        Someone in {notification.country} just deposited ${notification.amount.toLocaleString()}.00
+                        Someone in {notification.country} {notification.action} ${notification.amount.toLocaleString()}.00
                     </p>
                 </motion.div>
             )}

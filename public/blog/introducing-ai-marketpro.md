@@ -133,7 +133,7 @@ We believe in complete transparency:
 
 ## Getting Started
 
-1. Create your account at [ai-marketpro.space](https://ai-marketpro.space)
+1. Create your account at [bitfox-app.pro](https://bitfox-app.pro)
 2. Complete our streamlined verification process
 3. Fund your account through multiple payment options
 4. Choose your preferred trading strategy or investment package
@@ -162,7 +162,7 @@ For a limited time, new users can enjoy:
 - Priority customer support
 - Educational resource bundle
 
-[Sign Up Now](https://ai-marketpro.space/register) | [Learn More](https://ai-marketpro.space/about)
+[Sign Up Now](https://bitfox-app.pro/register) | [Learn More](https://bitfox-app.pro/about)
 
 ---
 
