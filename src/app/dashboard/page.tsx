@@ -225,7 +225,7 @@ export default function DashboardPage() {
               <div className="flex border-b border-gray-800/50  flex-col">
                 <div className="mb-6 flex items-center justify-between">
                   <div className="text-lg font-medium">Assets</div>
-                  <Link href="/dashboard/portfolio" className="text-sm text-gray-400 hover:text-gray-300">See All</Link>
+                  <Link href="/dashboard/portfolio" className="text-sm text-gray-400 hover:text-gray-300">View All</Link>
                 </div>
 
                 <div className="mb-8 grid grid-cols-2 gap-3">
