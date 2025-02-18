@@ -13,7 +13,8 @@ import {
     ChartCandlestickIcon,
     Coins,
     Home,
-    HistoryIcon
+    HistoryIcon,
+    Headphones
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useSidebar } from '@/context/SidebarContext';
@@ -35,8 +36,10 @@ export function Sidebar() {
         { icon: Wallet, label: 'Swap', href: '/dashboard/transactions/swap' },
         { icon: HistoryIcon, label: 'Transaction', href: '/dashboard/transactions' },
         { icon: Eye, label: 'Watchlist', href: '/dashboard/watchlist' },
+        ...(process.env.NEXT_PUBLIC_WIDGET_LINK ? [
+            { icon: Headphones, label: 'Support', href: '/dashboard/contact' }
+        ] : []),
         { icon: UserCircle, label: 'Profile', href: '/dashboard/profile' }
-
     ];
     const mobileMenuItems = [
         { icon: Home, label: 'Home', href: '/dashboard' },

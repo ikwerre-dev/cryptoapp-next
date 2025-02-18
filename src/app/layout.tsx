@@ -66,11 +66,14 @@ export const metadata: Metadata = {
   },
 };
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const widget_id = process.env.NEXT_PUBLIC_SUPPORT_WIDGET_ID?.trim();
   return (
     <html lang="en">
       <body className={`${nunito.variable} font-sans antialiased`}>
@@ -79,10 +82,12 @@ export default function RootLayout({
             <LenisProvider>{children}</LenisProvider>
           </SidebarProvider>
         </AuthProvider>
-        <Script 
-          src="//code.jivosite.com/widget/649ZxutFfl" 
-          strategy="afterInteractive"
-        />
+        {widget_id && widget_id.length > 0 && (
+          <Script
+            src={`//code.jivosite.com/widget/${widget_id}`}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );
