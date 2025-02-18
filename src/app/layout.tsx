@@ -4,6 +4,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 import { LenisProvider } from "@/context/LenisProvider";
 import { SidebarProvider } from '@/context/SidebarContext'
+import Script from 'next/script';
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -78,6 +79,10 @@ export default function RootLayout({
             <LenisProvider>{children}</LenisProvider>
           </SidebarProvider>
         </AuthProvider>
+        <Script 
+          src="//code.jivosite.com/widget/649ZxutFfl" 
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

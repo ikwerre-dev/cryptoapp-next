@@ -20,7 +20,7 @@ import { AccountInfo } from "@/components/dashboard/AccountInfo";
 export default function DashboardPage() {
   const [showBalance, setShowBalance] = useState(true)
   const toggleBalance = () => setShowBalance(!showBalance)
-  const { userData, refetch, totalBalance } = useUserData()
+  const { userData, refetch, isLoading, totalBalance } = useUserData()
   const { calculateUserAssetValue } = useCryptoData()
   const [btcValue, setBtcValue] = useState(0)
   const [isRefetching, setIsRefetching] = useState(false)
@@ -149,9 +149,13 @@ export default function DashboardPage() {
                   <div className="text-sm text-gray-400">Total asset value</div>
                   <div className="flex items-center gap-2">
                     <div className="text-4xl font-bold tracking-tight">
-                      {showBalance
-                        ? `$ ${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                        : "$ ••••••••••"}
+                      {isLoading ? (
+                        <div className="h-8 w-48 animate-pulse rounded-md bg-gray-700/50" />
+                      ) : (
+                        showBalance
+                          ? `$ ${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : "$ ••••••••••"
+                      )}
                     </div>
                   </div>
                   <div className="text-sm text-gray-400">≈ {btcValue} BTC</div>
