@@ -1,4 +1,6 @@
-const Logo = () => (
+import { FC } from 'react';
+
+const Logo: FC = () => (
     <div className="flex items-center space-x-2">
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -10,8 +12,10 @@ const Logo = () => (
                 fill="white"
             />
         </svg>
-        <span className="text-xl font-bold text-white">AI-Trader</span>
+        <span className="text-xl font-bold text-white">
+            {process.env.NEXT_PUBLIC_APP_NAME || ''}
+        </span>
     </div>
-)
+);
 
 export default Logo;
