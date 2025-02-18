@@ -38,7 +38,7 @@ export default function Register() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = '#1A1A1A';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+
                 // Add noise
                 for (let i = 0; i < 50; i++) {
                     ctx.fillStyle = `rgba(139, 92, 246, ${Math.random() * 0.5})`;
@@ -55,7 +55,7 @@ export default function Register() {
                 ctx.fillStyle = '#8B5CF6';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                
+
                 // Draw each character with slight rotation
                 const chars = code.split('');
                 chars.forEach((char, i) => {
@@ -76,7 +76,7 @@ export default function Register() {
                     ctx.moveTo(0, Math.random() * canvas.height);
                     ctx.bezierCurveTo(
                         canvas.width / 3, Math.random() * canvas.height,
-                        canvas.width * 2/3, Math.random() * canvas.height,
+                        canvas.width * 2 / 3, Math.random() * canvas.height,
                         canvas.width, Math.random() * canvas.height
                     );
                     ctx.stroke();
@@ -91,7 +91,6 @@ export default function Register() {
 
         if (!showVerification) {
             setShowVerification(true);
-            // Use setTimeout to ensure state is updated before generating code
             setTimeout(() => {
                 generateVerificationCode();
             }, 0);
@@ -107,10 +106,10 @@ export default function Register() {
             setError('Passwords do not match');
             return;
         }
-        
+
         try {
             await signup(
-                formData.email, 
+                formData.email,
                 formData.password,
                 formData.first_name,
                 formData.last_name,
@@ -276,10 +275,10 @@ export default function Register() {
 
                 <div className="mt-2">
                     <label className="flex items-center">
-                        <input 
-                            type="checkbox" 
+                        <input
+                            type="checkbox"
                             required
-                            className="w-4 h-4 rounded border-gray-800 text-[#8B5CF6] focus:ring-[#8B5CF6]" 
+                            className="w-4 h-4 rounded border-gray-800 text-[#8B5CF6] focus:ring-[#8B5CF6]"
                         />
                         <span className="ml-2 text-sm text-gray-400">
                             I agree to the{" "}
@@ -300,10 +299,10 @@ export default function Register() {
 
                     className="w-full mt-6"
                 >
-                    {!showVerification 
-                        ? "Continue" 
-                        : isLoading 
-                            ? "Creating account..." 
+                    {!showVerification
+                        ? "Continue"
+                        : isLoading
+                            ? "Creating account..."
                             : "Create account"
                     }
                 </Button>
