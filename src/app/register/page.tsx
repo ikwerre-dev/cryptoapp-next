@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState,  useRef } from "react";
 import { AuthLayout } from "@/components/AuthLayout";
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';

@@ -3,7 +3,7 @@ import pool from "@/lib/db";
 import { headers } from "next/headers";
 import jwt from "jsonwebtoken";
 
-export async function GET(req: Request) {
+export async function GET() {
     try {
         const headersList = headers();
         const authHeader = (await headersList).get("authorization");
@@ -11,8 +11,7 @@ export async function GET(req: Request) {
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-        console.log(req)
-
+ 
         const token = authHeader.split(" ")[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number };
 

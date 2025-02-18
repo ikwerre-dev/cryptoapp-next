@@ -4,12 +4,11 @@ import { headers } from "next/headers";
 import jwt from "jsonwebtoken";
 import { ResultSetHeader } from 'mysql2';
 
-export async function GET(req: Request) {
+export async function GET() {
     try {
         const headersList = headers();
         const authHeader = (await headersList).get("authorization");
-        console.log(req)
-
+ 
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
