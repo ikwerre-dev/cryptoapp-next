@@ -80,9 +80,9 @@ export function Sidebar() {
                                 onClick={toggle}
                                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors
                                 ${pathname === item.href || (item.href !== '/dashboard' && item.href !== '/dashboard/transactions' && pathname?.startsWith(item.href))
-                                    ? 'bg-white/10 text-white'
-                                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                                }`}
+                                        ? 'bg-white/10 text-white'
+                                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                    }`}
                             >
                                 <item.icon size={20} />
                                 <span>{item.label}</span>
