@@ -127,7 +127,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       Cookies.set('auth-token', data.token, { expires: 7 });
       setUser(data.user);
       setIsAuthenticated(true);
-      router.push(data.user.is_admin ? '/admin' : '/dashboard');
+
+      // Modified navigation logic
+      const destination = data.user.is_admin ? '/admin' : '/dashboard';
+      router.push(destination);
+
+      setTimeout(() => {
+        if (window.location.pathname !== destination) {
+          window.location.href = destination;
+        }
+      }, 500);
+
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -170,7 +180,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       Cookies.set('auth-token', data.token, { expires: 7 });
       setUser(data.user);
       setIsAuthenticated(true);
+
+      // Modified navigation logic
       router.push('/dashboard');
+
+      // Force reload after a short delay if still on the same page
+      setTimeout(() => {
+        if (window.location.pathname !== '/dashboard') {
+          window.location.href = '/dashboard';
+        }
+      }, 500);
+
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;
@@ -178,12 +198,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   };
-
   const logout = () => {
     Cookies.remove('auth-token');
     setUser(null);
     setIsAuthenticated(false);
-    router.push('/login');
+
+    const destination = '/login';
+    router.push(destination);
+
+    setTimeout(() => {
+      if (window.location.pathname !== destination) {
+        window.location.href = destination;
+      }
+    }, 500);
   };
 
   const refreshUserData = async () => {
