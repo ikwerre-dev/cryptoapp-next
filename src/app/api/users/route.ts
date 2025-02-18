@@ -70,7 +70,7 @@ interface Wallet extends RowDataPacket {
     label: string;
     is_default: boolean;
 }
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
     try {
         // Verify authentication
         const headersList = headers();
@@ -82,7 +82,6 @@ export async function GET(req: Request) {
                 { status: 401 }
             );
         }
-        console.log(req)
         const token = authHeader.split(' ')[1];
         let decoded;
 
