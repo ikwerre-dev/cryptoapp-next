@@ -38,6 +38,9 @@ export function Header() {
             <Link href="/dashboard" className="text-white hover:text-gray-300 text-center">
               Trade
             </Link>
+            <Link href="/login" className="text-white hover:text-gray-300 text-center">
+              Login
+            </Link>
 
 
             {!isAuthenticated ? (
