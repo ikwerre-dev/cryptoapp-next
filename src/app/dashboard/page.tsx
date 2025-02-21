@@ -148,13 +148,13 @@ export default function DashboardPage() {
                 <div className="flex flex-col gap-2 mb-4 lg:mb-0">
                   <div className="text-sm text-gray-400">Total asset value</div>
                   <div className="flex items-center gap-2">
-                    <div className="text-4xl font-bold tracking-tight">
+                    <div className="text-4xl flex flex-col font-bold tracking-tight">
                       {isLoading ? (
                         <div className="h-8 w-48 animate-pulse rounded-md bg-gray-700/50" />
                       ) : (
                         showBalance
-                          ? `$ ${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                          : "$ ••••••••••"
+                          ? `$${totalBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : "$••••••••••"
                       )}
                     </div>
                   </div>
