@@ -15,7 +15,7 @@ export default function SendPage({ searchParams }: { searchParams: Promise<{ sym
     const { cryptoData } = useCryptoData()
     const resolvedParams = use(searchParams)
     const [amount, setAmount] = useState("")
-    const [isUSD, setIsUSD] = useState(false)
+    const [isUSD, setIsUSD] = useState(true)
     const [address, setAddress] = useState("")
     const [error, setError] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -218,7 +218,12 @@ export default function SendPage({ searchParams }: { searchParams: Promise<{ sym
                                     <div className="bg-[#1A1A1A] p-4 rounded-lg space-y-3">
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-400">Gas Fee</span>
-                                            <span>{Number(gasPrice.split(' ')[0]).toFixed(6)} {selectedCrypto?.symbol}</span>
+
+                                            <span>
+                                                {process.env.NEXT_PUBLIC_FIXED_GAS === "true"
+                                                    ? `${process.env.NEXT_PUBLIC_FIXED_GAS_AMOUNT} ${process.env.NEXT_PUBLIC_GASFEE_CURRENCY}`
+                                                    : `${Number(gasPrice.split(' ')[0]).toFixed(6)} ${selectedCrypto?.symbol}`}
+                                            </span>
                                         </div>
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-400">Total</span>

@@ -14,6 +14,8 @@ export function AdminSidebar() {
         { href: '/admin', label: 'Dashboard', icon: BarChart3 },
         { href: '/admin/users', label: 'Users', icon: Users },
         { href: '/admin/transactions', label: 'Transactions', icon: RefreshCcw },
+        { href: '/admin/transactions/deposit', label: 'Deposits', icon: RefreshCcw },
+        { href: '/admin/transactions/withdrawals', label: 'Withdrawals', icon: RefreshCcw },
         { href: '/admin/investments/', label: 'Investment Plans', icon: Send },
         { href: '/admin/investments/recent', label: 'Recent Investments', icon: Send },
         { href: '/admin/bots', label: 'Bots', icon: Bot },

@@ -70,13 +70,41 @@ export async function PATCH(req: Request) {
         }
 
         const connection = await pool.getConnection();
+        await connection.beginTransaction();
+
         try {
+            // Get transaction details
+            const [transactions] = await connection.query(
+                'SELECT * FROM transactions WHERE id = ?',
+                [transaction_id]
+            ) as any;
+
+            if (!transactions.length) {
+                throw new Error('Transaction not found');
+            }
+
+            const transaction = transactions[0];
+
+            // Update transaction status
             await connection.query(
                 'UPDATE transactions SET status = ? WHERE id = ?',
                 [status, transaction_id]
             );
 
+            // If it's a deposit and status is being set to completed, update user balance
+            if (transaction.type === 'deposit' && status === 'completed') {
+                const balanceColumn = `${transaction.currency.toLowerCase()}_balance`;
+                await connection.query(
+                    `UPDATE users SET ${balanceColumn} = ${balanceColumn} + ? WHERE id = ?`,
+                    [transaction.amount, transaction.user_id]
+                );
+            }
+
+            await connection.commit();
             return NextResponse.json({ success: true });
+        } catch (error) {
+            await connection.rollback();
+            throw error;
         } finally {
             connection.release();
         }

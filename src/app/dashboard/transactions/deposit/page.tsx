@@ -113,7 +113,14 @@ export default function DepositPage({ searchParams }: { searchParams: Promise<{ 
     // Add isSubmitting state
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Add amount state
+    const [amount, setAmount] = useState("");
+
     const handleConfirmDeposit = async () => {
+        if (!amount) {
+             return;
+        }
+
         try {
             setIsSubmitting(true);
             const token = Cookies.get("auth-token")
@@ -124,7 +131,7 @@ export default function DepositPage({ searchParams }: { searchParams: Promise<{ 
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    amount: 0,
+                    amount: parseFloat(amount),
                     currency: selectedCrypto?.symbol,
                     address: selectedCrypto?.address,
                 })
@@ -136,7 +143,7 @@ export default function DepositPage({ searchParams }: { searchParams: Promise<{ 
             }
 
             await refetch();
-            router.push(`/dashboard/transactions/success?type=deposit&symbol=${selectedCrypto?.symbol}`);
+            router.push(`/dashboard/transactions/success?amount=${amount}&symbol=${selectedCrypto?.symbol}&type=deposit`);
         } catch (error) {
             console.error('Deposit creation failed:', error);
         } finally {
@@ -202,6 +209,18 @@ export default function DepositPage({ searchParams }: { searchParams: Promise<{ 
                                     <div className="bg-[#1A1A1A] p-4 rounded-lg">
                                         <div className="text-sm text-gray-400 mb-2">Network</div>
                                         <div className="font-medium">{selectedCrypto.name} Network ({selectedCrypto.symbol})</div>
+                                    </div>
+
+                                     <div className="bg-[#1A1A1A] p-4 rounded-lg">
+                                        <div className="text-sm text-gray-400 mb-2">Amount</div>
+                                        <input
+                                            type="number"
+                                            value={amount}
+                                            onChange={(e) => setAmount(e.target.value)}
+                                            placeholder={`Enter ${selectedCrypto?.symbol} amount`}
+                                            className="w-full bg-[#242424] text-white px-3 py-2 rounded-lg"
+                                            required
+                                        />
                                     </div>
 
                                     <div className="bg-orange-500/20 text-orange-500 p-4 rounded-lg text-sm">

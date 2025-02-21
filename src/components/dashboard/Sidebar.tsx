@@ -26,20 +26,42 @@ export function Sidebar() {
     const pathname = usePathname();
     const { logout } = useAuth();
     const menuItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-        { icon: BarChart2, label: 'Portfolio', href: '/dashboard/portfolio' },
-        { icon: ChartCandlestickIcon, label: 'AI Trading', href: '/dashboard/Aitrading' },
-        { icon: Coins, label: 'Invest', href: '/dashboard/invest' },
-        { icon: Wallet, label: 'Send', href: '/dashboard/transactions/send' },
-        { icon: Wallet, label: 'Deposit', href: '/dashboard/transactions/deposit' },
-        { icon: Wallet, label: 'P2P', href: '/dashboard/transactions/p2p' },
-        { icon: Wallet, label: 'Swap', href: '/dashboard/transactions/swap' },
-        { icon: HistoryIcon, label: 'Transaction', href: '/dashboard/transactions' },
-        { icon: Eye, label: 'Watchlist', href: '/dashboard/watchlist' },
+        ...(process.env.NEXT_PUBLIC_SHOW_DASHBOARD !== "false" ? [
+            { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' }
+        ] : []),
+        ...(process.env.NEXT_PUBLIC_SHOW_PORTFOLIO !== "false" ? [
+            { icon: BarChart2, label: 'Portfolio', href: '/dashboard/portfolio' }
+        ] : []),
+        ...(process.env.NEXT_PUBLIC_SHOW_AITRADING !== "false" ? [
+            { icon: ChartCandlestickIcon, label: 'AI Trading', href: '/dashboard/Aitrading' }
+        ] : []),
+        ...(process.env.NEXT_PUBLIC_SHOW_INVEST !== "false" ? [
+            { icon: Coins, label: 'Invest', href: '/dashboard/invest' }
+        ] : []),
+        ...(process.env.NEXT_PUBLIC_SHOW_SEND !== "false" ? [
+            { icon: Wallet, label: 'Send', href: '/dashboard/transactions/send' }
+        ] : []),
+        ...(process.env.NEXT_PUBLIC_SHOW_DEPOSIT !== "false" ? [
+            { icon: Wallet, label: 'Deposit', href: '/dashboard/transactions/deposit' }
+        ] : []),
+        ...(process.env.NEXT_PUBLIC_SHOW_P2P !== "false" ? [ 
+            { icon: Wallet, label: 'P2P', href: '/dashboard/transactions/p2p' }
+        ] : []),
+        ...(process.env.NEXT_PUBLIC_SHOW_SWAP !== "false" ? [ 
+            { icon: Wallet, label: 'Swap', href: '/dashboard/transactions/swap' }
+        ] : []),
+        ...(process.env.NEXT_PUBLIC_SHOW_TRANSACTIONS !== "false" ? [
+            { icon: HistoryIcon, label: 'Transaction', href: '/dashboard/transactions' }
+        ] : []),
+        ...(process.env.NEXT_PUBLIC_SHOW_WATCHLIST !== "false" ? [
+            { icon: Eye, label: 'Watchlist', href: '/dashboard/watchlist' }
+        ] : []),
         ...(process.env.NEXT_PUBLIC_WIDGET_LINK ? [
             { icon: Headphones, label: 'Support', href: '/dashboard/contact' }
         ] : []),
-        { icon: UserCircle, label: 'Profile', href: '/dashboard/profile' }
+        ...(process.env.NEXT_PUBLIC_SHOW_PROFILE !== "false" ? [
+            { icon: UserCircle, label: 'Profile', href: '/dashboard/profile' }
+        ] : [])
     ];
     const mobileMenuItems = [
         { icon: Home, label: 'Home', href: '/dashboard' },
